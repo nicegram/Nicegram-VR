@@ -1,11 +1,12 @@
 # Plan — remaining work, decomposed
 
-> **Status, 19 September 2026, later the same day.** P-01, P-02, P-03, P-04, P-05, P-06, P-07,
-> P-08 and P-17 are done and pushed; P-15 has its seam and not its wiring. **Open: P-09**
-> (device protocol — the headset was unreachable all day), **P-10** (sign in by code), **P-11**
-> and **P-12** (dictation, the largest gap against the request), **P-13** (message action bar),
-> **P-14** (gallery shortcuts), **P-15** (the DialogsActivity half), **P-16** (store metadata,
-> blocked on VRQ-001).
+> **Status, 19 September 2026, later the same day.** Done and pushed: P-01 … P-08, **P-11**
+> (dictation's provider layer and its own screen) and P-17. P-15 has its seam and not its wiring.
+> Open: **P-09** (device protocol — the headset was unreachable all day), **P-10** (sign in by
+> code), **P-12** (the composer trigger, the second half of dictation), **P-13** (message action
+> bar), **P-14** (gallery shortcuts), **P-15** (the `DialogsActivity` half), **P-16** (store
+> metadata, blocked on VRQ-001), and **P-18**, added today out of finding A-19 — the headset
+> strings reach no language pack, so the interface is English whatever the user chose.
 >
 > Every device acceptance below is still owed. Nothing in this repository has run on a headset.
 
@@ -326,6 +327,21 @@ persist it, stop the polling loop in `onPause`.
 
 ## P-11 · Dictation A — provider and settings — `VRQ-009`
 
+> **DONE, 19 September 2026.** The whole provider layer plus a screen that runs it end to end.
+> `org.telegram.vr.quest.speech`: `SpeechToText` (the five failures a user can act on),
+> `SpeechResponse` (pure parser over `results[].alternatives[].transcript`, plus HTTP status →
+> failure), `SpeechSettings` (endpoint, token and language in private prefs; `maskedToken`,
+> `endpointHost`), `HttpSpeechToText` (bearer in a **header**, never the query string; 10 s
+> connect, 30 s read), `VoiceRecorder` (16 kHz mono PCM, `VOICE_RECOGNITION`, 60 s cap, pure
+> RMS meter) and `DictationActivity` — a screen reachable from headset settings that records,
+> recognises and shows the text, with one sentence per failure and the recipient host named
+> before the first recording. Four settings rows added to `VrSettingsActivity`; the token row
+> starts empty on purpose, because a token on screen is a token in whatever the headset streams
+> to a TV. 13 new JVM tests, 28 green in the module.
+>
+> **Deliberately not done:** the composer trigger, which is P-12 and needs a device. The screen
+> exists so that step is small instead of speculative.
+
 **Fixes:** the largest gap against the request. **Estimate:** three days.
 
 **Design constraint from [production-setup.md](production-setup.md) and SECURITY.md:** no
@@ -456,6 +472,29 @@ comment** — the earlier decision not to write them from memory stands.
 `.md` changes without its `.html`; every `vr_*` string matches the registry.
 
 ---
+
+---
+
+## P-18 · Put the headset strings into the language pack — from `A-19`
+
+**Estimate:** half a day, plus whoever owns the translation platform.
+
+**Why this exists.** `localeFilters += ["zz"]` (`TMessagesProj_AppQuest/build.gradle:124`)
+strips every Android locale from the package, so a `values-<lang>/` folder in this module is
+compiled, merged and then dropped — measured on the 19 September debug APK, where
+`aapt2 dump configurations` reports no locale config at all. Reading the strings through
+`LocaleController.getString(res)` is already done (A-19); what remains is the other half, which
+no code change can supply.
+
+**Do.** Take the 72 keys of `TMessagesProj_AppQuest/src/main/res/values/strings_vr.xml` and load
+them into the Nicegram language pack under exactly those resource entry names. The Russian
+source text is in git history at `7a54dbba` and its successors — it was written for these keys
+and should not be re-translated from scratch.
+
+**Done when.** With the app language set to Russian, the headset settings screen, the silence
+rules, the digest and the dictation screen read Russian, and with it set to English they read
+the resource text. Both checked on a device, because the language pack is fetched at runtime and
+cannot be checked from a build. *Device.*
 
 ## What this plan does not include, on purpose
 

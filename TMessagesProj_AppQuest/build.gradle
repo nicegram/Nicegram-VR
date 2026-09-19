@@ -32,6 +32,10 @@ dependencies {
     implementation files('../TMessagesProj/libs/libgsaverification-client.aar')
     // The silence rule is the product, so it is tested on the JVM and runs on every push.
     testImplementation 'junit:junit:4.13.2'
+    // org.json ships with Android as stubs that throw in a JVM test. The real
+    // implementation on the test classpath is what lets the response parser be
+    // tested at all — the alternative is a hand-rolled parser nobody should trust.
+    testImplementation 'org.json:json:20231013'
 }
 
 // The keys, and only the keys. Everything else in this repository is complete without them.

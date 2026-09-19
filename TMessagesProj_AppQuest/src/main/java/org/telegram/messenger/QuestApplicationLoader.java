@@ -38,13 +38,13 @@ public class QuestApplicationLoader extends ApplicationLoader {
         VrEntryPoints.installSilenceRow(new VrEntryPoints.SettingsRow() {
             @Override
             public CharSequence title() {
-                return getString(app.nicegram.vr.R.string.vr_silence_title);
+                return LocaleController.getString(app.nicegram.vr.R.string.vr_silence_title);
             }
 
             @Override
             public CharSequence value() {
                 final int n = SilenceRulesActivity.count(org.telegram.messenger.UserConfig.selectedAccount);
-                return n == 0 ? null : getString(app.nicegram.vr.R.string.vr_silence_count, n);
+                return n == 0 ? null : LocaleController.formatString(app.nicegram.vr.R.string.vr_silence_count, n);
             }
 
             @Override
@@ -55,14 +55,14 @@ public class QuestApplicationLoader extends ApplicationLoader {
         VrEntryPoints.installDigestRow(new VrEntryPoints.SettingsRow() {
             @Override
             public CharSequence title() {
-                return getString(app.nicegram.vr.R.string.vr_digest_title);
+                return LocaleController.getString(app.nicegram.vr.R.string.vr_digest_title);
             }
 
             @Override
             public CharSequence value() {
                 final org.telegram.vr.quest.Digest digest = QuestRuntime.digest();
                 final int chats = digest == null ? 0 : digest.chatCount();
-                return chats == 0 ? null : getString(app.nicegram.vr.R.string.vr_digest_row_value, chats);
+                return chats == 0 ? null : LocaleController.formatString(app.nicegram.vr.R.string.vr_digest_row_value, chats);
             }
 
             @Override
@@ -73,7 +73,7 @@ public class QuestApplicationLoader extends ApplicationLoader {
         VrEntryPoints.installHeadsetRow(new VrEntryPoints.SettingsRow() {
             @Override
             public CharSequence title() {
-                return getString(app.nicegram.vr.R.string.vr_settings_title);
+                return LocaleController.getString(app.nicegram.vr.R.string.vr_settings_title);
             }
 
             @Override

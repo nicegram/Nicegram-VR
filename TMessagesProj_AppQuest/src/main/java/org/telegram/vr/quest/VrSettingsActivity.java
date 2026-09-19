@@ -1,6 +1,7 @@
 package org.telegram.vr.quest;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -9,8 +10,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.LiteMode;
+import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.R;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.AlertDialog;
@@ -21,16 +24,20 @@ import org.telegram.ui.Cells.HeaderCell;
 import org.telegram.ui.Cells.TextCheckCell;
 import org.telegram.ui.Cells.TextInfoPrivacyCell;
 import org.telegram.ui.Cells.TextSettingsCell;
+import org.telegram.ui.Components.EditTextBoldCursor;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.RecyclerListView;
+import org.telegram.vr.quest.speech.DictationActivity;
+import org.telegram.vr.quest.speech.SpeechSettings;
 
 import java.util.ArrayList;
 
 /**
  * Nicegram VR — the settings a headset needs and a phone does not.
  *
- * Three things live here and nowhere else: how large the interface is drawn, how much motion
- * the client is allowed to spend, and the way back into the silence profile and the digest.
+ * Four things live here and nowhere else: how large the interface is drawn, how much motion
+ * the client is allowed to spend, the way back into the silence profile and the digest, and the
+ * recognition service dictation speaks to — which is the user's own, because none is built in.
  * Everything else a user might look for is upstream's own settings, unchanged.
  */
 public class VrSettingsActivity extends BaseFragment {
@@ -46,16 +53,21 @@ public class VrSettingsActivity extends BaseFragment {
     private static final int ID_SILENCE = 4;
     private static final int ID_DIGEST = 5;
     private static final int ID_RESET = 6;
+    private static final int ID_DICT_ENDPOINT = 7;
+    private static final int ID_DICT_TOKEN = 8;
+    private static final int ID_DICT_LANGUAGE = 9;
+    private static final int ID_DICT_TEST = 10;
 
     private RecyclerListView listView;
     private ListAdapter adapter;
     private final ArrayList<Item> items = new ArrayList<>();
+    private SpeechSettings speech;
 
     @Override
     public View createView(Context context) {
         actionBar.setBackButtonImage(R.drawable.ic_ab_back);
         actionBar.setAllowOverlayTitle(true);
-        actionBar.setTitle(context.getString(app.nicegram.vr.R.string.vr_settings_title));
+        actionBar.setTitle(LocaleController.getString(app.nicegram.vr.R.string.vr_settings_title));
         actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
             @Override
             public void onItemClick(int id) {
@@ -76,6 +88,7 @@ public class VrSettingsActivity extends BaseFragment {
         frameLayout.addView(listView, LayoutHelper.createFrameMatchParent());
         listView.setOnItemClickListener((view, position) -> onClick(position, view));
 
+        speech = new SpeechSettings(ApplicationLoader.applicationContext);
         rebuild();
         return fragmentView;
     }
@@ -116,6 +129,18 @@ public class VrSettingsActivity extends BaseFragment {
             case ID_RESET:
                 confirmReset(context);
                 break;
+            case ID_DICT_ENDPOINT:
+                askEndpoint(context);
+                break;
+            case ID_DICT_TOKEN:
+                askToken(context);
+                break;
+            case ID_DICT_LANGUAGE:
+                askLanguage(context);
+                break;
+            case ID_DICT_TEST:
+                presentFragment(new DictationActivity());
+                break;
             default:
                 break;
         }
@@ -127,12 +152,12 @@ public class VrSettingsActivity extends BaseFragment {
 
     private void chooseDensity(Context context) {
         final CharSequence[] labels = {
-                context.getString(app.nicegram.vr.R.string.vr_density_compact),
-                context.getString(app.nicegram.vr.R.string.vr_density_normal),
-                context.getString(app.nicegram.vr.R.string.vr_density_large),
+                LocaleController.getString(app.nicegram.vr.R.string.vr_density_compact),
+                LocaleController.getString(app.nicegram.vr.R.string.vr_density_normal),
+                LocaleController.getString(app.nicegram.vr.R.string.vr_density_large),
         };
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(context.getString(app.nicegram.vr.R.string.vr_density));
+        builder.setTitle(LocaleController.getString(app.nicegram.vr.R.string.vr_density));
         builder.setItems(labels, (dialog, which) -> {
             VrDensity.setStep(context, which);
             rebuild();
@@ -140,63 +165,145 @@ public class VrSettingsActivity extends BaseFragment {
             // kind of change that looks cheap and is not, so the screen says when it applies.
             showRestartNote(context);
         });
-        builder.setNegativeButton(context.getString(app.nicegram.vr.R.string.vr_cancel), null);
+        builder.setNegativeButton(LocaleController.getString(app.nicegram.vr.R.string.vr_cancel), null);
         showDialog(builder.create());
     }
 
     private void showRestartNote(Context context) {
         android.widget.Toast.makeText(context,
-                context.getString(app.nicegram.vr.R.string.vr_density_applies_next_start),
+                LocaleController.getString(app.nicegram.vr.R.string.vr_density_applies_next_start),
                 android.widget.Toast.LENGTH_LONG).show();
     }
 
     private void confirmReset(Context context) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(context.getString(app.nicegram.vr.R.string.vr_reset));
-        builder.setMessage(context.getString(app.nicegram.vr.R.string.vr_reset_text));
-        builder.setPositiveButton(context.getString(app.nicegram.vr.R.string.vr_reset_do), (dialog, which) -> {
+        builder.setTitle(LocaleController.getString(app.nicegram.vr.R.string.vr_reset));
+        builder.setMessage(LocaleController.getString(app.nicegram.vr.R.string.vr_reset_text));
+        builder.setPositiveButton(LocaleController.getString(app.nicegram.vr.R.string.vr_reset_do), (dialog, which) -> {
             VrDensity.setStep(context, VrDensity.STEP_NORMAL);
             VrPerformance.applyDefaults();
             rebuild();
             showRestartNote(context);
         });
-        builder.setNegativeButton(context.getString(app.nicegram.vr.R.string.vr_cancel), null);
+        builder.setNegativeButton(LocaleController.getString(app.nicegram.vr.R.string.vr_cancel), null);
         showDialog(builder.create());
     }
 
     private void rebuild() {
         final Context context = ApplicationLoader.applicationContext;
         items.clear();
-        items.add(Item.header(context.getString(app.nicegram.vr.R.string.vr_settings_display)));
-        items.add(Item.setting(ID_DENSITY, context.getString(app.nicegram.vr.R.string.vr_density),
+        items.add(Item.header(LocaleController.getString(app.nicegram.vr.R.string.vr_settings_display)));
+        items.add(Item.setting(ID_DENSITY, LocaleController.getString(app.nicegram.vr.R.string.vr_density),
                 densityLabel(context)));
-        items.add(Item.info(context.getString(app.nicegram.vr.R.string.vr_density_info)));
+        items.add(Item.info(LocaleController.getString(app.nicegram.vr.R.string.vr_density_info)));
 
-        items.add(Item.header(context.getString(app.nicegram.vr.R.string.vr_settings_motion)));
-        items.add(Item.check(ID_AUTOPLAY, context.getString(app.nicegram.vr.R.string.vr_autoplay), isAutoplayOn()));
-        items.add(Item.check(ID_STICKERS, context.getString(app.nicegram.vr.R.string.vr_stickers),
+        items.add(Item.header(LocaleController.getString(app.nicegram.vr.R.string.vr_settings_motion)));
+        items.add(Item.check(ID_AUTOPLAY, LocaleController.getString(app.nicegram.vr.R.string.vr_autoplay), isAutoplayOn()));
+        items.add(Item.check(ID_STICKERS, LocaleController.getString(app.nicegram.vr.R.string.vr_stickers),
                 LiteMode.isEnabled(LiteMode.FLAG_ANIMATED_STICKERS_CHAT)));
-        items.add(Item.info(context.getString(app.nicegram.vr.R.string.vr_motion_info)));
+        items.add(Item.info(LocaleController.getString(app.nicegram.vr.R.string.vr_motion_info)));
 
-        items.add(Item.header(context.getString(app.nicegram.vr.R.string.vr_settings_quiet)));
-        items.add(Item.setting(ID_SILENCE, context.getString(app.nicegram.vr.R.string.vr_silence_title), null));
-        items.add(Item.setting(ID_DIGEST, context.getString(app.nicegram.vr.R.string.vr_digest_title), null));
-        items.add(Item.setting(ID_RESET, context.getString(app.nicegram.vr.R.string.vr_reset), null));
-        items.add(Item.info(context.getString(app.nicegram.vr.R.string.vr_silence_note)));
+        items.add(Item.header(LocaleController.getString(app.nicegram.vr.R.string.vr_settings_quiet)));
+        items.add(Item.setting(ID_SILENCE, LocaleController.getString(app.nicegram.vr.R.string.vr_silence_title), null));
+        items.add(Item.setting(ID_DIGEST, LocaleController.getString(app.nicegram.vr.R.string.vr_digest_title), null));
+        items.add(Item.setting(ID_RESET, LocaleController.getString(app.nicegram.vr.R.string.vr_reset), null));
+        items.add(Item.info(LocaleController.getString(app.nicegram.vr.R.string.vr_silence_note)));
+
+        items.add(Item.header(LocaleController.getString(app.nicegram.vr.R.string.vr_settings_dictation)));
+        items.add(Item.setting(ID_DICT_ENDPOINT,
+                LocaleController.getString(app.nicegram.vr.R.string.vr_dictation_endpoint),
+                // The host, never the whole URL: a path can carry a token and this row is on
+                // screen whenever anyone opens settings.
+                orNotSet(context, SpeechSettings.endpointHost(speech.endpoint()))));
+        items.add(Item.setting(ID_DICT_TOKEN,
+                LocaleController.getString(app.nicegram.vr.R.string.vr_dictation_token),
+                orNotSet(context, SpeechSettings.maskedToken(speech.token()))));
+        items.add(Item.setting(ID_DICT_LANGUAGE,
+                LocaleController.getString(app.nicegram.vr.R.string.vr_dictation_language),
+                orNotSet(context, speech.language())));
+        items.add(Item.setting(ID_DICT_TEST,
+                LocaleController.getString(app.nicegram.vr.R.string.vr_dictation_test), null));
+        items.add(Item.info(LocaleController.getString(app.nicegram.vr.R.string.vr_dictation_info)));
 
         if (adapter != null) {
             adapter.notifyDataSetChanged();
         }
     }
 
+    /** One-argument sink for {@link #askText}; the platform's own is not guaranteed here. */
+    private interface Saver {
+        void accept(String value);
+    }
+
+    private static String orNotSet(Context context, String value) {
+        return TextUtils.isEmpty(value)
+                ? LocaleController.getString(app.nicegram.vr.R.string.vr_dictation_not_set)
+                : value;
+    }
+
+    /**
+     * One text dialog for the three dictation rows. The token's prefill is deliberately empty
+     * while the other two carry their current value: a token on screen is a token in a
+     * screenshot, in a recording, and in whatever the headset streams to a TV.
+     */
+    private void askText(Context context, int titleRes, int hintRes, String prefill,
+                         Saver onSave) {
+        final EditTextBoldCursor input = new EditTextBoldCursor(context);
+        input.setTextSize(android.util.TypedValue.COMPLEX_UNIT_DIP, 18);
+        input.setTextColor(Theme.getColor(Theme.key_dialogTextBlack));
+        input.setHintTextColor(Theme.getColor(Theme.key_dialogTextHint));
+        input.setHintText(context.getString(hintRes));
+        input.setSingleLine(true);
+        input.setPadding(AndroidUtilities.dp(24), AndroidUtilities.dp(8),
+                AndroidUtilities.dp(24), AndroidUtilities.dp(8));
+        if (!TextUtils.isEmpty(prefill)) {
+            input.setText(prefill);
+            input.setSelection(prefill.length());
+        }
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(context.getString(titleRes));
+        builder.setView(input);
+        builder.setPositiveButton(LocaleController.getString(app.nicegram.vr.R.string.vr_save), (dialog, which) -> {
+            onSave.accept(input.getText() == null ? "" : input.getText().toString().trim());
+            rebuild();
+        });
+        builder.setNegativeButton(LocaleController.getString(app.nicegram.vr.R.string.vr_cancel), null);
+        showDialog(builder.create());
+    }
+
+    private void askEndpoint(Context context) {
+        askText(context, app.nicegram.vr.R.string.vr_dictation_endpoint,
+                app.nicegram.vr.R.string.vr_dictation_endpoint_hint,
+                speech.endpoint(), value -> speech.setEndpoint(value));
+    }
+
+    private void askToken(Context context) {
+        askText(context, app.nicegram.vr.R.string.vr_dictation_token,
+                app.nicegram.vr.R.string.vr_dictation_token_hint,
+                "", value -> {
+                    // Blank means "leave it alone", which is why the field starts empty. Clearing
+                    // a token is the reset row's job, not an accidental empty save.
+                    if (!TextUtils.isEmpty(value)) {
+                        speech.setToken(value);
+                    }
+                });
+    }
+
+    private void askLanguage(Context context) {
+        askText(context, app.nicegram.vr.R.string.vr_dictation_language,
+                app.nicegram.vr.R.string.vr_dictation_language_hint,
+                speech.language(), value -> speech.setLanguage(value));
+    }
+
     private String densityLabel(Context context) {
         switch (VrDensity.step(context)) {
             case VrDensity.STEP_COMPACT:
-                return context.getString(app.nicegram.vr.R.string.vr_density_compact);
+                return LocaleController.getString(app.nicegram.vr.R.string.vr_density_compact);
             case VrDensity.STEP_LARGE:
-                return context.getString(app.nicegram.vr.R.string.vr_density_large);
+                return LocaleController.getString(app.nicegram.vr.R.string.vr_density_large);
             default:
-                return context.getString(app.nicegram.vr.R.string.vr_density_normal);
+                return LocaleController.getString(app.nicegram.vr.R.string.vr_density_normal);
         }
     }
 

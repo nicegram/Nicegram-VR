@@ -1,10 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Nicegram VR — strings of the headset build.
+  Nicegram VR — the headset module's own strings.
 
-  They live in this module rather than in Telegram's strings.xml on purpose: upstream's file is
-  synchronised from their cloud, so anything of ours added there is overwritten sooner or later.
-  Here they are ordinary Android resources and localise the ordinary way.
+  They live here rather than in Telegram's own strings.xml because upstream's file is
+  synchronised from their cloud and anything of ours added to it is overwritten sooner or later.
+
+  English only, on purpose, and translations do NOT belong beside this file. The package strips
+  every Android locale (`localeFilters += ["zz"]`, TMessagesProj_AppQuest/build.gradle:124)
+  because Telegram serves its own language packs at runtime, so a `values-ru/` here is compiled,
+  merged, and then dropped from the APK — measured on the debug build of 2026-09-19, where
+  `aapt2 dump resources` showed one `()` config per string and no locale config at all.
+
+  The channel that works: read every one of these through `LocaleController.getString(res)`,
+  which asks the language pack by this file's resource entry name and falls back to the English
+  below. Russian is added by loading these keys into the pack, not by adding a folder here. The
+  Russian source text that used to sit in `values-ru/strings_vr.xml` is in git history at
+  7a54dbba and its successors.
 -->
 <resources>
     <string name="vr_silence_title">Exceptions to the silence</string>
@@ -57,4 +68,32 @@
     <string name="vr_reset">Reset headset settings</string>
     <string name="vr_reset_text">Interface size and motion return to their defaults. Your exceptions are not touched.</string>
     <string name="vr_reset_do">Reset</string>
+
+    <!-- Dictation -->
+    <string name="vr_settings_dictation">Dictation</string>
+    <string name="vr_dictation_title">Dictation</string>
+    <string name="vr_dictation_test">Test dictation</string>
+    <string name="vr_dictation_start">Speak</string>
+    <string name="vr_dictation_stop">Stop</string>
+    <string name="vr_dictation_listening">Listening. Speak, then press Stop.</string>
+    <string name="vr_dictation_recognizing">Recognising\u2026</string>
+    <string name="vr_dictation_check">Read the text before you use it.</string>
+    <string name="vr_dictation_recipient">Recordings go to %1$s.</string>
+    <string name="vr_dictation_not_configured">No recognition service is set. Add its address and token below.</string>
+    <string name="vr_dictation_disclosure">A recording of your voice is sent to %1$s to be turned into text. It goes nowhere else, and the text is never sent to a chat on its own \u2014 you read it first.</string>
+    <string name="vr_dictation_allow">Allow the microphone</string>
+    <string name="vr_dictation_denied">The microphone is off. Dictation needs it; everything else in the app works without it.</string>
+    <string name="vr_dictation_busy">The microphone could not be opened. Another app may be holding it.</string>
+    <string name="vr_dictation_empty">Nothing was heard. Speak a little louder and try again.</string>
+    <string name="vr_dictation_network">The recognition service did not answer. Check the network and try again.</string>
+    <string name="vr_dictation_service_error">The recognition service refused the request.</string>
+    <string name="vr_dictation_service_said">The recognition service refused: %1$s</string>
+    <string name="vr_dictation_endpoint">Recognition address</string>
+    <string name="vr_dictation_endpoint_hint">https://\u2026</string>
+    <string name="vr_dictation_token">Access token</string>
+    <string name="vr_dictation_token_hint">Leave blank to keep the current one</string>
+    <string name="vr_dictation_language">Language</string>
+    <string name="vr_dictation_language_hint">en-US, ru-RU\u2026</string>
+    <string name="vr_dictation_not_set">not set</string>
+    <string name="vr_dictation_info">Dictation is off until you give it a service to speak to. The address and the token are yours: nothing is built into this app, and nothing is sent anywhere until you press Speak.</string>
 </resources>
