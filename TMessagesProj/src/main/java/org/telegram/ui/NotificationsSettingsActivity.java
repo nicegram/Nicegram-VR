@@ -117,6 +117,21 @@ public class NotificationsSettingsActivity extends BaseFragment implements Notif
     private int reactionsRow;
     private int vrSilenceRow; // Nicegram VR: headset-only rows, -1 on every other build
     private int vrDigestRow;
+    private int vrHeadsetRow;
+
+    // Nicegram VR: the fragments live in the headset module and are reached through the registry.
+    private org.telegram.vr.VrEntryPoints.SettingsRow vrRow(int position) {
+        if (position == vrSilenceRow) {
+            return org.telegram.vr.VrEntryPoints.silenceRow();
+        }
+        if (position == vrDigestRow) {
+            return org.telegram.vr.VrEntryPoints.digestRow();
+        }
+        if (position == vrHeadsetRow) {
+            return org.telegram.vr.VrEntryPoints.headsetRow();
+        }
+        return null;
+    }
     private int notificationsSection2Row;
 
     private int inappSectionRow;
@@ -187,6 +202,7 @@ public class NotificationsSettingsActivity extends BaseFragment implements Notif
         // Nicegram VR: the row exists only when the headset build installed a screen for it.
         vrSilenceRow = org.telegram.vr.VrEntryPoints.silenceRow() != null ? rowCount++ : -1;
         vrDigestRow = org.telegram.vr.VrEntryPoints.digestRow() != null ? rowCount++ : -1;
+        vrHeadsetRow = org.telegram.vr.VrEntryPoints.headsetRow() != null ? rowCount++ : -1;
         notificationsSection2Row = rowCount++;
 
         callsSectionRow = rowCount++;
@@ -581,11 +597,9 @@ public class NotificationsSettingsActivity extends BaseFragment implements Notif
                 } else {
                     presentFragment(new NotificationsCustomSettingsActivity(type, exceptions, autoExceptions));
                 }
-            } else if (position == vrSilenceRow || position == vrDigestRow) {
+            } else if (position == vrSilenceRow || position == vrDigestRow || position == vrHeadsetRow) {
                 // Nicegram VR: the fragments themselves live in the headset module.
-                final org.telegram.vr.VrEntryPoints.SettingsRow row = position == vrSilenceRow
-                        ? org.telegram.vr.VrEntryPoints.silenceRow()
-                        : org.telegram.vr.VrEntryPoints.digestRow();
+                final org.telegram.vr.VrEntryPoints.SettingsRow row = vrRow(position);
                 if (row != null) {
                     presentFragment(row.create());
                 }
@@ -1160,16 +1174,15 @@ public class NotificationsSettingsActivity extends BaseFragment implements Notif
                 case 5: {
                     TextSettingsCell textCell = (TextSettingsCell) holder.itemView;
                     SharedPreferences preferences = MessagesController.getNotificationsSettings(currentAccount);
-                    if (position == vrSilenceRow || position == vrDigestRow) {
+                    if (position == vrSilenceRow || position == vrDigestRow || position == vrHeadsetRow) {
                         // Nicegram VR: title and value come from the headset module, localised there.
-                        final org.telegram.vr.VrEntryPoints.SettingsRow row = position == vrSilenceRow
-                                ? org.telegram.vr.VrEntryPoints.silenceRow()
-                                : org.telegram.vr.VrEntryPoints.digestRow();
+                        final org.telegram.vr.VrEntryPoints.SettingsRow row = vrRow(position);
                         final CharSequence value = row == null ? null : row.value();
+                        final boolean divider = position != vrHeadsetRow;
                         if (value == null) {
-                            textCell.setText(row == null ? "" : row.title(), position == vrSilenceRow);
+                            textCell.setText(row == null ? "" : row.title(), divider);
                         } else {
-                            textCell.setTextAndValue(row.title(), value, position == vrSilenceRow);
+                            textCell.setTextAndValue(row.title(), value, divider);
                         }
                     } else if (position == callsRingtoneRow) {
                         String value = preferences.getString("CallsRingtone", getString("DefaultRingtone", R.string.DefaultRingtone));

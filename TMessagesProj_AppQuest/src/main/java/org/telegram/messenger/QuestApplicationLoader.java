@@ -8,6 +8,8 @@ import org.telegram.vr.quest.DigestActivity;
 import org.telegram.vr.quest.FirstRunActivity;
 import org.telegram.vr.quest.QuestRuntime;
 import org.telegram.vr.quest.SilenceRulesActivity;
+import org.telegram.vr.quest.VrPerformance;
+import org.telegram.vr.quest.VrSettingsActivity;
 import org.telegram.vr.quest.SilenceStore;
 import org.telegram.vr.quest.VrDensity;
 
@@ -28,6 +30,9 @@ public class QuestApplicationLoader extends ApplicationLoader {
         // would erase it. Installed instead, and read where the assignment happens.
         VrDisplay.install(() -> VrDensity.factor(this));
         VrPolicy.install(new SilenceGate(new SilenceStore(this)));
+        // A default, not a lock: 60 fps is a condition of publishing here and media that
+        // plays by itself is the cheapest way to lose it. The user can turn it back on.
+        VrPerformance.applyDefaultsOnce(this);
         // The exceptions screen lives in this module, so shared settings can only reach it
         // through the registry. Installed here, it appears as one row in Notifications.
         VrEntryPoints.installSilenceRow(new VrEntryPoints.SettingsRow() {
@@ -63,6 +68,22 @@ public class QuestApplicationLoader extends ApplicationLoader {
             @Override
             public org.telegram.ui.ActionBar.BaseFragment create() {
                 return new DigestActivity();
+            }
+        });
+        VrEntryPoints.installHeadsetRow(new VrEntryPoints.SettingsRow() {
+            @Override
+            public CharSequence title() {
+                return getString(app.nicegram.vr.R.string.vr_settings_title);
+            }
+
+            @Override
+            public CharSequence value() {
+                return null;
+            }
+
+            @Override
+            public org.telegram.ui.ActionBar.BaseFragment create() {
+                return new VrSettingsActivity();
             }
         });
         // Shown at most once per install, and it is the app's only chance to say that a closed

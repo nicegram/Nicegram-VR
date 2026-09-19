@@ -36,4 +36,20 @@
         <item quantity="many">%1$d сообщений</item>
         <item quantity="other">%1$d сообщения</item>
     </plurals>
+    <string name="vr_settings_title">Шлем</string>
+    <string name="vr_settings_display">Отображение</string>
+    <string name="vr_settings_motion">Движение</string>
+    <string name="vr_settings_quiet">Тишина</string>
+    <string name="vr_density">Размер интерфейса</string>
+    <string name="vr_density_compact">Плотный</string>
+    <string name="vr_density_normal">Обычный</string>
+    <string name="vr_density_large">Крупный</string>
+    <string name="vr_density_info">Масштабируются текст и строки. Цели, по которым вы целитесь, меньше не становятся: луч держится с точностью около градуса, и это свойство руки, а не настройка.</string>
+    <string name="vr_density_applies_next_start">Применится при следующем запуске.</string>
+    <string name="vr_autoplay">Воспроизводить медиа автоматически</string>
+    <string name="vr_stickers">Анимированные стикеры в чатах</string>
+    <string name="vr_motion_info">По умолчанию выключено. Медиа, играющее само, — самый дешёвый способ потерять частоту кадров, нужную шлему.</string>
+    <string name="vr_reset">Сбросить настройки шлема</string>
+    <string name="vr_reset_text">Размер интерфейса и движение вернутся к значениям по умолчанию. Исключения не затрагиваются.</string>
+    <string name="vr_reset_do">Сбросить</string>
 </resources>

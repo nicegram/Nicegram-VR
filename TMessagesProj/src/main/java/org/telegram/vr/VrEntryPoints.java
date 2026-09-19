@@ -35,7 +35,9 @@ public final class VrEntryPoints {
 
     private static volatile SettingsRow silenceRow;
     private static volatile SettingsRow digestRow;
+    private static volatile SettingsRow headsetRow;
     private static volatile FirstRun firstRun;
+    private static volatile StartupFilter startupFilter;
 
     private VrEntryPoints() {
     }
@@ -46,6 +48,37 @@ public final class VrEntryPoints {
 
     public static void installDigestRow(SettingsRow row) {
         digestRow = row;
+    }
+
+    public static void installHeadsetRow(SettingsRow row) {
+        headsetRow = row;
+    }
+
+    /**
+     * Which chat folder the client should open on. "Show me only these chats" is a folder with
+     * an include-only rule, and folders already exist upstream — what was missing is opening in
+     * one, so a headset session starts in the narrow view rather than in everything.
+     */
+    public interface StartupFilter {
+        /** @return the filter id to select once per session, or Integer.MIN_VALUE for none. */
+        int filterId();
+    }
+
+    public static void installStartupFilter(StartupFilter filter) {
+        startupFilter = filter;
+    }
+
+    /** Integer.MIN_VALUE on every build except a headset one that has the setting set. */
+    public static int startupFilterId() {
+        final StartupFilter f = startupFilter;
+        if (f == null) {
+            return Integer.MIN_VALUE;
+        }
+        try {
+            return f.filterId();
+        } catch (Throwable e) {
+            return Integer.MIN_VALUE;
+        }
     }
 
     public static void installFirstRun(FirstRun run) {
@@ -59,6 +92,16 @@ public final class VrEntryPoints {
 
     public static SettingsRow digestRow() {
         return digestRow;
+    }
+
+    /**
+     * Display and motion, which are not notification settings. It sits on the notifications
+     * screen all the same, because that is the one headset-specific place a user of this build
+     * already knows; a row of its own in the main settings list is the better home and is
+     * tracked as such.
+     */
+    public static SettingsRow headsetRow() {
+        return headsetRow;
     }
 
     /**

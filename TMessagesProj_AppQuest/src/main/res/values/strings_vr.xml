@@ -41,4 +41,20 @@
         <item quantity="one">%1$d message</item>
         <item quantity="other">%1$d messages</item>
     </plurals>
+    <string name="vr_settings_title">Headset</string>
+    <string name="vr_settings_display">Display</string>
+    <string name="vr_settings_motion">Motion</string>
+    <string name="vr_settings_quiet">Quiet</string>
+    <string name="vr_density">Interface size</string>
+    <string name="vr_density_compact">Compact</string>
+    <string name="vr_density_normal">Normal</string>
+    <string name="vr_density_large">Large</string>
+    <string name="vr_density_info">Text and rows scale. Targets you point at do not get smaller: a ray is only steady to about a degree, and that is a property of your hand rather than a preference.</string>
+    <string name="vr_density_applies_next_start">Applies the next time the app starts.</string>
+    <string name="vr_autoplay">Play media automatically</string>
+    <string name="vr_stickers">Animated stickers in chats</string>
+    <string name="vr_motion_info">Off by default. Media that plays by itself is the cheapest way to lose the frame rate a headset needs.</string>
+    <string name="vr_reset">Reset headset settings</string>
+    <string name="vr_reset_text">Interface size and motion return to their defaults. Your exceptions are not touched.</string>
+    <string name="vr_reset_do">Reset</string>
 </resources>
