@@ -1,13 +1,17 @@
 # Plan — remaining work, decomposed
 
 > **Status, 19 September 2026, later the same day.** Done and pushed: P-01 … P-08, **P-11**
-> (dictation's provider layer and its own screen) and P-17. P-15 has its seam and not its wiring.
-> Open: **P-09** (device protocol — **the first run happened**; what is left is behind sign-in),
+> (dictation's provider layer and its own screen) and P-17. P-15 has its seam and not its
+> wiring. The headset build now also starts in **one column** and carries the Nicegram name and
+> icon — both from what the panel actually looked like, not from a plan.
+>
+> Open: **P-09** (device protocol — the first run happened; what is left is behind sign-in),
 > **P-10** (sign in by code), **P-12** (the composer trigger, the second half of dictation),
 > **P-13** (message action bar), **P-14** (gallery shortcuts), **P-15** (the `DialogsActivity`
-> half), **P-16** (store metadata, blocked on VRQ-001), and **P-18**, added today out of finding
-> A-19 — the headset strings reach no language pack, so the interface is English whatever the
-> user chose.
+> half), **P-16** (store metadata, blocked on VRQ-001), **P-18** (load the headset strings into
+> the language pack — out of finding A-19, without which the interface is English whatever
+> language the user chose) and **P-19** (the rail of chat avatars beside an open chat, asked
+> for from inside the headset).
 >
 > **This build has now run on a Quest 3**, 19 September 2026: installed in 12 s, started without
 > a crash, and the density fix proved itself in the running interface — a button declared 56 dp
@@ -519,6 +523,60 @@ and should not be re-translated from scratch.
 rules, the digest and the dictation screen read Russian, and with it set to English they read
 the resource text. Both checked on a device, because the language pack is fetched at runtime and
 cannot be checked from a build. *Device.*
+
+---
+
+## P-19 · A rail of chat avatars beside an open chat — from the headset, 19 September
+
+**Estimate:** three to five days. **Depends on:** nothing; the single-column default (`VrLayout`)
+already shipped and this is the third mode beside it.
+
+**Why.** Asked for from inside the headset, in the same breath as the complaint that produced
+the single-column default: *«когда выбран чат, можно переключать в виде списка маленьких иконок
+слева»*. One column is right for reading; a rail is right for switching between a handful of
+chats without leaving the one you are in. They are different jobs, not competing defaults.
+
+**What it is not.** Not a flag. `SharedConfig.forceDisableTabletMode` gives exactly two states,
+and neither of them is a rail: tablet mode draws the full dialogs list at
+`max(dp(320), 35% of width)` (`AndroidUtilities.getTabletLeftFragmentSize`, `:3015`), which is
+the 616 px column that caused the complaint. A rail is a narrower left container **and** a
+different cell.
+
+**Where.**
+- Width: `AndroidUtilities.getTabletLeftFragmentSize` (`:3015`) is the one place the split is
+  sized, and `LaunchActivity`'s onMeasure (`:947`) is its only caller of consequence. A rail
+  width goes through a seam in the same shape as `VrDisplay` — inert everywhere else, returning
+  the upstream expression when not installed. Target: **72 dp** of avatar plus padding, which at
+  this build's 1.925 px/dp is 139 px of a 1280 px panel — 11%, against today's 48%.
+- Cell: `DialogCell` draws name, preview, time, badges. A rail needs avatar, unread badge and
+  nothing else. Do **not** try to make `DialogCell` do both with flags — add a compact cell in
+  the headset module and let `DialogsActivity` choose it through a seam, the way the settings
+  rows already work.
+- The rail must survive fragment changes, so it belongs in the left container that tablet mode
+  already keeps alive, not inside the chat fragment.
+
+**Behaviour.**
+- The rail appears only when a chat is open. With no chat open, the list is full width — there
+  is nothing to be beside.
+- Tapping an avatar switches the right side to that chat. The current chat's avatar is marked.
+- Unread count sits on the avatar. Muted chats show no badge, which is the whole point of this
+  client.
+- Order is the dialogs order, honouring the startup folder (P-15) when that lands.
+- The mode is a third choice in the headset settings Layout row, not a separate switch.
+
+**Traps.**
+- `isTablet()` must be **true** in this mode, because the rail reuses the two-container layout.
+  So the Layout setting maps: one column → `forceDisableTabletMode = true`; list and chat, or
+  rail → `false`, plus the rail width seam. Getting this mapping wrong leaves the two settings
+  disagreeing, which is exactly the failure P-15 was held back to avoid.
+- 72 dp avatars at 1.925 px/dp are 139 px bitmaps; check the frame budget with the list
+  scrolling, because the first device reading already showed one frame in ten missing 16.67 ms
+  on a static screen.
+
+**Done when.** All three layout modes are reachable from one setting and survive a restart; with
+a chat open, the rail shows avatars only and switching chats from it does not rebuild the left
+container; the frame reading while flicking the rail is no worse than the same reading in one
+column. *Device.*
 
 ## What this plan does not include, on purpose
 
