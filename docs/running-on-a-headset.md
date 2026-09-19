@@ -70,7 +70,21 @@ number is a baseline rather than a verdict, it says so.
 **The device.** Quest 3, Horizon OS on Android 14 (SDK 34), build `UP1A.231005.007.A1`,
 `arm64-v8a`. Whole display 4128×2208. System locale `ru_RU`.
 
-**Install and start.** `adb connect 192.168.0.253:5555` then
+**Find the headset before connecting to it — do not remember its address.** Both Quests on this
+network swapped IPs during a single evening: the address that worked all afternoon went dead and
+came back on the *other* headset hours later, while the first moved elsewhere. An address in a
+runbook is a fact with a half-life. Scan for the port instead:
+
+```bash
+for i in $(seq 1 254); do (nc -z -G 1 -w 1 192.168.0.$i 5555 2>/dev/null \
+  && echo "OPEN 192.168.0.$i") & done; wait
+```
+
+Then `adb connect` each hit and read `ro.serialno` to tell the headsets apart — the serial is
+the stable identifier, the IP is not. Two on this estate: `2G97C5ZHCQ04L6` and
+`2G97C5ZHCQ049J`.
+
+**Install and start.** `adb connect <address>:5555` then
 `adb install -r -t nicegram-vr.apk` — 134 MB over Wi-Fi, **12 s**, `Success`. Launched with
 `monkey -p app.nicegram.vr -c android.intent.category.LAUNCHER 1`. No `FATAL`, no
 `AndroidRuntime` stack. `tgnet` wrote its per-account config files, so the network stack came
