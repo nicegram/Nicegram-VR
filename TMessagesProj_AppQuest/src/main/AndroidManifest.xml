@@ -32,10 +32,21 @@
         android:largeHeap="true"
         tools:replace="android:name,android:label,android:icon,android:roundIcon">
 
-        <!-- Landscape and resizeable: the system owns the panel's size, the app must not fight it. -->
+        <!-- Portrait, and this line used to say landscape.
+
+             The old comment read "the system owns the panel's size, the app must not fight it",
+             which was true and was then used to justify the opposite: a hard landscape lock.
+             Horizon OS sizes a 2D panel from the orientation the app declares, so declaring
+             landscape is exactly how an app fights for a shape - and the shape it won was wrong.
+             Measured on a Quest 3: the panel came up 1280x800, and a messenger drawn 665 dp wide
+             puts one message on one long line and fits almost nothing top to bottom. A chat is a
+             tall column of short lines; that is why every phone client is shaped like a phone.
+
+             resizeableActivity stays true, so the panel is still the wearer's to resize - which
+             is what "the system owns the size" was supposed to mean in the first place. -->
         <activity
             android:name="org.telegram.ui.LaunchActivity"
-            android:screenOrientation="landscape"
+            android:screenOrientation="portrait"
             android:resizeableActivity="true"
             android:exported="true"
             tools:replace="android:screenOrientation" />

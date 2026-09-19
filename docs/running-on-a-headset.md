@@ -77,7 +77,13 @@ number is a baseline rather than a verdict, it says so.
 up. Horizon OS moved the app `HIGH_PERCEPTION -> CRITICAL_PERCEPTION`, which is its way of
 saying the panel is the thing the wearer is looking at.
 
-**The panel, from `dumpsys activity activities`:**
+**The panel, from `dumpsys activity activities`.** Note the date on these: they are the
+*landscape* panel this fork asked for until the evening of the same day, when the manifest was
+changed to `portrait` and Horizon OS reshaped it to **500×800 px — `sw400dp w400dp h640dp nrml
+port`** (finding A-21). The readings below are kept because the density proof was taken against
+them; everything about the shape is superseded.
+
+**The landscape panel, as measured:**
 
 ```
 sw640dp w1024dp h640dp 200dpi lrg land night -touch -keyb -nav

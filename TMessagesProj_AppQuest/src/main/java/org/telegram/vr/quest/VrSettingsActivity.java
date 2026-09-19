@@ -167,11 +167,13 @@ public class VrSettingsActivity extends BaseFragment {
      * scale was re-based is that the assumed panel was not the real one.
      */
     private static int panelHeightPx() {
-        // The activity is locked to landscape, so the height is the smaller side. Guarded
+        // displaySize.y IS the height in the current orientation. This used to take the smaller
+        // side, which was right only by accident while the panel was locked to landscape: the
+        // moment it became portrait (500x800) the smaller side was the WIDTH, and the row count
+        // shown next to every density step would have been four instead of seven. Guarded
         // because displaySize is zero until checkDisplaySize has run at least once.
-        final int x = AndroidUtilities.displaySize.x;
         final int y = AndroidUtilities.displaySize.y;
-        return x <= 0 || y <= 0 ? 0 : Math.min(x, y);
+        return y > 0 ? y : 0;
     }
 
     /**

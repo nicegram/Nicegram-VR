@@ -14,7 +14,11 @@ public class VrDensityTest {
 
     private static final float EPS = 0.0001f;
 
-    /** The measured Quest 3 panel: 1280x800 px at 200 dpi. */
+    /**
+     * The measured Quest 3 panel. It was 1280x800 while the app declared landscape and became
+     * 500x800 when it declared portrait — the HEIGHT is 800 either way, which is the number
+     * this arithmetic needs and the one the caller got wrong once already.
+     */
     private static final int PANEL_H = 800;
     private static final float SYSTEM_DENSITY = 1.25f;
 
