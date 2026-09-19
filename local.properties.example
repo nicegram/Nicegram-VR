@@ -1,0 +1,13 @@
+# Copy this file to local.properties and fill in the two values.
+# local.properties is in .gitignore and must never be committed.
+
+# Where your Android SDK lives. Android Studio writes this line for you.
+sdk.dir=/path/to/Android/sdk
+
+# The only two credentials Nicegram VR needs to build.
+# Obtain your own at https://core.telegram.org/api/obtaining_api_id — do not reuse
+# another application's, and do not reuse the official Telegram app's.
+#
+# CI passes the same two names as environment variables instead of this file.
+TELEGRAM_APP_ID=
+TELEGRAM_APP_HASH=

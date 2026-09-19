@@ -142,6 +142,9 @@ android {
         minSdkVersion 21
         targetSdkVersion 36
 
+        buildConfigField "int", "TELEGRAM_APP_ID", (secret("TELEGRAM_APP_ID").isEmpty() ? "0" : secret("TELEGRAM_APP_ID"))
+        buildConfigField "String", "TELEGRAM_APP_HASH", "\"" + secret("TELEGRAM_APP_HASH") + "\""
+
         vectorDrawables.generatedDensities = ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi']
 
         multiDexEnabled true
@@ -238,6 +241,18 @@ android {
     namespace 'org.telegram.messenger'
 }
 
+
+// Nicegram VR: a build-time secret comes from the environment first (CI) and from
+// local.properties second (a developer machine). Neither is in git. A missing value is not
+// replaced with a plausible default - the headset module fails the build and names what is
+// absent, because a client that builds with an empty api_id fails later and far more quietly.
+def secret(String name) {
+    def value = System.getenv(name)
+    if (value == null || value.toString().isEmpty()) {
+        value = getProps(name)
+    }
+    return value == null ? "" : value.toString()
+}
 
 def getProps(String propName) {
     def propsFile = rootProject.file('local.properties')

@@ -1,0 +1,174 @@
+// Nicegram VR — the headset build.
+//
+// Derived from TMessagesProj_AppStandalone, which is upstream's only configuration that
+// already excludes Firebase. Three deliberate differences from it:
+//   * no google-services plugin and no google-services.json — Horizon OS has no Play services,
+//     so a build that demanded one would be a build nobody outside the office could run;
+//   * arm64-v8a only — Quest 3 and 3S are arm64, and dropping three ABIs is the single
+//     largest saving in native build time for a contributor;
+//   * the build fails, loudly and by name, when the two API keys are missing.
+apply plugin: 'com.android.application'
+apply plugin: 'org.telegram.build-app-plugin'
+
+repositories {
+    mavenCentral()
+    google()
+}
+
+configurations {
+    compile.exclude module: 'support-v4'
+}
+
+configurations.all {
+    exclude group: 'com.google.firebase', module: 'firebase-core'
+    exclude group: 'androidx.recyclerview', module: 'recyclerview'
+}
+
+dependencies {
+    implementation project(':TMessagesProj')
+    implementation 'androidx.fragment:fragment:1.8.9'
+    implementation 'androidx.core:core:1.16.0'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+    implementation files('../TMessagesProj/libs/libgsaverification-client.aar')
+    // The silence rule is the product, so it is tested on the JVM and runs on every push.
+    testImplementation 'junit:junit:4.13.2'
+}
+
+// The keys, and only the keys. Everything else in this repository is complete without them.
+def questSecret(String name) {
+    def value = System.getenv(name)
+    if (value == null || value.toString().isEmpty()) {
+        def propsFile = rootProject.file('local.properties')
+        if (propsFile.exists()) {
+            def props = new Properties()
+            propsFile.withInputStream { props.load(it) }
+            value = props[name]
+        }
+    }
+    return value == null ? "" : value.toString()
+}
+
+tasks.configureEach { task ->
+    if (task.name.startsWith('compile') && task.name.contains('JavaWithJavac')) {
+        task.doFirst {
+            def missing = ['TELEGRAM_APP_ID', 'TELEGRAM_APP_HASH'].findAll { questSecret(it).isEmpty() }
+            if (!missing.isEmpty()) {
+                throw new GradleException(
+                    "Nicegram VR cannot be built without " + missing.join(' and ') + ".\n" +
+                    "Obtain them at https://core.telegram.org/api/obtaining_api_id, then either\n" +
+                    "  * copy local.properties.example to local.properties and fill the values in, or\n" +
+                    "  * export them as environment variables (this is what CI does).\n" +
+                    "They are never committed: local.properties is in .gitignore."
+                )
+            }
+        }
+    }
+}
+
+android {
+    compileSdkVersion 36
+    buildToolsVersion '36.0.0'
+
+    namespace 'app.nicegram.vr'
+
+    sourceSets.main.jniLibs.srcDirs = ['../TMessagesProj/jni/']
+
+    lintOptions {
+        disable 'MissingTranslation'
+        disable 'ExtraTranslation'
+        disable 'BlockedPrivateApi'
+        checkReleaseBuilds false
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+        coreLibraryDesugaringEnabled true
+    }
+
+    androidResources {
+        noCompress += "pack"
+        localeFilters += ["zz"]
+    }
+
+    signingConfigs {
+        debug {
+            storeFile file("../TMessagesProj/config/release.keystore")
+            storePassword RELEASE_STORE_PASSWORD
+            keyAlias RELEASE_KEY_ALIAS
+            keyPassword RELEASE_KEY_PASSWORD
+        }
+        release {
+            storeFile file("../TMessagesProj/config/release.keystore")
+            storePassword RELEASE_STORE_PASSWORD
+            keyAlias RELEASE_KEY_ALIAS
+            keyPassword RELEASE_KEY_PASSWORD
+        }
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+            jniDebuggable true
+            signingConfig signingConfigs.debug
+            minifyEnabled false
+            multiDexEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), '../TMessagesProj/proguard-rules.pro', '../TMessagesProj/proguard-rules-beta.pro'
+        }
+        standalone {
+            matchingFallbacks = ['release']
+            debuggable false
+            jniDebuggable false
+            signingConfig signingConfigs.release
+            minifyEnabled true
+            shrinkResources true
+            multiDexEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), '../TMessagesProj/proguard-rules.pro'
+            ndk.debugSymbolLevel = 'FULL'
+        }
+    }
+
+    flavorDimensions "minApi"
+
+    productFlavors {
+        quest {
+            ndk {
+                abiFilters "arm64-v8a"
+            }
+            ext {
+                abiVersionCode = 9
+            }
+        }
+    }
+
+    defaultConfig {
+        applicationId "app.nicegram.vr"
+        minSdkVersion 29
+        targetSdkVersion 36
+        versionCode Integer.parseInt(APP_VERSION_CODE)
+        versionName APP_VERSION_NAME
+        ndkVersion "27.2.12479018"
+
+        multiDexEnabled true
+        vectorDrawables.generatedDensities = ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi']
+
+        externalNativeBuild {
+            cmake {
+                version '3.22.1'
+                arguments '-DANDROID_STL=c++_static', '-DANDROID_PLATFORM=android-21'
+                targets 'tmessages.49'
+            }
+        }
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            outputFileName = "nicegram-vr.apk"
+            output.versionCodeOverride = defaultConfig.versionCode * 10 + variant.productFlavors.get(0).abiVersionCode
+        }
+    }
+
+    buildFeatures {
+        buildConfig = true
+    }
+}

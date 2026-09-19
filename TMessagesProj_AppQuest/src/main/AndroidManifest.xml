@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Horizon OS is Android, and a headset is a device with no telephony, no touchscreen
+         and no Google Play services. Everything below says exactly that, so the store and
+         the launcher can tell the truth about the app before a user installs it. -->
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+    <uses-feature android:name="android.hardware.telephony" android:required="false" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.location" android:required="false" />
+    <uses-feature android:name="android.hardware.location.gps" android:required="false" />
+    <uses-feature android:name="android.hardware.location.network" android:required="false" />
+
+    <!-- Dictation and voice messages. Declared here rather than inherited so the reason is
+         visible in this file: the headset build asks for the microphone and nothing else new. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <application
+        android:name="org.telegram.messenger.QuestApplicationLoader"
+        android:hardwareAccelerated="true"
+        android:largeHeap="true"
+        tools:replace="android:name">
+
+        <!-- Landscape and resizeable: the system owns the panel's size, the app must not fight it. -->
+        <activity
+            android:name="org.telegram.ui.LaunchActivity"
+            android:screenOrientation="landscape"
+            android:resizeableActivity="true"
+            android:exported="true"
+            tools:replace="android:screenOrientation" />
+    </application>
+</manifest>

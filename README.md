@@ -1,46 +1,76 @@
-## Telegram messenger for Android
+# Nicegram VR
 
-[Telegram](https://telegram.org) is a messaging app with a focus on speed and security. It’s superfast, simple and free.
-This repo contains the official source code for [Telegram App for Android](https://play.google.com/store/apps/details?id=org.telegram.messenger).
+A Telegram client you can actually use inside a headset.
 
-## Creating your Telegram Application
+Nicegram VR is an open-source, unofficial Telegram client for **Meta Quest 3 and Quest 3S**,
+built as a 2D Horizon OS application. It is a fork of
+[Telegram for Android](https://github.com/DrKLO/Telegram) and, like every other Nicegram
+client, its source is open — see [NOTICE.md](NOTICE.md) for the provenance and the licence.
 
-We welcome all developers to use our API and source code to create applications on our platform.
-There are several things we require from **all developers** for the moment.
+> **Status: early.** The repository builds and installs. The headset-specific layer is being
+> written in the open, one piece at a time, and nothing here has been measured on a device yet.
+> When something is not finished, the issue tracker says so rather than the README implying
+> otherwise.
 
-1. [**Obtain your own api_id**](https://core.telegram.org/api/obtaining_api_id) for your application.
-2. Please **do not** use the name Telegram for your app — or make sure your users understand that it is unofficial.
-3. Kindly **do not** use our standard logo (white paper plane in a blue circle) as your app's logo.
-3. Please study our [**security guidelines**](https://core.telegram.org/mtproto/security_guidelines) and take good care of your users' data and privacy.
-4. Please remember to publish **your** code too in order to comply with the licences.
+## Why it exists
 
-### API, Protocol documentation
+People who spend hours in a headset take it off to answer one message. That is the whole
+problem. Everything in this fork follows from it:
 
-Telegram API manuals: https://core.telegram.org/api
+- **It is quiet.** Nothing is shown until you name who may interrupt you — a person, a chat, or
+  a word. An empty list means silence for everyone, and that is what a fresh install is.
+- **You answer by speaking.** Typing with a ray on a virtual keyboard is the worst part of any
+  headset app. Dictation fills the input field; you check the text and press send.
+- **You can hit things.** Every interactive target is at least 64 dp, which is 2.5 degrees at
+  the panel's default distance, against a ray that jitters by about one. Nothing is reachable
+  only by a long press.
 
-MTproto protocol manuals: https://core.telegram.org/mtproto
+## What it does not promise
 
-### Compilation Guide
+Horizon OS has no Google Play services, so there is **no push**. Messages arrive while the
+client is running. A sleeping headset delivers nothing in real time, and what accumulated is
+shown on the next launch. The app says this on its first screen; it is a property of the
+platform, not a bug to be reported.
 
-**Note**: In order to support [reproducible builds](https://core.telegram.org/reproducible-builds), this repo contains dummy release.keystore,  google-services.json and filled variables inside BuildVars.java. Before publishing your own APKs please make sure to replace all these files with your own.
+## Build
 
-You will require Android Studio 2025.1.4, Android NDK 27.2.12479018 and Android SDK 36.
+You need two credentials of your own and nothing else.
 
-1. Clone the Telegram source code with its submodules:
-   ```bash
-   git clone --recursive --shallow-submodules https://github.com/DrKLO/Telegram.git Telegram
-   ```
-   In case you forgot the `--recursive` flag, change to the `Telegram` directory and run:
-   ```bash
-   git submodule init && git submodule update --init --recursive --depth=1
-   ```
-2. Copy your release.keystore into TMessagesProj/config
-3. Fill out RELEASE_KEY_PASSWORD, RELEASE_KEY_ALIAS, RELEASE_STORE_PASSWORD in gradle.properties to access your  release.keystore
-4.  Go to https://console.firebase.google.com/, create two android apps with application IDs org.telegram.messenger and org.telegram.messenger.beta, turn on firebase messaging and download google-services.json, which should be copied to the same folder as TMessagesProj.
-5. Open the project in the Studio (note that it should be opened, NOT imported).
-6. Fill out values in TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java – there’s a link for each of the variables showing where and which data to obtain.
-7. You are ready to compile Telegram.
+```sh
+git clone --recurse-submodules https://github.com/nicegram/Nicegram-VR.git
+cd Nicegram-VR
+cp local.properties.example local.properties
+# fill in TELEGRAM_APP_ID and TELEGRAM_APP_HASH — https://core.telegram.org/api/obtaining_api_id
+./gradlew :TMessagesProj_AppQuest:assembleQuestDebug
+adb install -r TMessagesProj_AppQuest/build/outputs/apk/quest/debug/nicegram-vr.apk
+```
 
-### Localization
+Requirements: JDK 21, Android SDK 36, NDK `27.2.12479018`, CMake `3.22.1`. The clone is large —
+thirteen submodules including FFmpeg and BoringSSL, pinned to the revisions upstream pinned. The
+native build targets `arm64-v8a` only, because that is what a Quest is.
 
-We moved all translations to https://translations.telegram.org/en/android/. Please use it.
+Missing keys stop the build at the first compile task with a message naming them.
+`local.properties` is in `.gitignore` and must stay there.
+
+## Layout
+
+| Path | What it is |
+|---|---|
+| `TMessagesProj/` | upstream Telegram library, kept as close to upstream as possible |
+| `TMessagesProj_AppQuest/` | the headset build: everything of ours that can live apart, lives here |
+| `TMessagesProj/src/main/java/org/telegram/vr/VrPolicy.java` | the single hook inside shared code, inert on every other flavour |
+| `TMessagesProj_App*/` | upstream's other application flavours, untouched |
+
+Our edits to shared Telegram code are deliberately few, each marked with a `Nicegram VR:`
+comment saying why. There is currently one behavioural hook, at the point where notifications
+enter the client.
+
+## Contributing
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md) — it is short, and the constraints in it are the product
+rather than house style. Security and credential handling: [SECURITY.md](SECURITY.md).
+
+## Licence
+
+GPL-2.0, inherited from upstream and retained. Not an official Telegram application; not
+endorsed by Telegram.

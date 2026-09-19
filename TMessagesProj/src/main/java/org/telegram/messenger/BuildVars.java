@@ -26,14 +26,18 @@ public class BuildVars {
     public static boolean NO_SCOPED_STORAGE = Build.VERSION.SDK_INT <= 29;
     public static String BUILD_VERSION_STRING = BuildConfig.BUILD_VERSION_STRING;
 
-    public static int APP_ID = 4;
-    public static String APP_HASH = "014b35b6184100b085b0d0572f9b5103";
+    // Nicegram VR: the two values a fork must supply itself. They arrive from local.properties
+    // or the environment through BuildConfig, never from this file - see local.properties.example.
+    // https://core.telegram.org/api/obtaining_api_id
+    public static int APP_ID = BuildConfig.TELEGRAM_APP_ID;
+    public static String APP_HASH = BuildConfig.TELEGRAM_APP_HASH;
 
     // SafetyNet key for Google Identity SDK, set it to empty to disable
-    public static String SAFETYNET_KEY = "AIzaSyDqt8P-7F7CPCseMkOiVRgb1LY8RN1bvH8";
+    public static String SAFETYNET_KEY = ""; // Nicegram VR: cleared - no Play services on Horizon OS,
+    // and the upstream value belongs to the official app. A key in an open tree is a published key.
     public static String PLAYSTORE_APP_URL = "https://play.google.com/store/apps/details?id=org.telegram.messenger";
     public static String HUAWEI_STORE_URL = "https://appgallery.huawei.com/app/C101184875";
-    public static String GOOGLE_AUTH_CLIENT_ID = "760348033671-81kmi3pi84p11ub8hp9a1funsv0rn2p9.apps.googleusercontent.com";
+    public static String GOOGLE_AUTH_CLIENT_ID = ""; // Nicegram VR: cleared, same reason.
 
     public static String HUAWEI_APP_ID = "101184875";
 
@@ -41,7 +45,7 @@ public class BuildVars {
     public static boolean IS_BILLING_UNAVAILABLE = false;
 
     // works only on official app ids, disable on your forks
-    public static boolean SUPPORTS_PASSKEYS = true;
+    public static boolean SUPPORTS_PASSKEYS = false; // Nicegram VR: upstream says to disable on forks.
 
     static {
         if (ApplicationLoader.applicationContext != null) {

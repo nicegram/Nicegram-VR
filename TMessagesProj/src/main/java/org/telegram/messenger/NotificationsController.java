@@ -1050,6 +1050,10 @@ public class NotificationsController extends BaseController implements Notificat
             }
         }
 
+        // Nicegram VR: the headset build decides here what may be SHOWN on this device.
+        // Inert on every other flavour; never touches unread state or server notify settings.
+        org.telegram.vr.VrPolicy.filterForDisplay(currentAccount, messageObjects);
+
         if (messageObjects.isEmpty()) {
             if (countDownLatch != null) {
                 countDownLatch.countDown();
