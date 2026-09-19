@@ -1,5 +1,14 @@
 # Plan — remaining work, decomposed
 
+> **Status, 19 September 2026, later the same day.** P-01, P-02, P-03, P-04, P-05, P-06, P-07,
+> P-08 and P-17 are done and pushed; P-15 has its seam and not its wiring. **Open: P-09**
+> (device protocol — the headset was unreachable all day), **P-10** (sign in by code), **P-11**
+> and **P-12** (dictation, the largest gap against the request), **P-13** (message action bar),
+> **P-14** (gallery shortcuts), **P-15** (the DialogsActivity half), **P-16** (store metadata,
+> blocked on VRQ-001).
+>
+> Every device acceptance below is still owed. Nothing in this repository has run on a headset.
+
 Written for an agent with no prior context. Each task says what to do, where exactly, what
 "done" means in a form that can be checked, and what has already gone wrong in that area so it
 is not repeated. Findings referenced as `A-nn` are in [audit-2026-09-19.md](audit-2026-09-19.md).
