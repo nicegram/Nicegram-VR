@@ -229,6 +229,7 @@ public class VrSettingsActivity extends BaseFragment {
             VrDensity.setStep(context, VrDensity.STEP_BALANCED);
             VrPerformance.applyDefaults();
             VrLayout.applyDefaults();
+            VrTheme.applyDefaults();
             rebuild();
             showRestartNote(context);
         });

@@ -31,9 +31,10 @@
         android:label="@string/vr_app_name"
         android:icon="@mipmap/ic_launcher_nicegram_light"
         android:roundIcon="@mipmap/ic_launcher_nicegram_light_round"
+        android:theme="@style/Theme.NicegramVR.Start"
         android:hardwareAccelerated="true"
         android:largeHeap="true"
-        tools:replace="android:name,android:label,android:icon,android:roundIcon">
+        tools:replace="android:name,android:label,android:icon,android:roundIcon,android:theme">
 
         <!-- Portrait, and this line used to say landscape.
 

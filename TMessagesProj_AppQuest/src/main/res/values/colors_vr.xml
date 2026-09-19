@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Telegram's own night background (key_windowBackgroundGray of the Night theme), so the
+         launch window and the first drawn frame are the same colour and there is no step. -->
+    <color name="vr_launch_background">#FF0E1621</color>
+</resources>
