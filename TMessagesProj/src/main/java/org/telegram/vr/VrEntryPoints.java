@@ -86,6 +86,36 @@ public final class VrEntryPoints {
     }
 
     /** Null on every build except the headset one. Callers hide the row when it is null. */
+    /**
+     * A switch the headset build puts in the chat-list header.
+     *
+     * It exists as a registry entry rather than a flag because the thing it switches lives in
+     * the headset module — the master notification state — and shared code must not know about
+     * it. Null on every other flavour, where the header is unchanged.
+     */
+    public interface HeaderToggle {
+        /** Drawable for the current state. */
+        int icon(boolean on);
+
+        boolean isOn();
+
+        /** @return the new state. */
+        boolean toggle();
+
+        /** Read aloud by accessibility services, and the text of the confirmation. */
+        CharSequence description(boolean on);
+    }
+
+    private static volatile HeaderToggle headerToggle;
+
+    public static void installHeaderToggle(HeaderToggle toggle) {
+        headerToggle = toggle;
+    }
+
+    public static HeaderToggle headerToggle() {
+        return headerToggle;
+    }
+
     public static SettingsRow silenceRow() {
         return silenceRow;
     }

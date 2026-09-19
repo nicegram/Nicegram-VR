@@ -499,6 +499,8 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     private ValueAnimator contactsAlphaAnimator;
     private ViewPage[] viewPages;
     private ActionBarMenuItem passcodeItem;
+    private ActionBarMenuItem vrNotificationsItem;
+    private static final int VR_NOTIFICATIONS_ITEM_ID = 4711;
     private ActionBarMenuItem downloadsItem;
     private DownloadProgressIcon downloadProgressIcon;
     private boolean downloadsItemVisible;
@@ -3274,6 +3276,16 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             passcodeItem = menu.addItem(1, R.drawable.outline_header_lock_24);
             passcodeItem.setContentDescription(getString(R.string.AccDescrPasscodeLock));
 
+            // Nicegram VR: the master notification switch, in the header because "not now" is a
+            // thing people decide in the moment and should not have to go looking for. Null on
+            // every other flavour — see org.telegram.vr.VrEntryPoints.HeaderToggle.
+            final org.telegram.vr.VrEntryPoints.HeaderToggle vrToggle =
+                    org.telegram.vr.VrEntryPoints.headerToggle();
+            if (vrToggle != null) {
+                vrNotificationsItem = menu.addItem(VR_NOTIFICATIONS_ITEM_ID, vrToggle.icon(vrToggle.isOn()));
+                vrNotificationsItem.setContentDescription(vrToggle.description(vrToggle.isOn()));
+            }
+
             downloadsItem = menu.addItem(3, new ColorDrawable(Color.TRANSPARENT));
             downloadsItem.addView(downloadProgressIcon = new DownloadProgressIcon(currentAccount, context));
             downloadsItem.setContentDescription(getString(R.string.DownloadsTabs));
@@ -3517,12 +3529,22 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             } else {
                 statusDrawable = new AnimatedEmojiDrawable.SwapAnimatedEmojiDrawable(null, dp(26));
                 statusDrawable.center = true;
-                logoDrawable = context.getResources().getDrawable(R.drawable.telegram_logo_2).mutate();
-                logoDrawable.setBounds(0, dp(2), logoDrawable.getIntrinsicWidth(), dp(2) + logoDrawable.getIntrinsicHeight());
-                logoDrawable.setColorFilter(getThemedColor(Theme.key_telegram_color_dialogsLogo), PorterDuff.Mode.MULTIPLY);
-                SpannableStringBuilder ssb = new SpannableStringBuilder(getString(R.string.AppName));
-                ssb.setSpan(new ImageSpan(logoDrawable), 0, ssb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                actionBar.setTitle(ssb, statusDrawable);
+                // Nicegram VR: upstream draws its WORDMARK here — the AppName string is only a
+                // ruler for an ImageSpan covering it, so renaming the string changes nothing a
+                // user sees. This fork has a monogram and no wordmark, so when a product name is
+                // installed the title is drawn as text instead. Null on every other flavour,
+                // where the span below runs exactly as before.
+                final String vrProductName = org.telegram.vr.VrBrand.appName();
+                if (vrProductName != null) {
+                    actionBar.setTitle(vrProductName, statusDrawable);
+                } else {
+                    logoDrawable = context.getResources().getDrawable(R.drawable.telegram_logo_2).mutate();
+                    logoDrawable.setBounds(0, dp(2), logoDrawable.getIntrinsicWidth(), dp(2) + logoDrawable.getIntrinsicHeight());
+                    logoDrawable.setColorFilter(getThemedColor(Theme.key_telegram_color_dialogsLogo), PorterDuff.Mode.MULTIPLY);
+                    SpannableStringBuilder ssb = new SpannableStringBuilder(getString(R.string.AppName));
+                    ssb.setSpan(new ImageSpan(logoDrawable), 0, ssb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    actionBar.setTitle(ssb, statusDrawable);
+                }
                 updateStatus(UserConfig.getInstance(currentAccount).getCurrentUser(), false);
             }
             if (folderId == 0) {
@@ -3871,6 +3893,21 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             public void onItemClick(int id) {
                 if ((id == SearchViewPager.forwardItemId || id == SearchViewPager.gotoItemId || id == SearchViewPager.deleteItemId || id == SearchViewPager.speedItemId) && searchViewPager != null) {
                     searchViewPager.onActionBarItemClick(id);
+                    return;
+                }
+                if (id == VR_NOTIFICATIONS_ITEM_ID) {
+                    final org.telegram.vr.VrEntryPoints.HeaderToggle toggle =
+                            org.telegram.vr.VrEntryPoints.headerToggle();
+                    if (toggle != null && vrNotificationsItem != null) {
+                        final boolean on = toggle.toggle();
+                        vrNotificationsItem.setIcon(toggle.icon(on));
+                        vrNotificationsItem.setContentDescription(toggle.description(on));
+                        // Said out loud: a switch whose only feedback is a changed icon leaves a
+                        // person unsure whether they pressed it, and this one decides whether
+                        // anything reaches them at all.
+                        BulletinFactory.of(DialogsActivity.this).createSimpleBulletin(
+                                toggle.icon(on), toggle.description(on)).show();
+                    }
                     return;
                 }
                 if (id == -1) {

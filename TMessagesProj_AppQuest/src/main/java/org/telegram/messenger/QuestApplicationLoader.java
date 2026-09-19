@@ -13,6 +13,8 @@ import org.telegram.vr.quest.VrPerformance;
 import org.telegram.vr.quest.VrTheme;
 import org.telegram.vr.quest.VrSettingsActivity;
 import org.telegram.vr.quest.SilenceStore;
+import org.telegram.vr.quest.NotificationsMaster;
+import org.telegram.vr.quest.VrBrandNames;
 import org.telegram.vr.quest.VrDensity;
 
 /**
@@ -27,11 +29,41 @@ public class QuestApplicationLoader extends ApplicationLoader {
 
     @Override
     public void onCreate() {
+        // Before super: the brand map must be in place before any string is drawn, and it costs
+        // one SparseArray. It needs no Context and nothing from the loader's own start-up.
+        VrBrandNames.install();
         super.onCreate();
         // Not applied here: checkDisplaySize reassigns density before the first screen and
         // would erase it. Installed instead, and read where the assignment happens.
         VrDisplay.install(() -> VrDensity.factor(this));
         VrPolicy.install(new SilenceGate(new SilenceStore(this)));
+        // The master switch, in the chat-list header. Everything it touches is local to this
+        // device: it never writes account notification settings, so a phone in a pocket keeps
+        // whatever it had.
+        VrEntryPoints.installHeaderToggle(new VrEntryPoints.HeaderToggle() {
+            @Override
+            public int icon(boolean on) {
+                return on ? org.telegram.messenger.R.drawable.msg_unmute
+                          : org.telegram.messenger.R.drawable.msg_mute;
+            }
+
+            @Override
+            public boolean isOn() {
+                return NotificationsMaster.isOn(QuestApplicationLoader.this);
+            }
+
+            @Override
+            public boolean toggle() {
+                return NotificationsMaster.toggle(QuestApplicationLoader.this);
+            }
+
+            @Override
+            public CharSequence description(boolean on) {
+                return LocaleController.getString(on
+                        ? app.nicegram.vr.R.string.vr_master_on
+                        : app.nicegram.vr.R.string.vr_master_off);
+            }
+        });
         // A default, not a lock: 60 fps is a condition of publishing here and media that
         // plays by itself is the cheapest way to lose it. The user can turn it back on.
         VrPerformance.applyDefaultsOnce(this);

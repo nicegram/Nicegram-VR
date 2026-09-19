@@ -107,4 +107,8 @@
     <string name="vr_density_larger">Larger</string>
     <string name="vr_density_largest">Largest</string>
     <string name="vr_density_rows">%1$s \u2014 about %2$d chats</string>
+
+    <!-- The master notification switch, in the chat-list header -->
+    <string name="vr_master_on">Notifications on \u2014 your exceptions decide</string>
+    <string name="vr_master_off">Notifications off \u2014 nothing will interrupt you</string>
 </resources>

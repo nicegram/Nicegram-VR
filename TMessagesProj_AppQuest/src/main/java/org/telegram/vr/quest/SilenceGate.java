@@ -60,6 +60,12 @@ public final class SilenceGate implements VrPolicy.Gate {
         if (message == null || message.messageOwner == null) {
             return false;
         }
+        // The master switch sits above the rules, and it is checked first because when it is
+        // off the rules are not a question anyone is asking. Turning it back on restores the
+        // same exceptions: nothing here edits them.
+        if (!NotificationsMaster.isOn(org.telegram.messenger.ApplicationLoader.applicationContext)) {
+            return false;
+        }
         return SilenceDecision.allow(
                 message.getDialogId(),
                 message.getSenderId(),

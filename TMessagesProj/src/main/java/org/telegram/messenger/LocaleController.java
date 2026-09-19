@@ -1465,6 +1465,14 @@ public class LocaleController {
         if (value == null) {
             value = "LOC_ERR:" + key;
         }
+        // Nicegram VR: the one point every drawn string passes through, and the only place a
+        // rename can outlive the cloud language pack — which answers "Telegram" for AppName in
+        // every language, whatever strings.xml says. Inert on every other flavour: one null
+        // check. See org.telegram.vr.VrBrand for why this is keyed by id and not by text.
+        final CharSequence branded = org.telegram.vr.VrBrand.rename(res, value);
+        if (branded != null && branded != value) {
+            return branded.toString();
+        }
         return value;
     }
 
