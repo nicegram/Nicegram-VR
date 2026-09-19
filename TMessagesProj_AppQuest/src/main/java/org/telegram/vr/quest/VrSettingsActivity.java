@@ -57,6 +57,7 @@ public class VrSettingsActivity extends BaseFragment {
     private static final int ID_DICT_TOKEN = 8;
     private static final int ID_DICT_LANGUAGE = 9;
     private static final int ID_DICT_TEST = 10;
+    private static final int ID_LAYOUT = 11;
 
     private RecyclerListView listView;
     private ListAdapter adapter;
@@ -104,6 +105,9 @@ public class VrSettingsActivity extends BaseFragment {
         switch (items.get(position).id) {
             case ID_DENSITY:
                 chooseDensity(context);
+                break;
+            case ID_LAYOUT:
+                chooseLayout(context);
                 break;
             case ID_AUTOPLAY: {
                 final boolean on = !isAutoplayOn();
@@ -182,6 +186,7 @@ public class VrSettingsActivity extends BaseFragment {
         builder.setPositiveButton(LocaleController.getString(app.nicegram.vr.R.string.vr_reset_do), (dialog, which) -> {
             VrDensity.setStep(context, VrDensity.STEP_NORMAL);
             VrPerformance.applyDefaults();
+            VrLayout.applyDefaults();
             rebuild();
             showRestartNote(context);
         });
@@ -196,6 +201,9 @@ public class VrSettingsActivity extends BaseFragment {
         items.add(Item.setting(ID_DENSITY, LocaleController.getString(app.nicegram.vr.R.string.vr_density),
                 densityLabel(context)));
         items.add(Item.info(LocaleController.getString(app.nicegram.vr.R.string.vr_density_info)));
+        items.add(Item.setting(ID_LAYOUT, LocaleController.getString(app.nicegram.vr.R.string.vr_layout),
+                layoutLabel()));
+        items.add(Item.info(LocaleController.getString(app.nicegram.vr.R.string.vr_layout_info)));
 
         items.add(Item.header(LocaleController.getString(app.nicegram.vr.R.string.vr_settings_motion)));
         items.add(Item.check(ID_AUTOPLAY, LocaleController.getString(app.nicegram.vr.R.string.vr_autoplay), isAutoplayOn()));
@@ -294,6 +302,33 @@ public class VrSettingsActivity extends BaseFragment {
         askText(context, app.nicegram.vr.R.string.vr_dictation_language,
                 app.nicegram.vr.R.string.vr_dictation_language_hint,
                 speech.language(), value -> speech.setLanguage(value));
+    }
+
+    private static String layoutLabel() {
+        return LocaleController.getString(VrLayout.isSingleColumn()
+                ? app.nicegram.vr.R.string.vr_layout_single
+                : app.nicegram.vr.R.string.vr_layout_split);
+    }
+
+    /**
+     * Two choices, not a switch, because neither is "on". A headset panel is wide in pixels and
+     * narrow in the dp this build draws with, and which of the two reads better is a matter for
+     * the person wearing it.
+     */
+    private void chooseLayout(Context context) {
+        final CharSequence[] labels = {
+                LocaleController.getString(app.nicegram.vr.R.string.vr_layout_single),
+                LocaleController.getString(app.nicegram.vr.R.string.vr_layout_split),
+        };
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(LocaleController.getString(app.nicegram.vr.R.string.vr_layout));
+        builder.setItems(labels, (dialog, which) -> {
+            VrLayout.setSingleColumn(which == 0);
+            rebuild();
+            showRestartNote(context);
+        });
+        builder.setNegativeButton(LocaleController.getString(app.nicegram.vr.R.string.vr_cancel), null);
+        showDialog(builder.create());
     }
 
     private String densityLabel(Context context) {

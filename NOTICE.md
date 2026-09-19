@@ -24,6 +24,15 @@ every fork for three things and we honour all three:
 3. Do not use the official Telegram API keys, SafetyNet key or OAuth client id. All three were
    cleared in the first commit of our own work; see `BuildVars.java`.
 
+## Artwork
+
+The launcher icon is **Nicegram's own brand mark**, copied from the Nicegram Android client's
+`nicegram-features` module (`res/mipmap-*/ic_launcher_nicegram*`, plus its adaptive-icon XML and
+the white background colour). Both applications belong to the same owner, which is why the mark
+is reused rather than redrawn. It is not Telegram artwork: upstream's own `ic_launcher` is the
+blue paper plane and is deliberately not used here, because point 2 above applies to the icon as
+much as to the name.
+
 ## Third-party components
 
 The build pulls thirteen submodules pinned to the exact revisions upstream pinned: FFmpeg,

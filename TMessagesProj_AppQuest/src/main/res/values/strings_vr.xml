@@ -96,4 +96,11 @@
     <string name="vr_dictation_language_hint">en-US, ru-RU\u2026</string>
     <string name="vr_dictation_not_set">not set</string>
     <string name="vr_dictation_info">Dictation is off until you give it a service to speak to. The address and the token are yours: nothing is built into this app, and nothing is sent anywhere until you press Speak.</string>
+
+    <!-- Identity and layout -->
+    <string name="vr_app_name" translatable="false">Nicegram VR</string>
+    <string name="vr_layout">Layout</string>
+    <string name="vr_layout_single">One at a time</string>
+    <string name="vr_layout_split">List and chat side by side</string>
+    <string name="vr_layout_info">A headset panel is wide in pixels and narrow in the size things are drawn at, so showing the list and a chat at once leaves the conversation squeezed. One at a time is the default: the chat list, or the chat you opened.</string>
 </resources>

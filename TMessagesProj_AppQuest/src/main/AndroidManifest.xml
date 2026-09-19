@@ -16,11 +16,21 @@
          visible in this file: the headset build asks for the microphone and nothing else new. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
+    <!-- Identity. Upstream leaves the application element with no label and no icon, because
+         each of its activity-aliases carries its own; the alias this build launches from is the
+         default one, which carries neither. On a Quest that shows up as a nameless, iconless
+         tile in the library - measured on a device, `aapt2 dump badging` printed
+         `label='' icon=''`. Declared here, on the application, so every alias inherits it.
+         The artwork is Nicegram's own, taken from the Nicegram Android client's
+         `nicegram-features` module; provenance is recorded in NOTICE.md. -->
     <application
         android:name="org.telegram.messenger.QuestApplicationLoader"
+        android:label="@string/vr_app_name"
+        android:icon="@mipmap/ic_launcher_nicegram"
+        android:roundIcon="@mipmap/ic_launcher_nicegram_round"
         android:hardwareAccelerated="true"
         android:largeHeap="true"
-        tools:replace="android:name">
+        tools:replace="android:name,android:label,android:icon,android:roundIcon">
 
         <!-- Landscape and resizeable: the system owns the panel's size, the app must not fight it. -->
         <activity
