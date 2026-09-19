@@ -1,5 +1,6 @@
 package org.telegram.messenger;
 
+import org.telegram.vr.VrDisplay;
 import org.telegram.vr.VrEntryPoints;
 import org.telegram.vr.VrPolicy;
 import org.telegram.vr.quest.SilenceGate;
@@ -20,7 +21,9 @@ public class QuestApplicationLoader extends ApplicationLoader {
     @Override
     public void onCreate() {
         super.onCreate();
-        VrDensity.apply(this);
+        // Not applied here: checkDisplaySize reassigns density before the first screen and
+        // would erase it. Installed instead, and read where the assignment happens.
+        VrDisplay.install(() -> VrDensity.factor(this));
         VrPolicy.install(new SilenceGate(new SilenceStore(this)));
         // The exceptions screen lives in this module, so shared settings can only reach it
         // through the registry. Installed here, it appears as one row in Notifications.

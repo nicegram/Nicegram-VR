@@ -16,11 +16,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - name: Check out with submodules
+      # Shallow, and the submodules shallow too. Thirteen of them, including FFmpeg and
+      # BoringSSL; their full history is several gigabytes and this build needs none of it.
+      - name: Check out
         uses: actions/checkout@v4
         with:
-          submodules: recursive
           fetch-depth: 1
+
+      - name: Check out the pinned submodules, shallow
+        run: git submodule update --init --recursive --depth 1 --jobs 4
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -32,19 +36,42 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Install the NDK and CMake this build pins
-        run: |
-          sdkmanager --install "ndk;27.2.12479018" "cmake;3.22.1" "platforms;android-36" "build-tools;36.0.0"
+        run: sdkmanager --install "ndk;27.2.12479018" "cmake;3.22.1" "platforms;android-36" "build-tools;36.0.0"
 
-      - name: Cache Gradle
-        uses: actions/gradle-build-action@v3
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # The native build is the whole cost of this job: FFmpeg, BoringSSL, libvpx, dav1d and
+      # openh264 compiled for arm64. It changes only when a submodule pin or the JNI tree moves,
+      # so the key is those and nothing else — a key that included the Java sources would miss
+      # on every commit and the cache would never be worth having.
+      - name: Cache the native build
+        uses: actions/cache@v4
+        with:
+          path: |
+            TMessagesProj/.cxx
+            TMessagesProj/build/intermediates/cxx
+          key: native-${{ runner.os }}-${{ hashFiles('.gitmodules', 'TMessagesProj/jni/CMakeLists.txt', 'TMessagesProj/build.gradle') }}
+          restore-keys: native-${{ runner.os }}-
 
       # The two keys, and nothing else. Without them the build stops at the first compile task
-      # and names what is missing; it never substitutes a default.
+      # and names what is missing; it never substitutes a default. Set them once with
+      # `gh secret set TELEGRAM_APP_ID -R nicegram/Nicegram-VR` reading the value on stdin.
       - name: Build
         env:
           TELEGRAM_APP_ID: ${{ secrets.TELEGRAM_APP_ID }}
           TELEGRAM_APP_HASH: ${{ secrets.TELEGRAM_APP_HASH }}
-        run: ./gradlew --no-daemon :TMessagesProj_AppQuest:assembleQuestDebug
+        run: ./gradlew --no-daemon :TMessagesProj_AppQuest:testQuestDebugUnitTest :TMessagesProj_AppQuest:assembleQuestDebug
+
+      - name: Check the artifact rather than the log
+        run: |
+          set -eu
+          apk=TMessagesProj_AppQuest/build/outputs/apk/quest/debug/nicegram-vr.apk
+          abis=$(unzip -l "$apk" | awk -F/ '/lib\//{print $2}' | sort -u | tr '\n' ' ')
+          echo "ABIs packaged: $abis"
+          test "$abis" = "arm64-v8a " || { echo "expected arm64-v8a only"; exit 1; }
+          unzip -p "$apk" AndroidManifest.xml | grep -qa QuestApplicationLoader \
+            || { echo "application class is not QuestApplicationLoader"; exit 1; }
 
       - name: Upload the APK
         uses: actions/upload-artifact@v4

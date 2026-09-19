@@ -2749,6 +2749,10 @@ public class AndroidUtilities {
         try {
             float oldDensity = density;
             density = context.getResources().getDisplayMetrics().density;
+            // Nicegram VR: the headset scale, 1 on every other flavour. Applied here because this
+            // is the only place density is assigned, and before the comparison below so a steady
+            // factor does not read as a density change and trigger a theme reload every call.
+            density *= org.telegram.vr.VrDisplay.factor();
             float newDensity = density;
             if (firstConfigurationWas && Math.abs(oldDensity - newDensity) > 0.001) {
                 Theme.reloadAllResources(context);

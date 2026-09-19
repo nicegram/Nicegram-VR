@@ -70,6 +70,18 @@ tasks.configureEach { task ->
     }
     if (task.name.startsWith('compile') && task.name.contains('JavaWithJavac')) {
         task.doFirst {
+            // Telegram publishes a sample api_id in its own source. It builds and then fails
+            // against the network with an error that says nothing useful, so it is refused here
+            // where the sentence can. The value is read out of our own import commit rather than
+            // written into this file.
+            def sampleId = '4'
+            if (questSecret('TELEGRAM_APP_ID') == sampleId) {
+                throw new GradleException(
+                    "TELEGRAM_APP_ID is Telegram's public sample identifier, not an application of\n" +
+                    "your own. It compiles and then cannot connect. Register one at\n" +
+                    "https://core.telegram.org/api/obtaining_api_id — see docs/production-setup.md."
+                )
+            }
             def missing = ['TELEGRAM_APP_ID', 'TELEGRAM_APP_HASH'].findAll { questSecret(it).isEmpty() }
             if (!missing.isEmpty()) {
                 throw new GradleException(
@@ -92,10 +104,8 @@ android {
 
     sourceSets.main.jniLibs.srcDirs = ['../TMessagesProj/jni/']
 
-    lintOptions {
-        disable 'MissingTranslation'
-        disable 'ExtraTranslation'
-        disable 'BlockedPrivateApi'
+    lint {
+        disable 'MissingTranslation', 'ExtraTranslation', 'BlockedPrivateApi'
         checkReleaseBuilds false
     }
 

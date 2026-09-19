@@ -14,9 +14,6 @@ package org.telegram.vr;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.MessageObject;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public final class VrPolicy {
 
     /** Installed by the headset flavour at application start. */
@@ -42,45 +39,33 @@ public final class VrPolicy {
     }
 
     /**
-     * Removes from {@code messages} everything the installed gate holds back.
+     * May this message raise a notification on this device?
      *
-     * Fails OPEN on any error: a gate that throws must not be able to silence the client.
-     * That direction is chosen deliberately — a missed message is worse than an extra one,
-     * and a silent client with a broken gate is indistinguishable from a broken client.
+     * Fails OPEN on any error, and the direction is chosen rather than inherited: a missed
+     * message is worse than an extra one, and a client that went silent because its filter threw
+     * is indistinguishable from a client that is simply broken.
+     *
+     * A message held back is handed to {@link Gate#onSuppressed} so it can be offered as a
+     * digest later — suppressed is not the same as dropped.
      */
-    public static void filterForDisplay(int currentAccount, List<MessageObject> messages) {
+    public static boolean allows(int currentAccount, MessageObject message) {
         final Gate g = gate;
-        if (g == null || messages == null || messages.isEmpty()) {
-            return;
+        if (g == null || message == null) {
+            return true;
         }
-        ArrayList<MessageObject> suppressed = null;
         try {
-            for (int i = 0; i < messages.size(); ++i) {
-                final MessageObject message = messages.get(i);
-                if (message == null) {
-                    continue;
-                }
-                if (!g.allowNotification(currentAccount, message)) {
-                    if (suppressed == null) {
-                        suppressed = new ArrayList<>();
-                    }
-                    suppressed.add(message);
-                    messages.remove(i);
-                    i--;
-                }
+            if (g.allowNotification(currentAccount, message)) {
+                return true;
             }
         } catch (Throwable e) {
             FileLog.e(e);
-            return;
+            return true;
         }
-        if (suppressed != null) {
-            for (int i = 0; i < suppressed.size(); ++i) {
-                try {
-                    g.onSuppressed(currentAccount, suppressed.get(i));
-                } catch (Throwable e) {
-                    FileLog.e(e);
-                }
-            }
+        try {
+            g.onSuppressed(currentAccount, message);
+        } catch (Throwable e) {
+            FileLog.e(e);
         }
+        return false;
     }
 }

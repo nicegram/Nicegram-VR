@@ -33,7 +33,8 @@ public final class SilenceStore {
      * already changed, and an exception added in settings silently does nothing until the
      * process restarts — which is the kind of bug that gets reported as "it does not work".
      */
-    private static volatile int generation;
+    private static final java.util.concurrent.atomic.AtomicInteger GENERATION =
+            new java.util.concurrent.atomic.AtomicInteger();
 
     private final SharedPreferences prefs;
 
@@ -54,11 +55,16 @@ public final class SilenceStore {
     }
 
     public static int generation() {
-        return generation;
+        return GENERATION.get();
+    }
+
+    /** Visible for the concurrency test; the counter is otherwise only moved by {@link #save}. */
+    static void bumpGenerationForTest() {
+        GENERATION.incrementAndGet();
     }
 
     public void save(int account, SilenceProfile profile) {
-        generation++;
+        GENERATION.incrementAndGet();
         prefs.edit()
                 .putStringSet(key(KEY_PEOPLE, account), toStrings(profile.people))
                 .putStringSet(key(KEY_CHATS, account), toStrings(profile.chats))

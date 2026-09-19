@@ -1050,10 +1050,6 @@ public class NotificationsController extends BaseController implements Notificat
             }
         }
 
-        // Nicegram VR: the headset build decides here what may be SHOWN on this device.
-        // Inert on every other flavour; never touches unread state or server notify settings.
-        org.telegram.vr.VrPolicy.filterForDisplay(currentAccount, messageObjects);
-
         if (messageObjects.isEmpty()) {
             if (countDownLatch != null) {
                 countDownLatch.countDown();
@@ -1369,6 +1365,15 @@ public class NotificationsController extends BaseController implements Notificat
     }
 
     private void appendMessage(MessageObject messageObject) {
+        // Nicegram VR: the one place a message enters the notification queue, reached from
+        // processNewMessages (live updates) and from processLoadedUnreadMessages (launch and
+        // reconnect — on a headset the dominant path). The gate sits here rather than at either
+        // caller so neither can be added to later without it. Inert on every other flavour.
+        // Unread counts are unaffected: both callers compute them from their dialogs argument,
+        // not from pushMessages.
+        if (!org.telegram.vr.VrPolicy.allows(currentAccount, messageObject)) {
+            return;
+        }
         for (int i = 0; i < pushMessages.size(); i++) {
             if (
                 pushMessages.get(i).getId() == messageObject.getId() &&

@@ -35,20 +35,31 @@ public final class VrDensity {
     /** 64 dp = 56.4 mm = 2.49 degrees at 1.3 m; ray jitter is 0.5-1.0 degrees. */
     public static final int MIN_TARGET_DP = 64;
 
-    private static float appliedScale = 1f;
+    /**
+     * Read once and held. checkDisplaySize calls this on every configuration change, and the
+     * step is documented as taking effect at the next start, so re-reading preferences per call
+     * would buy nothing and cost a disk touch on the layout path.
+     */
+    private static volatile float cachedFactor = -1f;
 
     private VrDensity() {
     }
 
-    public static void apply(Context context) {
-        final int step = step(context);
-        final float scale = BASE_MULTIPLIER * STEP_SCALE[step];
-        appliedScale = scale;
-        AndroidUtilities.density *= scale;
+    /** Pure, so the scale can be tested without Android. */
+    public static float factorForStep(int step) {
+        if (step < 0 || step >= STEP_SCALE.length) {
+            step = STEP_NORMAL;
+        }
+        return BASE_MULTIPLIER * STEP_SCALE[step];
     }
 
-    public static float appliedScale() {
-        return appliedScale;
+    public static float factor(Context context) {
+        float f = cachedFactor;
+        if (f < 0f) {
+            f = factorForStep(step(context));
+            cachedFactor = f;
+        }
+        return f;
     }
 
     public static int step(Context context) {
@@ -67,6 +78,7 @@ public final class VrDensity {
         }
         context.getSharedPreferences(FILE, Context.MODE_PRIVATE)
                 .edit().putInt(KEY_STEP, step).apply();
+        cachedFactor = -1f;
     }
 
     /**
