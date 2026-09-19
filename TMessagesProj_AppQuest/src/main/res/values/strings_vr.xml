@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Nicegram VR — strings of the headset build.
+
+  They live in this module rather than in Telegram's strings.xml on purpose: upstream's file is
+  synchronised from their cloud, so anything of ours added there is overwritten sooner or later.
+  Here they are ordinary Android resources and localise the ordinary way.
+-->
+<resources>
+    <string name="vr_silence_title">Exceptions to the silence</string>
+    <string name="vr_silence_people">People and chats</string>
+    <string name="vr_silence_words">Words</string>
+    <string name="vr_silence_add_chat">Add a person or chat</string>
+    <string name="vr_silence_add_word">Add a word</string>
+    <string name="vr_silence_empty">Quiet for everyone so far.</string>
+    <string name="vr_silence_note">This setting applies to the headset only. Notifications on your phone are unchanged.</string>
+    <string name="vr_silence_remove_title">Remove exception?</string>
+    <string name="vr_silence_remove_text">Messages from %1$s go quiet again.</string>
+    <string name="vr_silence_remove">Remove</string>
+    <string name="vr_word_title">A word in the message</string>
+    <string name="vr_word_hint">For example: urgent</string>
+    <string name="vr_word_duplicate">That exception already exists.</string>
+    <string name="vr_word_empty">Enter a word.</string>
+    <string name="vr_save">Save</string>
+    <string name="vr_cancel">Cancel</string>
+</resources>

@@ -115,6 +115,7 @@ public class NotificationsSettingsActivity extends BaseFragment implements Notif
     private int storiesRow;
     @Keep
     private int reactionsRow;
+    private int vrSilenceRow; // Nicegram VR: headset-only row, -1 on every other build
     private int notificationsSection2Row;
 
     private int inappSectionRow;
@@ -182,6 +183,8 @@ public class NotificationsSettingsActivity extends BaseFragment implements Notif
         channelsRow = rowCount++;
         storiesRow = rowCount++;
         reactionsRow = rowCount++;
+        // Nicegram VR: the row exists only when the headset build installed a screen for it.
+        vrSilenceRow = org.telegram.vr.VrEntryPoints.silenceRow() != null ? rowCount++ : -1;
         notificationsSection2Row = rowCount++;
 
         callsSectionRow = rowCount++;
@@ -575,6 +578,12 @@ public class NotificationsSettingsActivity extends BaseFragment implements Notif
                     });
                 } else {
                     presentFragment(new NotificationsCustomSettingsActivity(type, exceptions, autoExceptions));
+                }
+            } else if (position == vrSilenceRow) {
+                // Nicegram VR: the fragment itself lives in the headset module.
+                final org.telegram.vr.VrEntryPoints.SettingsRow row = org.telegram.vr.VrEntryPoints.silenceRow();
+                if (row != null) {
+                    presentFragment(row.create());
                 }
             } else if (position == callsRingtoneRow) {
                 try {
@@ -1147,7 +1156,11 @@ public class NotificationsSettingsActivity extends BaseFragment implements Notif
                 case 5: {
                     TextSettingsCell textCell = (TextSettingsCell) holder.itemView;
                     SharedPreferences preferences = MessagesController.getNotificationsSettings(currentAccount);
-                    if (position == callsRingtoneRow) {
+                    if (position == vrSilenceRow) {
+                        // Nicegram VR: title comes from the headset module, already localised.
+                        final org.telegram.vr.VrEntryPoints.SettingsRow row = org.telegram.vr.VrEntryPoints.silenceRow();
+                        textCell.setText(row == null ? "" : row.title(), false);
+                    } else if (position == callsRingtoneRow) {
                         String value = preferences.getString("CallsRingtone", getString("DefaultRingtone", R.string.DefaultRingtone));
                         if (value.equals("NoSound")) {
                             value = getString("NoSound", R.string.NoSound);

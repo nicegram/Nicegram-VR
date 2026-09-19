@@ -27,6 +27,14 @@ public final class SilenceStore {
     private static final String KEY_CHATS = "chats";
     private static final String KEY_WORDS = "words";
 
+    /**
+     * Bumped on every write. A reader that cached a profile compares this against what it saw
+     * and re-reads when it moved. Without it the gate keeps deciding by a profile the user has
+     * already changed, and an exception added in settings silently does nothing until the
+     * process restarts — which is the kind of bug that gets reported as "it does not work".
+     */
+    private static volatile int generation;
+
     private final SharedPreferences prefs;
 
     public SilenceStore(Context context) {
@@ -45,7 +53,12 @@ public final class SilenceStore {
                 readWords(key(KEY_WORDS, account)));
     }
 
+    public static int generation() {
+        return generation;
+    }
+
     public void save(int account, SilenceProfile profile) {
+        generation++;
         prefs.edit()
                 .putStringSet(key(KEY_PEOPLE, account), toStrings(profile.people))
                 .putStringSet(key(KEY_CHATS, account), toStrings(profile.chats))

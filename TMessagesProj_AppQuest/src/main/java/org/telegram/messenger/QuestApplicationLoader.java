@@ -1,7 +1,9 @@
 package org.telegram.messenger;
 
+import org.telegram.vr.VrEntryPoints;
 import org.telegram.vr.VrPolicy;
 import org.telegram.vr.quest.SilenceGate;
+import org.telegram.vr.quest.SilenceRulesActivity;
 import org.telegram.vr.quest.SilenceStore;
 import org.telegram.vr.quest.VrDensity;
 
@@ -20,6 +22,19 @@ public class QuestApplicationLoader extends ApplicationLoader {
         super.onCreate();
         VrDensity.apply(this);
         VrPolicy.install(new SilenceGate(new SilenceStore(this)));
+        // The exceptions screen lives in this module, so shared settings can only reach it
+        // through the registry. Installed here, it appears as one row in Notifications.
+        VrEntryPoints.installSilenceRow(new VrEntryPoints.SettingsRow() {
+            @Override
+            public CharSequence title() {
+                return getString(app.nicegram.vr.R.string.vr_silence_title);
+            }
+
+            @Override
+            public org.telegram.ui.ActionBar.BaseFragment create() {
+                return new SilenceRulesActivity();
+            }
+        });
     }
 
     @Override

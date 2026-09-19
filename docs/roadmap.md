@@ -18,15 +18,18 @@ is how development happens meanwhile.
 - [x] `VrPolicy` hook, inert on every other flavour
 - [x] Silence profile, gate and digest
 - [x] Density scale and the hit-target floor
-- [ ] First build run on a physical Quest 3 and 3S
+- [x] APK assembles: 119 MB, arm64-v8a only, application class QuestApplicationLoader
+- [x] Exceptions screen, reachable from Notifications, with the phone sentence on it
+- [ ] First run on a physical Quest 3 and 3S
 
 ## Next
 
 - [ ] **Sign-in by code shown on the panel.** The headset displays, the phone scans; the headset
       camera is not used. Upstream has the scanning side only, but the TL constructors are in
       the schema already.
-- [ ] **Exceptions UI** — people, chats and words, with the on-screen statement that phone
-      notification settings are untouched.
+- [ ] **Exceptions UI, second pass** — the screen exists and edits the profile; still to do is
+      separating people from chats in the list, and letting the gate know to drop its cached
+      profile when the screen writes one.
 - [ ] **Digest screen** — period, chats, counts, last line, and an empty state that says nobody
       wrote rather than showing zeroes.
 - [ ] **A headset view.** "Show me only these chats" is a chat folder with an include-only
@@ -43,6 +46,15 @@ is how development happens meanwhile.
 - [ ] **Speech recognition provider** — endpoint and token entered by the user, stored on the
       device, never compiled in. The recipient of the audio is named on screen before the first
       recording.
+
+      **Telegram's own transcription cannot be reused for this, and it is worth writing down
+      before someone spends a day on it.** Upstream has `messages.transcribeAudio`
+      (`TLRPC.java`, constructor `0x269e9a49`) behind `TranscribeButton`, and it looks like the
+      obvious answer: no third-party key, no new disclosure, already authenticated. It is not.
+      The request takes a `peer` and a `msg_id`, so it transcribes a message that has already
+      been **sent**, and `TranscribeButton` gates it on Premium with a small trial allowance
+      (`TranscribeButton.java:115`, `:212`, `:252`). Dictation happens before anything is sent
+      and must work for everyone, so it needs its own recognition path.
 - [ ] **Headset gallery** — shortcuts to the folders a Quest actually has, both directions.
       Folder paths are read from the system rather than hardcoded; the capture directory has
       moved between Horizon OS versions.

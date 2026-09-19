@@ -9,10 +9,18 @@ Upstream is a working messenger. Folders, filters, per-chat notification setting
 documents and Opus voice messages already exist and are not reimplemented here. What a headset
 needs and a phone does not is a short list, and it lives in `TMessagesProj_AppQuest`.
 
-Exactly one hook sits inside shared code: `org.telegram.vr.VrPolicy`, called from
-`NotificationsController.processNewMessages`. With no gate installed it returns every message
-untouched, so every other flavour behaves as upstream. Keeping the count at one is a goal, not
-an accident — each additional edit is a merge conflict every time upstream moves.
+Two registries sit inside shared code, and both are inert unless the headset build fills them
+in, so every other flavour behaves exactly as upstream:
+
+- `org.telegram.vr.VrPolicy`, called from `NotificationsController.processNewMessages`. With no
+  gate installed it returns every message untouched.
+- `org.telegram.vr.VrEntryPoints`, read by `NotificationsSettingsActivity`. It exists because
+  the dependency runs one way: the library cannot name a screen or a string that lives in the
+  headset module. With nothing installed the row does not exist and the shared edit is three
+  lines and a null check.
+
+Keeping that count low is a goal rather than an accident — each edit is a merge conflict every
+time upstream moves.
 
 ## Silence
 

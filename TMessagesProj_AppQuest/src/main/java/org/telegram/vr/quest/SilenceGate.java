@@ -21,6 +21,7 @@ public final class SilenceGate implements VrPolicy.Gate {
     private final Digest digest = new Digest();
 
     private int cachedAccount = -1;
+    private int cachedGeneration = -1;
     private SilenceProfile cachedProfile;
 
     public SilenceGate(SilenceStore store) {
@@ -31,16 +32,24 @@ public final class SilenceGate implements VrPolicy.Gate {
         return digest;
     }
 
-    /** Drops the cached profile so the next decision re-reads it. Call after editing exceptions. */
+    /** Drops the cached profile so the next decision re-reads it. */
     public void invalidate() {
         cachedAccount = -1;
+        cachedGeneration = -1;
         cachedProfile = null;
     }
 
+    /**
+     * Cached, because this runs on every incoming message; re-read whenever the store was
+     * written, so an exception added in settings takes effect on the next message rather than
+     * on the next process start. Nobody has to remember to call invalidate().
+     */
     private SilenceProfile profile(int account) {
-        if (cachedAccount != account || cachedProfile == null) {
+        final int generation = SilenceStore.generation();
+        if (cachedAccount != account || cachedProfile == null || cachedGeneration != generation) {
             cachedProfile = store.load(account);
             cachedAccount = account;
+            cachedGeneration = generation;
         }
         return cachedProfile;
     }
