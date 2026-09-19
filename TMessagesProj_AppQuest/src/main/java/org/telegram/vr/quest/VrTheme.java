@@ -65,23 +65,68 @@ public final class VrTheme {
     }
 
     /**
+     * Repaints the slot, every start.
+     *
+     * This is separate from selecting it, and the separation was learned on a device. Upstream
+     * defines accent 10's colour in a literal array in {@code Theme.java} and persists only the
+     * *selected* id — after the first run, `themeconfig.xml` held
+     * {@code accent_current_night.attheme=10} and no colour at all, so the next launch would
+     * have rebuilt upstream's violet from the array and the brand colour would have lasted
+     * exactly one session. The build could not show this; the headset did.
+     *
+     * So the colour is asserted on every start while the SELECTION is only a first-run default.
+     * A user who picks another accent keeps it; whoever picks slot 10 always gets Nicegram's
+     * purple rather than a slot that means one thing today and another tomorrow.
+     *
+     * @return true when the slot was repainted.
+     */
+    public static boolean enforceAccentColour() {
+        try {
+            final Theme.ThemeAccent accent = accentSlot();
+            if (accent == null) {
+                return false;
+            }
+            if (accent.accentColor == ACCENT && accent.myMessagesAccentColor == MY_MESSAGES) {
+                return true;
+            }
+            accent.accentColor = ACCENT;
+            accent.myMessagesAccentColor = MY_MESSAGES;
+            // indexOnly=false rather than the true the first version passed. It is the right
+            // call, but it is NOT what makes the colour hold: the blob upstream then writes to
+            // `accents_night.attheme` was decoded on the device and is `09 00 00 00 00 00 00 00`
+            // — an id record, with no palette in it. Nothing persists this colour. Re-asserting
+            // it on every start is therefore the mechanism, not a safety net, which is why this
+            // method is called from the application's onCreate and not only on first run.
+            Theme.saveThemeAccents(Theme.getTheme("Night"), true, false, false, false);
+            return true;
+        } catch (Throwable e) {
+            return false;
+        }
+    }
+
+    private static Theme.ThemeAccent accentSlot() {
+        final Theme.ThemeInfo night = Theme.getTheme("Night");
+        if (night == null || night.themeAccentsMap == null) {
+            return null;
+        }
+        return night.themeAccentsMap.get(NIGHT_VIOLET_ACCENT_ID);
+    }
+
+    /**
      * @return true when the accent was actually applied. Also reachable from "reset to
      *         defaults" in the headset settings.
      */
     public static boolean applyDefaults() {
         try {
             final Theme.ThemeInfo night = Theme.getTheme("Night");
-            if (night == null || night.themeAccentsMap == null) {
+            if (night == null || accentSlot() == null) {
                 return false;
             }
-            final Theme.ThemeAccent accent = night.themeAccentsMap.get(NIGHT_VIOLET_ACCENT_ID);
-            if (accent == null) {
+            if (!enforceAccentColour()) {
                 return false;
             }
-            accent.accentColor = ACCENT;
-            accent.myMessagesAccentColor = MY_MESSAGES;
             night.setCurrentAccentId(NIGHT_VIOLET_ACCENT_ID);
-            Theme.saveThemeAccents(night, true, false, true, false);
+            Theme.saveThemeAccents(night, true, false, false, false);
             Theme.applyTheme(night, true, true);
             return true;
         } catch (Throwable e) {

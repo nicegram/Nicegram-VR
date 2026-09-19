@@ -42,6 +42,10 @@ public class QuestApplicationLoader extends ApplicationLoader {
         // The brand, and only the accent of it. Retries next start if the theme engine has not
         // loaded its themes yet — see VrTheme for why the marker is not written on failure.
         VrTheme.applyDefaultsOnce(this);
+        // And the colour again on EVERY start: upstream keeps accent 10's colour in a literal
+        // array and persists only which accent is selected, so a slot repainted once reverts on
+        // the next launch. Measured on a headset — themeconfig.xml held the id and no colour.
+        VrTheme.enforceAccentColour();
         // The exceptions screen lives in this module, so shared settings can only reach it
         // through the registry. Installed here, it appears as one row in Notifications.
         VrEntryPoints.installSilenceRow(new VrEntryPoints.SettingsRow() {
