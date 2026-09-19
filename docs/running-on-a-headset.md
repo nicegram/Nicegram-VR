@@ -123,6 +123,14 @@ taken on a release build while scrolling a real chat list, which is the next dev
 
 **Memory.** TOTAL PSS **210 MB**, RSS 311 MB, native heap 45 MB, Dalvik heap 15 MB.
 
+**The scale that the panel then disproved.** Signed in, the chat list showed **four chats** on a
+1280 px-wide panel — reported from inside the headset, and reproduced exactly by arithmetic:
+800 px / (1.25 × 1.54) = 415.6 dp of height, minus 48 dp of action bar and 44 dp of folder
+strip, over a 70 dp `DialogCell`, is 4.6 rows. The 1.54 came from an assumed panel of
+"1440×900 dp at 1.3 m"; this one is 1024×640 dp. Re-based the same evening — steps are now
+absolute multipliers on the system density (0.85 / 1.0 / 1.25 / 1.54) with the default at 1.0,
+which is 7 rows, and the setting names the count rather than a size. Finding A-20.
+
 **A screenshot of the panel cannot be taken with `adb`.** `adb exec-out screencap` returns the
 4128×2208 compositor frame — passthrough and immersive layers only; the 2D panel is composited
 by the spatial shell and is not in it. Two captures confirmed it, one while an immersive app was

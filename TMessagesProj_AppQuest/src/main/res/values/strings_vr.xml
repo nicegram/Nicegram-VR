@@ -57,10 +57,7 @@
     <string name="vr_settings_motion">Motion</string>
     <string name="vr_settings_quiet">Quiet</string>
     <string name="vr_density">Interface size</string>
-    <string name="vr_density_compact">Compact</string>
-    <string name="vr_density_normal">Normal</string>
-    <string name="vr_density_large">Large</string>
-    <string name="vr_density_info">Text and rows scale. Targets you point at do not get smaller: a ray is only steady to about a degree, and that is a property of your hand rather than a preference.</string>
+    <string name="vr_density_info">Each step says how much of the chat list it leaves you, because that is what you actually feel. Targets you point at never get smaller: a ray is only steady to about a degree, and that is a property of your hand rather than a preference.</string>
     <string name="vr_density_applies_next_start">Applies the next time the app starts.</string>
     <string name="vr_autoplay">Play media automatically</string>
     <string name="vr_stickers">Animated stickers in chats</string>
@@ -103,4 +100,11 @@
     <string name="vr_layout_single">One at a time</string>
     <string name="vr_layout_split">List and chat side by side</string>
     <string name="vr_layout_info">A headset panel is wide in pixels and narrow in the size things are drawn at, so showing the list and a chat at once leaves the conversation squeezed. One at a time is the default: the chat list, or the chat you opened.</string>
+
+    <!-- Interface scale, re-based 19 September after the first device run -->
+    <string name="vr_density_most_rows">Most of the list</string>
+    <string name="vr_density_balanced">Balanced</string>
+    <string name="vr_density_larger">Larger</string>
+    <string name="vr_density_largest">Largest</string>
+    <string name="vr_density_rows">%1$s \u2014 about %2$d chats</string>
 </resources>

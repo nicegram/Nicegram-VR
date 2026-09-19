@@ -154,12 +154,52 @@ public class VrSettingsActivity extends BaseFragment {
         return LiteMode.isEnabled(LiteMode.FLAG_AUTOPLAY_VIDEOS);
     }
 
+    private static final int[] DENSITY_STEP_NAMES = {
+            app.nicegram.vr.R.string.vr_density_most_rows,
+            app.nicegram.vr.R.string.vr_density_balanced,
+            app.nicegram.vr.R.string.vr_density_larger,
+            app.nicegram.vr.R.string.vr_density_largest,
+    };
+
+    /**
+     * The panel's height in real pixels and the density the platform chose for it, before any
+     * step of ours. Taken from the display rather than assumed, because the whole reason this
+     * scale was re-based is that the assumed panel was not the real one.
+     */
+    private static int panelHeightPx() {
+        // The activity is locked to landscape, so the height is the smaller side. Guarded
+        // because displaySize is zero until checkDisplaySize has run at least once.
+        final int x = AndroidUtilities.displaySize.x;
+        final int y = AndroidUtilities.displaySize.y;
+        return x <= 0 || y <= 0 ? 0 : Math.min(x, y);
+    }
+
+    /**
+     * The platform's own density, untouched by this build's step: {@code checkDisplaySize}
+     * multiplies {@link AndroidUtilities#density}, while the Resources it read from keep
+     * reporting what the system decided. Reading it here rather than dividing our own value
+     * back out avoids compounding the two if the seam ever changes.
+     */
+    private static float systemDensity() {
+        return ApplicationLoader.applicationContext.getResources().getDisplayMetrics().density;
+    }
+
+    /**
+     * "Balanced — about 7 chats". A density control named only by size asks a person to imagine
+     * the result; this one states it. The count comes from the panel in front of them.
+     */
+    private static CharSequence densityChoiceLabel(int step) {
+        final String name = LocaleController.getString(DENSITY_STEP_NAMES[step]);
+        final int rows = VrDensity.rowsForStep(panelHeightPx(), systemDensity(), step);
+        return rows <= 0 ? name : String.format(
+                LocaleController.getString(app.nicegram.vr.R.string.vr_density_rows), name, rows);
+    }
+
     private void chooseDensity(Context context) {
-        final CharSequence[] labels = {
-                LocaleController.getString(app.nicegram.vr.R.string.vr_density_compact),
-                LocaleController.getString(app.nicegram.vr.R.string.vr_density_normal),
-                LocaleController.getString(app.nicegram.vr.R.string.vr_density_large),
-        };
+        final CharSequence[] labels = new CharSequence[VrDensity.STEP_COUNT];
+        for (int step = 0; step < VrDensity.STEP_COUNT; step++) {
+            labels[step] = densityChoiceLabel(step);
+        }
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(LocaleController.getString(app.nicegram.vr.R.string.vr_density));
         builder.setItems(labels, (dialog, which) -> {
@@ -184,7 +224,7 @@ public class VrSettingsActivity extends BaseFragment {
         builder.setTitle(LocaleController.getString(app.nicegram.vr.R.string.vr_reset));
         builder.setMessage(LocaleController.getString(app.nicegram.vr.R.string.vr_reset_text));
         builder.setPositiveButton(LocaleController.getString(app.nicegram.vr.R.string.vr_reset_do), (dialog, which) -> {
-            VrDensity.setStep(context, VrDensity.STEP_NORMAL);
+            VrDensity.setStep(context, VrDensity.STEP_BALANCED);
             VrPerformance.applyDefaults();
             VrLayout.applyDefaults();
             rebuild();
@@ -332,14 +372,7 @@ public class VrSettingsActivity extends BaseFragment {
     }
 
     private String densityLabel(Context context) {
-        switch (VrDensity.step(context)) {
-            case VrDensity.STEP_COMPACT:
-                return LocaleController.getString(app.nicegram.vr.R.string.vr_density_compact);
-            case VrDensity.STEP_LARGE:
-                return LocaleController.getString(app.nicegram.vr.R.string.vr_density_large);
-            default:
-                return LocaleController.getString(app.nicegram.vr.R.string.vr_density_normal);
-        }
+        return densityChoiceLabel(VrDensity.step(context)).toString();
     }
 
     @Override
