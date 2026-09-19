@@ -2,13 +2,18 @@
 
 > **Status, 19 September 2026, later the same day.** Done and pushed: P-01 … P-08, **P-11**
 > (dictation's provider layer and its own screen) and P-17. P-15 has its seam and not its wiring.
-> Open: **P-09** (device protocol — the headset was unreachable all day), **P-10** (sign in by
-> code), **P-12** (the composer trigger, the second half of dictation), **P-13** (message action
-> bar), **P-14** (gallery shortcuts), **P-15** (the `DialogsActivity` half), **P-16** (store
-> metadata, blocked on VRQ-001), and **P-18**, added today out of finding A-19 — the headset
-> strings reach no language pack, so the interface is English whatever the user chose.
+> Open: **P-09** (device protocol — **the first run happened**; what is left is behind sign-in),
+> **P-10** (sign in by code), **P-12** (the composer trigger, the second half of dictation),
+> **P-13** (message action bar), **P-14** (gallery shortcuts), **P-15** (the `DialogsActivity`
+> half), **P-16** (store metadata, blocked on VRQ-001), and **P-18**, added today out of finding
+> A-19 — the headset strings reach no language pack, so the interface is English whatever the
+> user chose.
 >
-> Every device acceptance below is still owed. Nothing in this repository has run on a headset.
+> **This build has now run on a Quest 3**, 19 September 2026: installed in 12 s, started without
+> a crash, and the density fix proved itself in the running interface — a button declared 56 dp
+> measured 108 px, against the 1.925 px/dp this build intends. Readings in
+> [running-on-a-headset.md](running-on-a-headset.md). Every acceptance *behind sign-in* is still
+> owed, and that is most of them.
 
 Written for an agent with no prior context. Each task says what to do, where exactly, what
 "done" means in a form that can be checked, and what has already gone wrong in that area so it
@@ -288,8 +293,27 @@ Runs first after P-01 and P-02, and again after every later task. Steps and orde
 that cannot be skipped: **a second device signed into the same account shows unchanged
 notification settings** after exceptions were added on the headset.
 
-**Known blocker.** The headset at `192.168.0.253:5555` reported `offline` all day. Stale adb
-entries must be cleared (`adb disconnect`) before concluding anything about the build.
+**First run done, 19 September 2026.** The blocker cleared the moment the headset was worn:
+`device offline` right after a successful `connect` is the RSA authorisation handshake waiting
+for a human inside the headset, not a broken build or a bad address. Install 12 s, start clean,
+no crash. The readings — panel geometry, the density proof, the tablet threshold, frames and
+memory — are written up in [running-on-a-headset.md](running-on-a-headset.md) under *Measured on
+a Quest 3*, and A-08 in the audit is rewritten around them.
+
+**Two things that change how this task is run from now on:**
+
+1. **`adb exec-out screencap` cannot photograph a 2D panel.** It returns the compositor frame —
+   passthrough and immersive layers. `uiautomator dump` is the evidence channel: it names the
+   package and gives exact pixel bounds per node, which is what every measurement in the runbook
+   came from. Do not plan a device check around screenshots.
+2. **A wearer is part of the protocol.** Authorisation, leaving an immersive app, and anything
+   behind sign-in need the headset on a head. Batch those steps into one sitting rather than
+   asking repeatedly.
+
+**Still owed on a device:** everything behind sign-in. The silence gate on a real launch with
+unread messages, the second-device check that account settings did not move, the signed-in
+tablet layout that A-08 now turns on, a release-build frame reading while scrolling a real chat
+list, and dictation end to end against a configured service.
 
 ---
 

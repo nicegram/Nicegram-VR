@@ -61,6 +61,86 @@ The two lines worth looking for on a first run:
 - Any `AndroidRuntime` stack trace — on a headset a crash can look like the app simply never
   appearing, because there is no window to show the dialog in.
 
+
+## Measured on a Quest 3 — 19 September 2026
+
+The first run on real hardware. Everything below is a reading, not an expectation; where a
+number is a baseline rather than a verdict, it says so.
+
+**The device.** Quest 3, Horizon OS on Android 14 (SDK 34), build `UP1A.231005.007.A1`,
+`arm64-v8a`. Whole display 4128×2208. System locale `ru_RU`.
+
+**Install and start.** `adb connect 192.168.0.253:5555` then
+`adb install -r -t nicegram-vr.apk` — 134 MB over Wi-Fi, **12 s**, `Success`. Launched with
+`monkey -p app.nicegram.vr -c android.intent.category.LAUNCHER 1`. No `FATAL`, no
+`AndroidRuntime` stack. `tgnet` wrote its per-account config files, so the network stack came
+up. Horizon OS moved the app `HIGH_PERCEPTION -> CRITICAL_PERCEPTION`, which is its way of
+saying the panel is the thing the wearer is looking at.
+
+**The panel, from `dumpsys activity activities`:**
+
+```
+sw640dp w1024dp h640dp 200dpi lrg land night -touch -keyb -nav
+mBounds=Rect(0, 0 - 1280, 800)   mWindowingMode=multi-window   [ru_RU]
+```
+
+1280×800 px at 200 dpi, so the system density is **1.25**. Landscape, dark mode on, no
+touchscreen — all as designed for.
+
+**A-01 is proven here, and this is how.** `uiautomator dump` reports the login screen's floating
+button at `[974,214][1082,322]` — **108×108 px**. Upstream declares that button as **56×56 dp**
+(`FragmentFloatingButton.createDefaultLayoutParamsBig`, `:189`). 108 / 56 = **1.929 px/dp**,
+against the 1.25 × 1.54 = **1.925** this build intends. The headset scale reaches the running
+interface; without the fix it would be 1.25 and the button would measure 70 px. A measurement
+this direct exists because the fix was in the one place density is assigned, and it is the
+acceptance A-01 was owed.
+
+**The tablet threshold — A-08, answered.** The panel reports `sw640dp`, and the package defines
+`bool/isTablet` as `true` for `sw600dp` (`aapt2 dump resources`: `() false`, `(sw600dp) true`).
+**The app therefore runs in tablet mode on a Quest 3.** Whether that splits the screen depends
+on a second condition: `LaunchActivity` takes the two-column branch only when
+`!AndroidUtilities.isInMultiwindow`, and the panel's windowing mode **is** `multi-window`, so
+the split is most likely collapsed to one full-width column. *Most likely, not measured* — the
+sign-in screen is not the split layout, and the split can only be seen once an account is
+signed in. Upstream already carries the switch to settle it either way:
+`SharedConfig.forceDisableTabletMode` (`SharedConfig.java:627`, default `false`).
+
+**Frames, on an almost static screen.** `dumpsys gfxinfo` after start-up and the login form:
+
+| | |
+|---|---|
+| Frames rendered | 4073 |
+| Janky | 243 (**5.97%**) |
+| 50th percentile | **11 ms** |
+| 90th percentile | **22 ms** |
+| 95th / 99th | 27 ms / 48 ms |
+| Missed Vsync | 42 |
+
+The budget for 60 fps is 16.67 ms. The median frame fits; **one frame in ten does not**, before
+any list has been scrolled. Read it as a baseline and not a verdict: this is a debug build with
+no minification, and the counters include process start-up. The VRC gate needs the same reading
+taken on a release build while scrolling a real chat list, which is the next device task.
+
+**Memory.** TOTAL PSS **210 MB**, RSS 311 MB, native heap 45 MB, Dalvik heap 15 MB.
+
+**A screenshot of the panel cannot be taken with `adb`.** `adb exec-out screencap` returns the
+4128×2208 compositor frame — passthrough and immersive layers only; the 2D panel is composited
+by the spatial shell and is not in it. Two captures confirmed it, one while an immersive app was
+in front and one while our panel was the active window. **The evidence channel for layout is
+therefore `uiautomator dump`**, which works, names the package, and gives exact pixel bounds for
+every node — every number in this section came from it. Anyone writing a device check should
+plan for that and not for pictures.
+
+**One thing seen in passing.** The hierarchy shows a *«Тестировать backend»* checkbox on the
+sign-in screen — upstream's test-server toggle, which appears because this is a debug build. It
+must not be reachable in anything published.
+
+**And a sharper reason for A-19 than the one written at the time.** The sign-in screen came up
+in Russian — *«Номер телефона»*, *«Проверьте код страны и введите свой номер телефона»* — because
+upstream's strings arrive from the language pack and the system is `ru_RU`. Had the headset
+module's own strings stayed in Android resources, they would have been the only English text on
+an otherwise Russian screen.
+
 ## What to check on a first run, in this order
 
 1. It starts, and stays up for half an hour without dying.

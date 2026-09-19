@@ -7,11 +7,13 @@ built as a 2D Horizon OS application. It is a fork of
 [Telegram for Android](https://github.com/DrKLO/Telegram) and, like every other Nicegram
 client, its source is open — see [NOTICE.md](NOTICE.md) for the provenance and the licence.
 
-> **Status: early.** The repository builds; nothing has run on a headset yet. The
-> headset-specific layer is being written in the open, one piece at a time, and an
+> **Status: early.** It builds, and as of 19 September 2026 it installs and starts on a
+> Quest 3 — 12 seconds to install, no crash, and the headset's readability scale measurably
+> reaching the interface. Nothing behind sign-in has been exercised yet, which is most of what
+> this client is for. The readings are in
+> [running-on-a-headset.md](docs/running-on-a-headset.md); an
 > [audit](docs/audit-2026-09-19.md) and a [plan](docs/plan.md) say exactly what is missing.
-> When something is not finished, the issue tracker says so rather than the README implying
-> otherwise.
+> When something is not finished, this file says so rather than implying otherwise.
 
 ## Why it exists
 
