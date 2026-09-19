@@ -26,10 +26,13 @@ every fork for three things and we honour all three:
 
 ## Artwork
 
-The launcher icon is **Nicegram's own brand mark**, copied from the Nicegram Android client's
-`nicegram-features` module (`res/mipmap-*/ic_launcher_nicegram*`, plus its adaptive-icon XML and
-the white background colour). Both applications belong to the same owner, which is why the mark
-is reused rather than redrawn. It is not Telegram artwork: upstream's own `ic_launcher` is the
+The launcher icon is **Nicegram's own brand mark** — the black N — copied from the Nicegram
+Android client's `nicegram-features` module (`res/mipmap-*/ic_launcher_nicegram_light*`, plus its
+adaptive-icon XML and the white background colour). The `_light` in that name is the source
+repository's, and it means the light-background variant rather than a lighter mark; it is kept
+unchanged so the files can be traced back byte for byte. The gradient variant of the same mark
+exists there too and is not shipped here. Both applications belong to the same owner, which is
+why the mark is reused rather than redrawn. It is not Telegram artwork: upstream's own `ic_launcher` is the
 blue paper plane and is deliberately not used here, because point 2 above applies to the icon as
 much as to the name.
 
