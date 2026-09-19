@@ -14,3 +14,21 @@ TMessagesProj_AppHockeyApp/afat/
 TMessagesProj_AppStandalone/afat/
 TMessagesProj_AppHuawei/afat/
 TMessagesProj/jni/ffmpeg/build_android
+
+# Signing keys and secrets — never in this repository, and it is public.
+#
+# The ONE keystore that is tracked is upstream's own development key, which arrived with the
+# import commit and whose password is published in Telegram's open source. It signs debug
+# builds and nothing else; the build refuses to sign a release with it, by name.
+#
+# The real release key lives outside every git tree (~/.keystores) with its password in the
+# machine's vault. These patterns exist so that a copy landing here by accident is never
+# staged. A pattern cannot untrack what is already tracked, so upstream's file is unaffected.
+*.jks
+*.keystore
+!TMessagesProj/config/release.keystore
+*.p12
+*.pem
+*.key
+.env
+.env.*
