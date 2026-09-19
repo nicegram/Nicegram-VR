@@ -7,8 +7,9 @@ built as a 2D Horizon OS application. It is a fork of
 [Telegram for Android](https://github.com/DrKLO/Telegram) and, like every other Nicegram
 client, its source is open — see [NOTICE.md](NOTICE.md) for the provenance and the licence.
 
-> **Status: early.** The repository builds and installs. The headset-specific layer is being
-> written in the open, one piece at a time, and nothing here has been measured on a device yet.
+> **Status: early.** The repository builds; nothing has run on a headset yet. The
+> headset-specific layer is being written in the open, one piece at a time, and an
+> [audit](docs/audit-2026-09-19.md) and a [plan](docs/plan.md) say exactly what is missing.
 > When something is not finished, the issue tracker says so rather than the README implying
 > otherwise.
 
