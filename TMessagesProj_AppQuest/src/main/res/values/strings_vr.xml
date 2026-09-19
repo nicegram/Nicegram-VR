@@ -23,4 +23,22 @@
     <string name="vr_word_empty">Enter a word.</string>
     <string name="vr_save">Save</string>
     <string name="vr_cancel">Cancel</string>
+    <string name="vr_loading">Loading…</string>
+    <string name="vr_digest_title">What piled up</string>
+    <string name="vr_digest_empty">Nobody wrote in that time.</string>
+    <string name="vr_digest_since">Since %1$s</string>
+    <string name="vr_digest_mark_seen">Mark everything seen</string>
+    <string name="vr_digest_row_value">%1$d chats</string>
+    <string name="vr_silence_chats_header">Chats</string>
+    <string name="vr_silence_count">%1$d</string>
+    <string name="vr_intro_title">It is quiet here</string>
+    <string name="vr_intro_line1">By default nothing arrives: no banners, no sound.</string>
+    <string name="vr_intro_line2">Name the people, chats and words worth interrupting you.</string>
+    <string name="vr_intro_line3">While the app is closed, messages do not arrive. They appear here the next time you open it.</string>
+    <string name="vr_intro_accept">Got it</string>
+    <string name="vr_intro_exceptions">Name exceptions</string>
+    <plurals name="vr_digest_messages">
+        <item quantity="one">%1$d message</item>
+        <item quantity="other">%1$d messages</item>
+    </plurals>
 </resources>

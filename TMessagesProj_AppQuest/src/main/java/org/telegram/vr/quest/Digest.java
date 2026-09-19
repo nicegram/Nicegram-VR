@@ -11,17 +11,29 @@ import java.util.Map;
 /**
  * Nicegram VR — what accumulated while nobody was interrupted.
  *
- * Counts per dialog, with the period start, so the user is shown "three chats since 14:20"
- * rather than a stack of thirty banners delivered late. It lives in memory on purpose: after a
- * restart the period begins at launch and anything genuinely missed arrives through the normal
- * history sync, so there is no second, staler copy of the truth to keep consistent.
+ * Counts per dialog with the period start, so what a returning user sees is "three chats since
+ * 14:20" rather than a stack of thirty banners delivered late.
+ *
+ * In memory on purpose: after a restart the period begins at launch and anything genuinely
+ * missed arrives through ordinary history sync, so there is no second, staler copy of the truth
+ * to keep consistent.
  */
 public final class Digest {
+
+    /** Beyond this many dialogs the oldest is dropped: a digest nobody can read is not a digest. */
+    private static final int MAX_DIALOGS = 200;
+    /** The preview is a preview. Holding a whole message keeps its spans alive for the session. */
+    private static final int PREVIEW_CHARS = 200;
 
     public static final class Entry {
         public final long dialogId;
         public int count;
-        public CharSequence lastText;
+        /**
+         * Deliberately a String, not the CharSequence it came from. Telegram's message text is
+         * frequently a Spannable whose spans reference other objects; keeping one per dialog for
+         * the length of a session is a retention leak that nothing would ever point at.
+         */
+        public String lastText;
         public int lastDate;
 
         Entry(long dialogId) {
@@ -29,7 +41,7 @@ public final class Digest {
         }
     }
 
-    private final Map<Long, Entry> entries = new LinkedHashMap<>();
+    private final LinkedHashMap<Long, Entry> entries = new LinkedHashMap<>();
     private long since = System.currentTimeMillis();
 
     public synchronized void add(int currentAccount, MessageObject message) {
@@ -37,20 +49,35 @@ public final class Digest {
             return;
         }
         final long dialogId = message.getDialogId();
-        Entry entry = entries.get(dialogId);
+        Entry entry = entries.remove(dialogId);
         if (entry == null) {
             entry = new Entry(dialogId);
-            entries.put(dialogId, entry);
         }
         entry.count++;
-        entry.lastText = message.messageText;
+        entry.lastText = preview(message.messageText);
         if (message.messageOwner != null) {
             entry.lastDate = message.messageOwner.date;
         }
+        // Re-inserted so iteration order is most-recent-last; the screen reverses it.
+        entries.put(dialogId, entry);
+        while (entries.size() > MAX_DIALOGS) {
+            entries.remove(entries.keySet().iterator().next());
+        }
     }
 
+    static String preview(CharSequence text) {
+        if (text == null) {
+            return "";
+        }
+        final String s = text.toString().replace('\n', ' ').trim();
+        return s.length() <= PREVIEW_CHARS ? s : s.substring(0, PREVIEW_CHARS);
+    }
+
+    /** Most recent first. */
     public synchronized List<Entry> snapshot() {
-        return Collections.unmodifiableList(new ArrayList<>(entries.values()));
+        final ArrayList<Entry> out = new ArrayList<>(entries.values());
+        Collections.reverse(out);
+        return Collections.unmodifiableList(out);
     }
 
     public synchronized int chatCount() {
@@ -59,8 +86,8 @@ public final class Digest {
 
     public synchronized int messageCount() {
         int total = 0;
-        for (Entry e : entries.values()) {
-            total += e.count;
+        for (Map.Entry<Long, Entry> e : entries.entrySet()) {
+            total += e.getValue().count;
         }
         return total;
     }

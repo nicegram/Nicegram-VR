@@ -26,6 +26,7 @@ public final class SilenceGate implements VrPolicy.Gate {
 
     public SilenceGate(SilenceStore store) {
         this.store = store;
+        QuestRuntime.setGate(this);
     }
 
     public Digest digest() {

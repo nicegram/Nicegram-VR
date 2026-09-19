@@ -4,6 +4,9 @@ import org.telegram.vr.VrDisplay;
 import org.telegram.vr.VrEntryPoints;
 import org.telegram.vr.VrPolicy;
 import org.telegram.vr.quest.SilenceGate;
+import org.telegram.vr.quest.DigestActivity;
+import org.telegram.vr.quest.FirstRunActivity;
+import org.telegram.vr.quest.QuestRuntime;
 import org.telegram.vr.quest.SilenceRulesActivity;
 import org.telegram.vr.quest.SilenceStore;
 import org.telegram.vr.quest.VrDensity;
@@ -34,10 +37,38 @@ public class QuestApplicationLoader extends ApplicationLoader {
             }
 
             @Override
+            public CharSequence value() {
+                final int n = SilenceRulesActivity.count(org.telegram.messenger.UserConfig.selectedAccount);
+                return n == 0 ? null : getString(app.nicegram.vr.R.string.vr_silence_count, n);
+            }
+
+            @Override
             public org.telegram.ui.ActionBar.BaseFragment create() {
                 return new SilenceRulesActivity();
             }
         });
+        VrEntryPoints.installDigestRow(new VrEntryPoints.SettingsRow() {
+            @Override
+            public CharSequence title() {
+                return getString(app.nicegram.vr.R.string.vr_digest_title);
+            }
+
+            @Override
+            public CharSequence value() {
+                final org.telegram.vr.quest.Digest digest = QuestRuntime.digest();
+                final int chats = digest == null ? 0 : digest.chatCount();
+                return chats == 0 ? null : getString(app.nicegram.vr.R.string.vr_digest_row_value, chats);
+            }
+
+            @Override
+            public org.telegram.ui.ActionBar.BaseFragment create() {
+                return new DigestActivity();
+            }
+        });
+        // Shown at most once per install, and it is the app's only chance to say that a closed
+        // client receives nothing before the user finds it out by missing something.
+        VrEntryPoints.installFirstRun(currentAccount ->
+                FirstRunActivity.isDue(QuestApplicationLoader.this) ? new FirstRunActivity() : null);
     }
 
     @Override

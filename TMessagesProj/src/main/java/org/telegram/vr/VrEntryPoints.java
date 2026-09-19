@@ -4,8 +4,8 @@
  * The library module cannot see the headset module: the dependency runs the other way. So a
  * screen that lives in the headset build cannot be named from shared code, and a string that
  * lives in its resources cannot be read there either. This registry is the seam. The headset
- * flavour fills it in at startup; every other flavour leaves it empty and the row does not
- * exist, which is why the shared edit that consumes it is three lines and a null check.
+ * flavour fills it in at startup; every other flavour leaves it empty, the rows do not exist,
+ * and the shared edits that consume it are a null check each.
  */
 package org.telegram.vr;
 
@@ -18,10 +18,24 @@ public final class VrEntryPoints {
         /** Already localised by whoever installed it; shared code only displays it. */
         CharSequence title();
 
+        /** The right-hand value, or null for a row with none. */
+        CharSequence value();
+
         BaseFragment create();
     }
 
+    /**
+     * A screen shown at most once in the life of an install — the headset build owns the
+     * "once", because only it knows what it has already shown.
+     */
+    public interface FirstRun {
+        /** @return the fragment to show now, or null if it is not due. */
+        BaseFragment takeIfDue(int currentAccount);
+    }
+
     private static volatile SettingsRow silenceRow;
+    private static volatile SettingsRow digestRow;
+    private static volatile FirstRun firstRun;
 
     private VrEntryPoints() {
     }
@@ -30,8 +44,36 @@ public final class VrEntryPoints {
         silenceRow = row;
     }
 
+    public static void installDigestRow(SettingsRow row) {
+        digestRow = row;
+    }
+
+    public static void installFirstRun(FirstRun run) {
+        firstRun = run;
+    }
+
     /** Null on every build except the headset one. Callers hide the row when it is null. */
     public static SettingsRow silenceRow() {
         return silenceRow;
+    }
+
+    public static SettingsRow digestRow() {
+        return digestRow;
+    }
+
+    /**
+     * Consulted on resume. Fails quiet: a first-run screen that throws must not be able to stop
+     * the client from opening, which is the one failure a user cannot work around.
+     */
+    public static BaseFragment takeFirstRunFragment(int currentAccount) {
+        final FirstRun run = firstRun;
+        if (run == null) {
+            return null;
+        }
+        try {
+            return run.takeIfDue(currentAccount);
+        } catch (Throwable e) {
+            return null;
+        }
     }
 }

@@ -16,4 +16,24 @@
     <string name="vr_word_empty">Введите слово.</string>
     <string name="vr_save">Сохранить</string>
     <string name="vr_cancel">Отмена</string>
+    <string name="vr_loading">Загружается…</string>
+    <string name="vr_digest_title">Накопилось</string>
+    <string name="vr_digest_empty">За это время никто не писал.</string>
+    <string name="vr_digest_since">С %1$s</string>
+    <string name="vr_digest_mark_seen">Отметить всё просмотренным</string>
+    <string name="vr_digest_row_value">%1$d чатов</string>
+    <string name="vr_silence_chats_header">Чаты</string>
+    <string name="vr_silence_count">%1$d</string>
+    <string name="vr_intro_title">Здесь тихо</string>
+    <string name="vr_intro_line1">По умолчанию не приходит ничего: ни баннеров, ни звука.</string>
+    <string name="vr_intro_line2">Назовите людей, чаты и слова, ради которых вас можно отвлечь.</string>
+    <string name="vr_intro_line3">Пока приложение закрыто, сообщения не приходят. Они появятся здесь при следующем запуске.</string>
+    <string name="vr_intro_accept">Понятно</string>
+    <string name="vr_intro_exceptions">Назвать исключения</string>
+    <plurals name="vr_digest_messages">
+        <item quantity="one">%1$d сообщение</item>
+        <item quantity="few">%1$d сообщения</item>
+        <item quantity="many">%1$d сообщений</item>
+        <item quantity="other">%1$d сообщения</item>
+    </plurals>
 </resources>
