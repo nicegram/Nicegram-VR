@@ -50,7 +50,9 @@ thirteen submodules including FFmpeg and BoringSSL, pinned to the revisions upst
 native build targets `arm64-v8a` only, because that is what a Quest is.
 
 Missing keys stop the build at the first compile task with a message naming them.
-`local.properties` is in `.gitignore` and must stay there.
+`local.properties` is in `.gitignore` and must stay there. Registering your own `api_id`
+rather than borrowing one, and signing a release with a key that is not the development
+keystore in this repository: [production setup](docs/production-setup.md).
 
 ## Layout
 

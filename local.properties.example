@@ -11,3 +11,20 @@ sdk.dir=/path/to/Android/sdk
 # CI passes the same two names as environment variables instead of this file.
 TELEGRAM_APP_ID=
 TELEGRAM_APP_HASH=
+
+# --- Only needed for a RELEASE build (assembleQuestStandalone) ---
+# A debug build does not need these and will not read them.
+#
+# The keystore checked into this repository signs debug builds only. Its password is the word
+# "android" and is in gradle.properties, so anyone who cloned the repository can sign with it.
+# A release needs a key you generated and kept: whatever signs the first published build is the
+# only key that can ever update it.
+#
+#   keytool -genkey -v -keystore nicegram-vr.keystore -alias nicegram-vr \
+#           -keyalg RSA -keysize 4096 -validity 10000
+#
+# Keep the file out of the repository. CI passes the same four names as environment variables.
+NICEGRAM_VR_KEYSTORE=
+NICEGRAM_VR_KEYSTORE_PASSWORD=
+NICEGRAM_VR_KEY_ALIAS=
+NICEGRAM_VR_KEY_PASSWORD=
