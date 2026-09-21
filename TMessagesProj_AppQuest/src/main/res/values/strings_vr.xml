@@ -111,4 +111,10 @@
     <!-- The master notification switch, in the chat-list header -->
     <string name="vr_master_on">Notifications on \u2014 your exceptions decide</string>
     <string name="vr_master_off">Notifications off \u2014 nothing will interrupt you</string>
+
+    <!-- About -->
+    <string name="vr_settings_about">About</string>
+    <string name="vr_about_source">Source code</string>
+    <string name="vr_about_site">About Nicegram</string>
+    <string name="vr_about_info">Nicegram VR is an unofficial, open-source Telegram client built for a headset. It is not made or endorsed by Telegram. Your account, your messages and the rules they follow stay Telegram\u2019s; what this client adds is a quiet panel you can answer from.</string>
 </resources>

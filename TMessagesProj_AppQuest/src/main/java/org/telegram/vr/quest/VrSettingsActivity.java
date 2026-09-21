@@ -24,6 +24,7 @@ import org.telegram.ui.Cells.HeaderCell;
 import org.telegram.ui.Cells.TextCheckCell;
 import org.telegram.ui.Cells.TextInfoPrivacyCell;
 import org.telegram.ui.Cells.TextSettingsCell;
+import org.telegram.messenger.browser.Browser;
 import org.telegram.ui.Components.EditTextBoldCursor;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.RecyclerListView;
@@ -58,6 +59,17 @@ public class VrSettingsActivity extends BaseFragment {
     private static final int ID_DICT_LANGUAGE = 9;
     private static final int ID_DICT_TEST = 10;
     private static final int ID_LAYOUT = 11;
+    private static final int ID_ABOUT_SOURCE = 12;
+    private static final int ID_ABOUT_SITE = 13;
+
+    /**
+     * The two links that resolve for anyone. Checked rather than assumed: the repository is
+     * public, and nicegram.me answers 200. The project's Data Room is deliberately NOT here —
+     * `nicegram/dataroom` is a private repository and okr.nicegram.me redirects to /login, so a
+     * row pointing at either would hand a user a login wall from inside a messenger.
+     */
+    private static final String SOURCE_URL = "https://github.com/nicegram/Nicegram-VR";
+    private static final String SITE_URL = "https://nicegram.me";
 
     private RecyclerListView listView;
     private ListAdapter adapter;
@@ -108,6 +120,12 @@ public class VrSettingsActivity extends BaseFragment {
                 break;
             case ID_LAYOUT:
                 chooseLayout(context);
+                break;
+            case ID_ABOUT_SOURCE:
+                Browser.openUrl(context, SOURCE_URL);
+                break;
+            case ID_ABOUT_SITE:
+                Browser.openUrl(context, SITE_URL);
                 break;
             case ID_AUTOPLAY: {
                 final boolean on = !isAutoplayOn();
@@ -275,6 +293,13 @@ public class VrSettingsActivity extends BaseFragment {
         items.add(Item.setting(ID_DICT_TEST,
                 LocaleController.getString(my.nicegram.vr.R.string.vr_dictation_test), null));
         items.add(Item.info(LocaleController.getString(my.nicegram.vr.R.string.vr_dictation_info)));
+
+        items.add(Item.header(LocaleController.getString(my.nicegram.vr.R.string.vr_settings_about)));
+        items.add(Item.setting(ID_ABOUT_SOURCE,
+                LocaleController.getString(my.nicegram.vr.R.string.vr_about_source), null));
+        items.add(Item.setting(ID_ABOUT_SITE,
+                LocaleController.getString(my.nicegram.vr.R.string.vr_about_site), null));
+        items.add(Item.info(LocaleController.getString(my.nicegram.vr.R.string.vr_about_info)));
 
         if (adapter != null) {
             adapter.notifyDataSetChanged();
