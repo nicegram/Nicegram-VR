@@ -2795,7 +2795,13 @@ public class AndroidUtilities {
                     displaySize.y = newSize;
                 }
             }
-            if (roundMessageSize == 0) {
+            // Nicegram VR: upstream computes these once and never again. On a headset the first
+            // call sees the DISPLAY and every later call sees the PANEL, so a round video was
+            // sized from 2064x2208 and drawn into a 525-pixel-wide window — 1238 px of video in
+            // 525 px of panel, which is the clipping reported from the device. Recomputed on
+            // every configuration where the window is not the display; untouched on a phone,
+            // where VrDisplay.windowed() is false.
+            if (roundMessageSize == 0 || org.telegram.vr.VrDisplay.windowed()) {
                 if (AndroidUtilities.isTablet()) {
                     roundMessageSize = (int) (getMinTabletSide() * 0.6f);
                     roundPlayingMessageSize = (int) (getMinTabletSide() - dp(28));
@@ -2809,7 +2815,7 @@ public class AndroidUtilities {
             }
             fillStatusBarHeight(context, true);
             if (BuildVars.LOGS_ENABLED) {
-                FileLog.e("density = " + density + " display size = " + displaySize.x + " " + displaySize.y + " " + displayMetrics.xdpi + "x" + displayMetrics.ydpi + ", screen layout: " + configuration.screenLayout + ", statusbar height: " + statusBarHeight + ", navbar height: " + navigationBarHeight);
+                FileLog.e("density = " + density + " display size = " + displaySize.x + " " + displaySize.y + " " + displayMetrics.xdpi + "x" + displayMetrics.ydpi + ", screen layout: " + configuration.screenLayout + ", statusbar height: " + statusBarHeight + ", navbar height: " + navigationBarHeight + ", round message size: " + roundMessageSize);
             }
             ViewConfiguration vc = ViewConfiguration.get(context);
             touchSlop = vc.getScaledTouchSlop();

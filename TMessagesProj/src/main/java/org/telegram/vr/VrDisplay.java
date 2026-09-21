@@ -28,6 +28,27 @@ public final class VrDisplay {
     }
 
     /**
+     * True when this build draws into a WINDOW smaller than the display it sits on — a 2D panel
+     * inside a spatial shell.
+     *
+     * It matters because upstream computes several sizes from {@code displaySize} exactly once,
+     * guarded by {@code == 0}, on the assumption that the first configuration a process sees is
+     * the one it will live in. On a phone that holds. On Horizon OS it does not: the first call
+     * carries the DISPLAY's configuration and every later one carries the PANEL's. Measured on
+     * the simulator, from the client's own log:
+     *
+     * <pre>
+     *   density = 1.25 display size = 2064 2208   &lt;- application context, the whole display
+     *   density = 1.25 display size = 525 900     &lt;- the activity, the actual panel
+     * </pre>
+     *
+     * A value frozen on the first line is four times too large and never recovers.
+     */
+    public static boolean windowed() {
+        return scale != null;
+    }
+
+    /**
      * The multiplier for {@code AndroidUtilities.density}, never zero and never absurd.
      *
      * Fails safe to 1: a scale that throws, or returns something outside a sane band, would
