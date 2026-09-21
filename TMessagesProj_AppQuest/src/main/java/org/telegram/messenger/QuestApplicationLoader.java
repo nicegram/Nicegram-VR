@@ -31,7 +31,7 @@ public class QuestApplicationLoader extends ApplicationLoader {
     public void onCreate() {
         // Before super: the brand map must be in place before any string is drawn, and it costs
         // one SparseArray. It needs no Context and nothing from the loader's own start-up.
-        VrBrandNames.install();
+        VrBrandNames.install(this);
         super.onCreate();
         // Not applied here: checkDisplaySize reassigns density before the first screen and
         // would erase it. Installed instead, and read where the assignment happens.

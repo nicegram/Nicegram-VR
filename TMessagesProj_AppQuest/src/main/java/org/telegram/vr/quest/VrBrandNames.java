@@ -1,5 +1,6 @@
 package org.telegram.vr.quest;
 
+import android.content.Context;
 import android.util.SparseArray;
 
 import org.telegram.messenger.R;
@@ -24,7 +25,7 @@ public final class VrBrandNames {
     private VrBrandNames() {
     }
 
-    public static void install() {
+    public static void install(Context context) {
         final SparseArray<String> names = new SparseArray<>();
 
         // The app's own name, wherever it introduces itself.
@@ -55,6 +56,24 @@ public final class VrBrandNames {
         //   Boosting* (65), Gift* (28), Voip*, Limit*, Privacy*, Revenue*
         //                                  - service features, named correctly
         // 486 strings mention Telegram. Nine are renamed. The other 477 are true.
+
+        // The first intro page introduced the app and then advertised the service:
+        // "Telegram" over "The world's fastest messaging app. It is free and secure."
+        // In an UNOFFICIAL client that is someone else's marketing on our first screen, and
+        // the brand's own voice pack forbids marketing claims outright. Replaced with a
+        // sentence that says what this actually is.
+        //
+        // Read from OUR resource rather than through LocaleController, deliberately: the
+        // language pack has no entry for it, and asking the pack from inside the rename seam
+        // would recurse. That makes it English today - like every other string this module
+        // owns - and P-18 fixes all of them together by loading the keys into the pack.
+        names.put(R.string.Page1Title, PRODUCT);
+        names.put(R.string.Page1Message, context.getString(my.nicegram.vr.R.string.vr_intro_message));
+
+        // Pages 2-6 are NOT touched. "Telegram delivers messages faster than any other
+        // application", "provides free unlimited cloud storage", "lets you access your
+        // messages from multiple devices" - all true, and all about the SERVICE, which this
+        // client does not provide and must not claim to.
 
         VrBrand.install(names, PRODUCT, my.nicegram.vr.R.drawable.nicegram_mark);
     }
