@@ -106,6 +106,10 @@ jobs:
         with:
           files: nicegram-vr-*.apk
           generate_release_notes: true
+          # A tag carrying a pre-release suffix publishes as one. The distinction is not
+          # cosmetic: until a build has run on real hardware it should not sit at the top of
+          # the page looking like the recommended download.
+          prerelease: ${{ contains(github.ref_name, '-') }}
           body: |
             **Nicegram VR** - an unofficial, open-source Telegram client for Meta Quest 3 and 3S.
 
