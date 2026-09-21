@@ -1057,7 +1057,10 @@ public class ThemePreviewActivity extends BaseFragment implements DownloadContro
         }
 
         if (messagesAdapter.showSecretMessages) {
-            actionBar2.setTitle("Telegram Beta Chat");
+            // The mock chat drawn behind a theme preview. Its title is hardcoded upstream, so it
+            // named the wrong product in a screen the user opens to look at this one.
+            actionBar2.setTitle((org.telegram.vr.VrBrand.appName() == null
+                    ? "Telegram" : org.telegram.vr.VrBrand.appName()) + " Beta Chat");
             actionBar2.setSubtitle(LocaleController.formatPluralString("Members", 505));
         } else {
             if (screenType == SCREEN_TYPE_CHANGE_BACKGROUND) {

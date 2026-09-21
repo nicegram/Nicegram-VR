@@ -122,4 +122,19 @@
 
     <!-- The first intro page. Says what this is; makes no claim about the service. -->
     <string name="vr_intro_message">An **unofficial** Telegram client, built for a headset.\nQuiet by default \u2014 you choose what may interrupt you.</string>
+
+    <!-- The intro carousel. Upstream's pages 2-6 advertised the SERVICE - "Telegram delivers
+         messages faster than any other application" - which is someone else's marketing on an
+         unofficial client's first screen, and a claim this app cannot make. These five say what
+         THIS client is, on a headset, and claim nothing about Telegram. -->
+    <string name="vr_page2_title">Quiet</string>
+    <string name="vr_page2_message">**Nothing** arrives until you say it may.\nName the people, chats and words worth interrupting you.</string>
+    <string name="vr_page3_title">Upright</string>
+    <string name="vr_page3_message">A panel shaped like a phone, not a wall.\nPut it where you like in the room.</string>
+    <string name="vr_page4_title">Readable</string>
+    <string name="vr_page4_message">Four interface sizes.\nPick the one that reads well at arm\'s length.</string>
+    <string name="vr_page5_title">Open</string>
+    <string name="vr_page5_message">**Open source**, and free.\nRead the code, or build it yourself.</string>
+    <string name="vr_page6_title">In sync</string>
+    <string name="vr_page6_message">The same account as on your phone.\nWhat you read here is read there too.</string>
 </resources>

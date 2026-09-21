@@ -32,8 +32,15 @@ jobs:
           distribution: temurin
           java-version: '21'
 
+      # `packages: ''` is not cosmetic. The action's default is `tools`, the obsolete SDK
+      # package that cmdline-tools 16 no longer serves, so the default made every run fail at
+      # `sdkmanager tools` with "Failed to find package 'tools'" - measured on runs 35620823622
+      # and 35627272566, both of which never reached a compiler. The packages this build needs
+      # are installed by name in the next step.
       - name: Set up the Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: ''
 
       - name: Install the NDK and CMake this build pins
         run: sdkmanager --install "ndk;27.2.12479018" "cmake;3.22.1" "platforms;android-36" "build-tools;36.0.0"

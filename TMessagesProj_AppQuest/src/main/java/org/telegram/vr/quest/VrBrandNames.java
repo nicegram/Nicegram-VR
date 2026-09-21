@@ -85,6 +85,11 @@ public final class VrBrandNames {
         //     a string that lies.) ---
         names.put(R.string.AllowFillNumber, "Please allow " + PRODUCT + " to receive calls so that we can automatically confirm your phone number.");
         names.put(R.string.AllowReadCall, "Please allow " + PRODUCT + " to receive calls so that we can automatically enter your code for you.");
+        names.put(R.string.AllowReadCallAndLog, "Please allow " + PRODUCT + " to receive calls and read the call log so that we can automatically enter your code for you.");
+        names.put(R.string.AllowReadCallLog, "Please allow " + PRODUCT + " to read the call log so that we can automatically enter your code for you.");
+
+        // "Sorry, your Telegram app is out of date" - the out-of-date app is THIS one.
+        names.put(R.string.UpdateAppAlert, "Sorry, your " + PRODUCT + " app is out of date and can\'t handle this request. Please update " + PRODUCT + ".");
 
         // Everything below is the SERVICE and its products, and stays Telegram's:
         //   TelegramFAQ, TelegramFeatures  - Telegram's own help pages
@@ -112,10 +117,23 @@ public final class VrBrandNames {
         names.put(R.string.Page1Title, PRODUCT);
         names.put(R.string.Page1Message, context.getString(my.nicegram.vr.R.string.vr_intro_message));
 
-        // Pages 2-6 are NOT touched. "Telegram delivers messages faster than any other
-        // application", "provides free unlimited cloud storage", "lets you access your
-        // messages from multiple devices" - all true, and all about the SERVICE, which this
-        // client does not provide and must not claim to.
+        // Pages 2-6 said "**Telegram** delivers messages faster than any other application",
+        // "provides free unlimited cloud storage", "lets you access your messages from multiple
+        // devices". Each sentence is true OF THE SERVICE, and each is a claim this client does
+        // not get to make - it is someone else's marketing, on the second screen a new user
+        // sees, in an unofficial client. Replaced with five that describe THIS app on a headset
+        // and assert nothing about Telegram. Measured on the simulator 2026-09-21: pages 2 and 3
+        // read "Telegram delivers..." and "Telegram provides..." verbatim.
+        names.put(R.string.Page2Title, context.getString(my.nicegram.vr.R.string.vr_page2_title));
+        names.put(R.string.Page2Message, context.getString(my.nicegram.vr.R.string.vr_page2_message));
+        names.put(R.string.Page3Title, context.getString(my.nicegram.vr.R.string.vr_page3_title));
+        names.put(R.string.Page3Message, context.getString(my.nicegram.vr.R.string.vr_page3_message));
+        names.put(R.string.Page4Title, context.getString(my.nicegram.vr.R.string.vr_page4_title));
+        names.put(R.string.Page4Message, context.getString(my.nicegram.vr.R.string.vr_page4_message));
+        names.put(R.string.Page5Title, context.getString(my.nicegram.vr.R.string.vr_page5_title));
+        names.put(R.string.Page5Message, context.getString(my.nicegram.vr.R.string.vr_page5_message));
+        names.put(R.string.Page6Title, context.getString(my.nicegram.vr.R.string.vr_page6_title));
+        names.put(R.string.Page6Message, context.getString(my.nicegram.vr.R.string.vr_page6_message));
 
         VrBrand.install(names, PRODUCT, my.nicegram.vr.R.drawable.nicegram_mark);
     }

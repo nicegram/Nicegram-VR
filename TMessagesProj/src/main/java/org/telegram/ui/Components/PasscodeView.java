@@ -1703,7 +1703,9 @@ public class PasscodeView extends FrameLayout implements NotificationCenter.Noti
             title.setTextColor(0xFFFFFFFF);
             title.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 19);
             title.setTypeface(AndroidUtilities.bold());
-            title.setText("Unlock to use Telegram");
+            // Upstream hardcodes the product name here and ignores its own string, so this one
+            // screen kept saying "Telegram" while every other lock-screen string was renamed.
+            title.setText(LocaleController.getString(R.string.UnlockToUse));
             title.setGravity(Gravity.CENTER);
             container1.addView(title, LayoutHelper.createLinear(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER, 0, 0, 0, 8));
 
