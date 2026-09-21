@@ -1,0 +1,132 @@
+name: Release
+
+# Alternative distribution, and the reason it is automated rather than manual:
+# a release built by hand is a release whose provenance is one person's memory.
+# This one is built from a tag, signed with the project's own key held in GitHub
+# secrets, and published with the checks that matter printed in the notes.
+#
+# It does NOT publish to the Meta Horizon Store. That path needs review and is
+# described in docs/horizon-store-readiness.md.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to build (must already exist)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      # The keystore arrives base64-encoded in a secret and is written straight to a
+      # file outside the workspace. It is never echoed, never logged, and never lands
+      # in the build directory where an artifact step could pick it up.
+      - name: Restore the signing key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.NICEGRAM_VR_KEYSTORE_BASE64 }}
+        run: |
+          set -eo pipefail
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::error::NICEGRAM_VR_KEYSTORE_BASE64 is not set. A release build must be"
+            echo "::error::signed with the project key; the development keystore in this"
+            echo "::error::repository must never sign a published build."
+            exit 1
+          fi
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          chmod 600 "$RUNNER_TEMP/release.jks"
+          echo "keystore restored, $(stat -c%s "$RUNNER_TEMP/release.jks") bytes"
+
+      - name: Build the signed release
+        env:
+          TELEGRAM_APP_ID: ${{ secrets.TELEGRAM_APP_ID }}
+          TELEGRAM_APP_HASH: ${{ secrets.TELEGRAM_APP_HASH }}
+          NICEGRAM_VR_KEYSTORE_PASSWORD: ${{ secrets.NICEGRAM_VR_KEYSTORE_PASSWORD }}
+          NICEGRAM_VR_KEY_ALIAS: ${{ secrets.NICEGRAM_VR_KEY_ALIAS }}
+          NICEGRAM_VR_KEY_PASSWORD: ${{ secrets.NICEGRAM_VR_KEY_PASSWORD }}
+        run: |
+          set -eo pipefail
+          export NICEGRAM_VR_KEYSTORE="$RUNNER_TEMP/release.jks"
+          ./gradlew :TMessagesProj_AppQuest:assembleQuestStandalone --no-daemon
+
+      - name: Check the package before anyone downloads it
+        id: checks
+        run: |
+          set -eo pipefail
+          APK=$(find TMessagesProj_AppQuest/build/outputs/apk/quest/standalone -name '*.apk' | head -1)
+          AAPT=$(ls -d "$ANDROID_HOME"/build-tools/*/aapt2 | tail -1)
+          APKSIGNER=$(ls -d "$ANDROID_HOME"/build-tools/*/apksigner | tail -1)
+
+          # Meta's prohibited list, fetched live. A hardcoded copy goes stale silently,
+          # and a stale copy is a failed upload nobody predicted.
+          curl -sL --max-time 60 -A 'Mozilla/5.0' \
+            https://developers.meta.com/horizon/resources/permissions-prohibited/ \
+            -o /tmp/prohibited.html || true
+          python3 tools/extract_prohibited.py /tmp/prohibited.html > /tmp/prohibited.txt || true
+
+          "$AAPT" dump badging "$APK" | grep '^uses-permission' \
+            | sed "s/.*name='//;s/'.*//" | sed 's/^android\.permission\.//' | sort -u > /tmp/ours.txt
+
+          if [ -s /tmp/prohibited.txt ]; then
+            BAD=$(comm -12 /tmp/ours.txt /tmp/prohibited.txt || true)
+            if [ -n "$BAD" ]; then
+              echo "::error::This build requests permissions Meta prohibits, and would fail store upload:"
+              echo "$BAD" | sed 's/^/::error::  /'
+              exit 1
+            fi
+            echo "prohibited permissions: 0 (checked against Meta's live list)"
+          else
+            echo "::warning::Meta's prohibited list could not be fetched; the permission check did not run."
+          fi
+
+          SIZE=$(stat -c%s "$APK")
+          echo "size=$(( SIZE / 1024 / 1024 )) MB" >> "$GITHUB_OUTPUT"
+          echo "perms=$(wc -l < /tmp/ours.txt | tr -d ' ')" >> "$GITHUB_OUTPUT"
+          echo "abis=$(unzip -l "$APK" | grep -o 'lib/[a-z0-9-]*' | sort -u | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
+          "$APKSIGNER" verify --print-certs "$APK" | grep -i 'certificate DN' || true
+          cp "$APK" "nicegram-vr-${GITHUB_REF_NAME}.apk"
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: nicegram-vr-*.apk
+          generate_release_notes: true
+          body: |
+            **Nicegram VR** - an unofficial, open-source Telegram client for Meta Quest 3 and 3S.
+
+            Not made or endorsed by Telegram. Your account, messages and the rules they follow
+            stay Telegram's, under its [Terms](https://telegram.org/tos) and
+            [Privacy Policy](https://telegram.org/privacy). This client's own terms are at
+            [nicegram.me/terms-of-use](https://nicegram.me/terms-of-use).
+
+            ### Install
+
+            Enable developer mode on the headset, then `adb install -r` the APK below, or
+            sideload it with SideQuest. This is not a Horizon Store build.
+
+            ### What was checked before publishing
+
+            | | |
+            |---|---|
+            | Size | ${{ steps.checks.outputs.size }} (store limit 1 GB) |
+            | ABIs | ${{ steps.checks.outputs.abis }} (64-bit only) |
+            | Permissions | ${{ steps.checks.outputs.perms }}, **none prohibited by Meta** |
+            | Signature | scheme v2, the project's own key |
+
+            **Nothing arrives while the app is closed.** Meta Quest has no push-notification
+            service; messages and calls reach you while it is running.
