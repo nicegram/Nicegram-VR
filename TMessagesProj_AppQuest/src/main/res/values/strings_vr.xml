@@ -116,7 +116,9 @@
     <string name="vr_settings_about">About</string>
     <string name="vr_about_source">Source code</string>
     <string name="vr_about_site">About Nicegram</string>
-    <string name="vr_about_info">Nicegram VR is an unofficial, open-source Telegram client built for a headset. It is not made or endorsed by Telegram. Your account, your messages and the rules they follow stay Telegram\u2019s; what this client adds is a quiet panel you can answer from.</string>
+    <string name="vr_about_terms">Terms of Use</string>
+    <string name="vr_about_privacy">Privacy Policy</string>
+    <string name="vr_about_info">Nicegram VR is an unofficial, open-source Telegram client built for a headset. It is not made or endorsed by Telegram. Your account, your messages and the rules they follow stay Telegram\u2019s; what this client adds is a quiet panel you can answer from. Nicegram\u2019s own terms and privacy policy cover this app; Telegram\u2019s cover your account.</string>
 
     <!-- The first intro page. Says what this is; makes no claim about the service. -->
     <string name="vr_intro_message">An **unofficial** Telegram client, built for a headset.\nQuiet by default \u2014 you choose what may interrupt you.</string>

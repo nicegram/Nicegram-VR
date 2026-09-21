@@ -61,6 +61,8 @@ public class VrSettingsActivity extends BaseFragment {
     private static final int ID_LAYOUT = 11;
     private static final int ID_ABOUT_SOURCE = 12;
     private static final int ID_ABOUT_SITE = 13;
+    private static final int ID_ABOUT_TERMS = 14;
+    private static final int ID_ABOUT_PRIVACY = 15;
 
     /**
      * The two links that resolve for anyone. Checked rather than assumed: the repository is
@@ -70,6 +72,19 @@ public class VrSettingsActivity extends BaseFragment {
      */
     private static final String SOURCE_URL = "https://github.com/nicegram/Nicegram-VR";
     private static final String SITE_URL = "https://nicegram.me";
+
+    /**
+     * Nicegram's OWN terms and privacy policy, which are not Telegram's and do not replace
+     * them. Telegram's govern the account, the messages and the service; these govern this
+     * client and what Nicegram itself provides. Both exist, both are linked, each where it
+     * belongs — the service references elsewhere in the app still point at telegram.org, which
+     * is also what the Nicegram Android client does.
+     *
+     * Verified rather than guessed: /terms-of-use and /privacy-policy both answer 200, and the
+     * first is titled "Nicegram Terms Of Use". /terms, /tos and /legal are 404s.
+     */
+    private static final String TERMS_URL = "https://nicegram.me/terms-of-use";
+    private static final String PRIVACY_URL = "https://nicegram.me/privacy-policy";
 
     private RecyclerListView listView;
     private ListAdapter adapter;
@@ -126,6 +141,12 @@ public class VrSettingsActivity extends BaseFragment {
                 break;
             case ID_ABOUT_SITE:
                 Browser.openUrl(context, SITE_URL);
+                break;
+            case ID_ABOUT_TERMS:
+                Browser.openUrl(context, TERMS_URL);
+                break;
+            case ID_ABOUT_PRIVACY:
+                Browser.openUrl(context, PRIVACY_URL);
                 break;
             case ID_AUTOPLAY: {
                 final boolean on = !isAutoplayOn();
@@ -299,6 +320,10 @@ public class VrSettingsActivity extends BaseFragment {
                 LocaleController.getString(my.nicegram.vr.R.string.vr_about_source), null));
         items.add(Item.setting(ID_ABOUT_SITE,
                 LocaleController.getString(my.nicegram.vr.R.string.vr_about_site), null));
+        items.add(Item.setting(ID_ABOUT_TERMS,
+                LocaleController.getString(my.nicegram.vr.R.string.vr_about_terms), null));
+        items.add(Item.setting(ID_ABOUT_PRIVACY,
+                LocaleController.getString(my.nicegram.vr.R.string.vr_about_privacy), null));
         items.add(Item.info(LocaleController.getString(my.nicegram.vr.R.string.vr_about_info)));
 
         if (adapter != null) {
