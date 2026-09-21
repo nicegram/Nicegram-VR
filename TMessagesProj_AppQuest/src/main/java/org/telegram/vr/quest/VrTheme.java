@@ -127,7 +127,28 @@ public final class VrTheme {
             }
             night.setCurrentAccentId(NIGHT_VIOLET_ACCENT_ID);
             Theme.saveThemeAccents(night, true, false, false, false);
-            Theme.applyTheme(night, true, true);
+
+            // Two mechanisms were overwriting this choice, and both are upstream defaults
+            // rather than anything mysterious.
+            //
+            // 1. applyTheme's third argument is `nightTheme`, and passing TRUE means "this is
+            //    the theme to use at night" — which skips the branch that persists it:
+            //        if (!nightTheme && save) { editor.putString("theme", key); }
+            //    (Theme.java, inside applyTheme). So the theme applied for that session and was
+            //    forgotten. FALSE makes it simply THE theme.
+            //
+            // 2. Auto-night defaults to AUTO_NIGHT_TYPE_SYSTEM on SDK 29 and above
+            //    (Theme.java:4252), and Horizon OS is 34 — so the client follows the system's
+            //    day/night state and can switch away from whatever was chosen.
+            //
+            // Both are set once per install, as defaults rather than locks: a user who wants
+            // the system to drive the theme can still say so in settings.
+            Theme.applyTheme(night, true, false);
+            if (Theme.selectedAutoNightType != Theme.AUTO_NIGHT_TYPE_NONE) {
+                Theme.selectedAutoNightType = Theme.AUTO_NIGHT_TYPE_NONE;
+                Theme.saveAutoNightThemeConfig();
+                Theme.checkAutoNightThemeConditions();
+            }
             return true;
         } catch (Throwable e) {
             // A brand colour is not worth a crash on startup. The client is perfectly usable in
