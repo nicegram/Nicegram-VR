@@ -151,6 +151,24 @@ strip, over a 70 dp `DialogCell`, is 4.6 rows. The 1.54 came from an assumed pan
 absolute multipliers on the system density (0.85 / 1.0 / 1.25 / 1.54) with the default at 1.0,
 which is 7 rows, and the setting names the count rather than a size. Finding A-20.
 
+**There is better tooling than `adb`, and it arrived after the first device run.** Meta ships a
+Quest dev CLI (`metavr`) with an MCP server, installed on this machine as the `meta-vr` plugin.
+It offers what the sections below had to work around:
+
+| Tool | What it does | Tried here? |
+|---|---|---|
+| `take_screenshot` | capture via **Meta's camera service**, not `screencap` | **no — no device has been reachable since it was installed** |
+| `ui_dump` / `ui_tap` / `ui_type` | read the hierarchy and drive the UI without a wearer | no |
+| `capture_perfetto_trace` / `analyze_trace` | the frame budget, properly, instead of `gfxinfo` | no |
+| `metavr_device` / `metavr_app` | list, connect, install, launch, uninstall | `action='list'` returned `[]` |
+
+The `metacam` path is the reason to try it first: it may capture the 2D panel that
+`adb exec-out screencap` could not. **It has not been verified here**, and until it is, the
+finding below stands as written — it is about `adb`, and `adb` has not changed.
+
+There is also a `hz-android-2d-porting` skill in that plugin, which is precisely this project's
+shape: an Android 2D app on Horizon OS. Nobody has read it against this client yet.
+
 **A screenshot of the panel cannot be taken with `adb`.** `adb exec-out screencap` returns the
 4128×2208 compositor frame — passthrough and immersive layers only; the 2D panel is composited
 by the spatial shell and is not in it. Two captures confirmed it, one while an immersive app was
