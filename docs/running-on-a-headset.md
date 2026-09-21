@@ -44,7 +44,7 @@ adb install -r TMessagesProj_AppQuest/build/outputs/apk/quest/debug/nicegram-vr.
 
 The first build compiles FFmpeg, BoringSSL, libvpx, dav1d, openh264 and TDLib for `arm64-v8a`
 and takes a long time. Later builds reuse it. Installing over an existing copy keeps its data;
-`adb uninstall app.nicegram.vr` when you want a genuinely first run, which is the only way to
+`adb uninstall my.nicegram.vr` when you want a genuinely first run, which is the only way to
 see the first-launch screens again.
 
 ## Watch it
@@ -86,7 +86,7 @@ the stable identifier, the IP is not. Two on this estate: `2G97C5ZHCQ04L6` and
 
 **Install and start.** `adb connect <address>:5555` then
 `adb install -r -t nicegram-vr.apk` — 134 MB over Wi-Fi, **12 s**, `Success`. Launched with
-`monkey -p app.nicegram.vr -c android.intent.category.LAUNCHER 1`. No `FATAL`, no
+`monkey -p my.nicegram.vr -c android.intent.category.LAUNCHER 1`. No `FATAL`, no
 `AndroidRuntime` stack. `tgnet` wrote its per-account config files, so the network stack came
 up. Horizon OS moved the app `HIGH_PERCEPTION -> CRITICAL_PERCEPTION`, which is its way of
 saying the panel is the thing the wearer is looking at.

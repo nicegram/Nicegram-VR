@@ -104,7 +104,7 @@ android {
     compileSdkVersion 36
     buildToolsVersion '36.0.0'
 
-    namespace 'app.nicegram.vr'
+    namespace 'my.nicegram.vr'
 
     sourceSets.main.jniLibs.srcDirs = ['../TMessagesProj/jni/']
 
@@ -189,7 +189,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "app.nicegram.vr"
+        applicationId "my.nicegram.vr"
         minSdkVersion 29
         targetSdkVersion 36
         versionCode Integer.parseInt(APP_VERSION_CODE)

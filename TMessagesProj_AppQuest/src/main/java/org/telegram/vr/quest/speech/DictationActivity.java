@@ -66,7 +66,7 @@ public class DictationActivity extends BaseFragment {
     public View createView(Context context) {
         actionBar.setBackButtonImage(R.drawable.ic_ab_back);
         actionBar.setAllowOverlayTitle(true);
-        actionBar.setTitle(string(app.nicegram.vr.R.string.vr_dictation_title));
+        actionBar.setTitle(string(my.nicegram.vr.R.string.vr_dictation_title));
         actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
             @Override
             public void onItemClick(int id) {
@@ -140,14 +140,14 @@ public class DictationActivity extends BaseFragment {
     }
 
     private void idle() {
-        recordButton.setText(string(app.nicegram.vr.R.string.vr_dictation_start));
+        recordButton.setText(string(my.nicegram.vr.R.string.vr_dictation_start));
         levelBar.setVisibility(View.INVISIBLE);
         if (settings.isConfigured()) {
             // Only the host. A path can carry a token, and this line is on screen by default.
-            status.setText(String.format(string(app.nicegram.vr.R.string.vr_dictation_recipient),
+            status.setText(String.format(string(my.nicegram.vr.R.string.vr_dictation_recipient),
                     SpeechSettings.endpointHost(settings.endpoint())));
         } else {
-            status.setText(string(app.nicegram.vr.R.string.vr_dictation_not_configured));
+            status.setText(string(my.nicegram.vr.R.string.vr_dictation_not_configured));
         }
     }
 
@@ -160,7 +160,7 @@ public class DictationActivity extends BaseFragment {
             return;
         }
         if (!settings.isConfigured()) {
-            status.setText(string(app.nicegram.vr.R.string.vr_dictation_not_configured));
+            status.setText(string(my.nicegram.vr.R.string.vr_dictation_not_configured));
             return;
         }
         final android.app.Activity activity = getParentActivity();
@@ -181,12 +181,12 @@ public class DictationActivity extends BaseFragment {
      */
     private void explainThenAsk(android.app.Activity activity) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle(string(app.nicegram.vr.R.string.vr_dictation_title));
-        builder.setMessage(String.format(string(app.nicegram.vr.R.string.vr_dictation_disclosure),
+        builder.setTitle(string(my.nicegram.vr.R.string.vr_dictation_title));
+        builder.setMessage(String.format(string(my.nicegram.vr.R.string.vr_dictation_disclosure),
                 SpeechSettings.endpointHost(settings.endpoint())));
-        builder.setPositiveButton(string(app.nicegram.vr.R.string.vr_dictation_allow), (dialog, which) ->
+        builder.setPositiveButton(string(my.nicegram.vr.R.string.vr_dictation_allow), (dialog, which) ->
                 activity.requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, REQUEST_MIC));
-        builder.setNegativeButton(string(app.nicegram.vr.R.string.vr_cancel), null);
+        builder.setNegativeButton(string(my.nicegram.vr.R.string.vr_cancel), null);
         showDialog(builder.create());
     }
 
@@ -199,7 +199,7 @@ public class DictationActivity extends BaseFragment {
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             start();
         } else {
-            status.setText(string(app.nicegram.vr.R.string.vr_dictation_denied));
+            status.setText(string(my.nicegram.vr.R.string.vr_dictation_denied));
         }
     }
 
@@ -217,12 +217,12 @@ public class DictationActivity extends BaseFragment {
             }
         });
         if (!started) {
-            status.setText(string(app.nicegram.vr.R.string.vr_dictation_busy));
+            status.setText(string(my.nicegram.vr.R.string.vr_dictation_busy));
             return;
         }
         levelBar.setVisibility(View.VISIBLE);
-        status.setText(string(app.nicegram.vr.R.string.vr_dictation_listening));
-        recordButton.setText(string(app.nicegram.vr.R.string.vr_dictation_stop));
+        status.setText(string(my.nicegram.vr.R.string.vr_dictation_listening));
+        recordButton.setText(string(my.nicegram.vr.R.string.vr_dictation_stop));
     }
 
     private void showLevel(float level) {
@@ -243,13 +243,13 @@ public class DictationActivity extends BaseFragment {
         }
         final byte[] audio = recorder.stop();
         levelBar.setVisibility(View.INVISIBLE);
-        recordButton.setText(string(app.nicegram.vr.R.string.vr_dictation_start));
+        recordButton.setText(string(my.nicegram.vr.R.string.vr_dictation_start));
         if (audio.length == 0) {
-            status.setText(string(app.nicegram.vr.R.string.vr_dictation_empty));
+            status.setText(string(my.nicegram.vr.R.string.vr_dictation_empty));
             return;
         }
         recognising = true;
-        status.setText(string(app.nicegram.vr.R.string.vr_dictation_recognizing));
+        status.setText(string(my.nicegram.vr.R.string.vr_dictation_recognizing));
         final SpeechToText service = new HttpSpeechToText(settings);
         final String language = settings.language();
         Utilities.globalQueue.postRunnable(() -> {
@@ -265,28 +265,28 @@ public class DictationActivity extends BaseFragment {
     private void show(SpeechToText.Result result) {
         if (result.ok()) {
             transcript.setText(result.text);
-            status.setText(string(app.nicegram.vr.R.string.vr_dictation_check));
+            status.setText(string(my.nicegram.vr.R.string.vr_dictation_check));
             return;
         }
         // Every cause gets its own sentence. There is no "something went wrong" on this screen,
         // because that sentence tells a person in a headset nothing they can act on.
         switch (result.failure) {
             case NOT_CONFIGURED:
-                status.setText(string(app.nicegram.vr.R.string.vr_dictation_not_configured));
+                status.setText(string(my.nicegram.vr.R.string.vr_dictation_not_configured));
                 break;
             case NOTHING_HEARD:
-                status.setText(string(app.nicegram.vr.R.string.vr_dictation_empty));
+                status.setText(string(my.nicegram.vr.R.string.vr_dictation_empty));
                 break;
             case NO_CONNECTION:
-                status.setText(string(app.nicegram.vr.R.string.vr_dictation_network));
+                status.setText(string(my.nicegram.vr.R.string.vr_dictation_network));
                 break;
             case NO_PERMISSION:
-                status.setText(string(app.nicegram.vr.R.string.vr_dictation_denied));
+                status.setText(string(my.nicegram.vr.R.string.vr_dictation_denied));
                 break;
             default:
                 status.setText(result.detail == null || result.detail.isEmpty()
-                        ? string(app.nicegram.vr.R.string.vr_dictation_service_error)
-                        : String.format(string(app.nicegram.vr.R.string.vr_dictation_service_said),
+                        ? string(my.nicegram.vr.R.string.vr_dictation_service_error)
+                        : String.format(string(my.nicegram.vr.R.string.vr_dictation_service_said),
                                 result.detail));
                 break;
         }

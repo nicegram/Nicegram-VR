@@ -22,15 +22,15 @@
          tile in the library - measured on a device, `aapt2 dump badging` printed
          `label='' icon=''`. Declared here, on the application, so every alias inherits it.
          The artwork is Nicegram's own, taken from the Nicegram Android client's
-         `nicegram-features` module; provenance is recorded in NOTICE.md. The resource is named
-         `_light` there and that name is kept so the file can be traced back byte for byte - it
-         means the light-background variant, which is the BLACK N, not a lighter mark. The
-         gradient one is the other file, and is deliberately not shipped here. -->
+         `nicegram-features` module; provenance is recorded in NOTICE.md. The resource is the one
+         that repository calls `ic_launcher_default`: Nicegram's own default icon, a white
+         monogram on a black background (`ic_launcher_default_background` is `#000000`). The
+         name is kept unchanged so the files trace back byte for byte. -->
     <application
         android:name="org.telegram.messenger.QuestApplicationLoader"
         android:label="@string/vr_app_name"
-        android:icon="@mipmap/ic_launcher_nicegram_light"
-        android:roundIcon="@mipmap/ic_launcher_nicegram_light_round"
+        android:icon="@mipmap/ic_launcher_default"
+        android:roundIcon="@mipmap/ic_launcher_default_round"
         android:theme="@style/Theme.NicegramVR.Start"
         android:hardwareAccelerated="true"
         android:largeHeap="true"

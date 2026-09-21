@@ -69,7 +69,7 @@ public class DigestActivity extends BaseFragment implements NotificationCenter.N
     public View createView(Context context) {
         actionBar.setBackButtonImage(R.drawable.ic_ab_back);
         actionBar.setAllowOverlayTitle(true);
-        actionBar.setTitle(LocaleController.getString(app.nicegram.vr.R.string.vr_digest_title));
+        actionBar.setTitle(LocaleController.getString(my.nicegram.vr.R.string.vr_digest_title));
         actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
             @Override
             public void onItemClick(int id) {
@@ -128,14 +128,14 @@ public class DigestActivity extends BaseFragment implements NotificationCenter.N
         if (rows.isEmpty()) {
             // A sentence, never a zero: "0 messages" reads as a broken counter, "nobody wrote"
             // reads as the truth it is.
-            infoText = LocaleController.getString(app.nicegram.vr.R.string.vr_digest_empty);
+            infoText = LocaleController.getString(my.nicegram.vr.R.string.vr_digest_empty);
         } else {
             // Plain Android formatting rather than Telegram's own: this string is ours, it
             // lives in our resources, and borrowing upstream's formatter would tie the screen
             // to a key we do not own.
             final CharSequence clock = android.text.format.DateFormat.getTimeFormat(context)
                     .format(new java.util.Date(digest == null ? System.currentTimeMillis() : digest.since()));
-            infoText = String.format(LocaleController.getString(app.nicegram.vr.R.string.vr_digest_since), clock);
+            infoText = String.format(LocaleController.getString(my.nicegram.vr.R.string.vr_digest_since), clock);
         }
         if (adapter != null) {
             adapter.notifyDataSetChanged();
@@ -192,9 +192,9 @@ public class DigestActivity extends BaseFragment implements NotificationCenter.N
             final Context context = ApplicationLoader.applicationContext;
             final UserCell cell = (UserCell) holder.itemView;
             final CharSequence name = VrNames.name(currentAccount, entry.dialogId,
-                    LocaleController.getString(app.nicegram.vr.R.string.vr_loading));
+                    LocaleController.getString(my.nicegram.vr.R.string.vr_loading));
             final String count = context.getResources()
-                    .getQuantityString(app.nicegram.vr.R.plurals.vr_digest_messages, entry.count, entry.count);
+                    .getQuantityString(my.nicegram.vr.R.plurals.vr_digest_messages, entry.count, entry.count);
             final String status = count + " · " + (entry.lastText == null ? "" : entry.lastText);
             cell.setData(VrNames.dialogObject(currentAccount, entry.dialogId), name, status, 0);
         }

@@ -56,6 +56,6 @@ public final class VrBrandNames {
         //                                  - service features, named correctly
         // 486 strings mention Telegram. Nine are renamed. The other 477 are true.
 
-        VrBrand.install(names, PRODUCT, app.nicegram.vr.R.drawable.nicegram_mark);
+        VrBrand.install(names, PRODUCT, my.nicegram.vr.R.drawable.nicegram_mark);
     }
 }

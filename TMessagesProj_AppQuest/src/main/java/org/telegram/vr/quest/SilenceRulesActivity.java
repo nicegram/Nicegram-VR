@@ -88,7 +88,7 @@ public class SilenceRulesActivity extends BaseFragment implements NotificationCe
     public View createView(Context context) {
         actionBar.setBackButtonImage(R.drawable.ic_ab_back);
         actionBar.setAllowOverlayTitle(true);
-        actionBar.setTitle(LocaleController.getString(app.nicegram.vr.R.string.vr_silence_title));
+        actionBar.setTitle(LocaleController.getString(my.nicegram.vr.R.string.vr_silence_title));
         actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
             @Override
             public void onItemClick(int id) {
@@ -166,30 +166,30 @@ public class SilenceRulesActivity extends BaseFragment implements NotificationCe
         input.setTextSize(android.util.TypedValue.COMPLEX_UNIT_DIP, 18);
         input.setTextColor(Theme.getColor(Theme.key_dialogTextBlack));
         input.setHintTextColor(Theme.getColor(Theme.key_dialogTextHint));
-        input.setHintText(LocaleController.getString(app.nicegram.vr.R.string.vr_word_hint));
+        input.setHintText(LocaleController.getString(my.nicegram.vr.R.string.vr_word_hint));
         input.setSingleLine(true);
         input.setPadding(AndroidUtilities.dp(24), AndroidUtilities.dp(8), AndroidUtilities.dp(24), AndroidUtilities.dp(8));
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(LocaleController.getString(app.nicegram.vr.R.string.vr_word_title));
+        builder.setTitle(LocaleController.getString(my.nicegram.vr.R.string.vr_word_title));
         builder.setView(input);
-        builder.setPositiveButton(LocaleController.getString(app.nicegram.vr.R.string.vr_save), (dialog, which) -> {
+        builder.setPositiveButton(LocaleController.getString(my.nicegram.vr.R.string.vr_save), (dialog, which) -> {
             final String word = input.getText() == null ? "" : input.getText().toString().trim().toLowerCase(Locale.ROOT);
             if (TextUtils.isEmpty(word)) {
-                toast(LocaleController.getString(app.nicegram.vr.R.string.vr_word_empty));
+                toast(LocaleController.getString(my.nicegram.vr.R.string.vr_word_empty));
                 return;
             }
             if (profile.words.contains(word)) {
                 // Said out loud rather than swallowed: a duplicate absorbed in silence looks
                 // exactly like a save that did not work.
-                toast(LocaleController.getString(app.nicegram.vr.R.string.vr_word_duplicate));
+                toast(LocaleController.getString(my.nicegram.vr.R.string.vr_word_duplicate));
                 return;
             }
             final Set<String> words = new LinkedHashSet<>(profile.words);
             words.add(word);
             save(new SilenceProfile(profile.people, profile.chats, words));
         });
-        builder.setNegativeButton(LocaleController.getString(app.nicegram.vr.R.string.vr_cancel), null);
+        builder.setNegativeButton(LocaleController.getString(my.nicegram.vr.R.string.vr_cancel), null);
         showDialog(builder.create());
     }
 
@@ -199,14 +199,14 @@ public class SilenceRulesActivity extends BaseFragment implements NotificationCe
             return;
         }
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(LocaleController.getString(app.nicegram.vr.R.string.vr_silence_remove_title));
+        builder.setTitle(LocaleController.getString(my.nicegram.vr.R.string.vr_silence_remove_title));
         final CharSequence subject = item.word != null
                 ? item.word
                 : VrNames.name(currentAccount, item.dialogId,
-                        getStringSafe(app.nicegram.vr.R.string.vr_loading));
+                        getStringSafe(my.nicegram.vr.R.string.vr_loading));
         builder.setMessage(AndroidUtilities.replaceTags(
-                String.format(LocaleController.getString(app.nicegram.vr.R.string.vr_silence_remove_text), subject)));
-        builder.setPositiveButton(LocaleController.getString(app.nicegram.vr.R.string.vr_silence_remove), (dialog, which) -> {
+                String.format(LocaleController.getString(my.nicegram.vr.R.string.vr_silence_remove_text), subject)));
+        builder.setPositiveButton(LocaleController.getString(my.nicegram.vr.R.string.vr_silence_remove), (dialog, which) -> {
             final Set<Long> people = new LinkedHashSet<>(profile.people);
             final Set<Long> chats = new LinkedHashSet<>(profile.chats);
             final Set<String> words = new LinkedHashSet<>(profile.words);
@@ -218,7 +218,7 @@ public class SilenceRulesActivity extends BaseFragment implements NotificationCe
             }
             save(new SilenceProfile(people, chats, words));
         });
-        builder.setNegativeButton(LocaleController.getString(app.nicegram.vr.R.string.vr_cancel), null);
+        builder.setNegativeButton(LocaleController.getString(my.nicegram.vr.R.string.vr_cancel), null);
         showDialog(builder.create());
     }
 
@@ -243,29 +243,29 @@ public class SilenceRulesActivity extends BaseFragment implements NotificationCe
         items.clear();
         // People and chats are separated because they are different questions: "who may reach
         // me" and "which room may reach me". Merged, a list of twenty is unreadable.
-        items.add(new Item(VIEW_TYPE_HEADER, 0, getStringSafe(app.nicegram.vr.R.string.vr_silence_people)));
+        items.add(new Item(VIEW_TYPE_HEADER, 0, getStringSafe(my.nicegram.vr.R.string.vr_silence_people)));
         for (Long id : profile.people) {
             items.add(Item.dialog(id));
         }
-        items.add(Item.action(ID_ADD_CHAT, getStringSafe(app.nicegram.vr.R.string.vr_silence_add_chat)));
+        items.add(Item.action(ID_ADD_CHAT, getStringSafe(my.nicegram.vr.R.string.vr_silence_add_chat)));
 
         if (!profile.chats.isEmpty()) {
-            items.add(new Item(VIEW_TYPE_HEADER, 1, getStringSafe(app.nicegram.vr.R.string.vr_silence_chats_header)));
+            items.add(new Item(VIEW_TYPE_HEADER, 1, getStringSafe(my.nicegram.vr.R.string.vr_silence_chats_header)));
             for (Long id : profile.chats) {
                 items.add(Item.dialog(id));
             }
         }
 
-        items.add(new Item(VIEW_TYPE_HEADER, 2, getStringSafe(app.nicegram.vr.R.string.vr_silence_words)));
+        items.add(new Item(VIEW_TYPE_HEADER, 2, getStringSafe(my.nicegram.vr.R.string.vr_silence_words)));
         for (String word : profile.words) {
             items.add(Item.word(word));
         }
-        items.add(Item.action(ID_ADD_WORD, getStringSafe(app.nicegram.vr.R.string.vr_silence_add_word)));
+        items.add(Item.action(ID_ADD_WORD, getStringSafe(my.nicegram.vr.R.string.vr_silence_add_word)));
 
-        final String note = getStringSafe(app.nicegram.vr.R.string.vr_silence_note);
+        final String note = getStringSafe(my.nicegram.vr.R.string.vr_silence_note);
         items.add(new Item(VIEW_TYPE_INFO, 3,
                 profile.isSilentForEveryone()
-                        ? getStringSafe(app.nicegram.vr.R.string.vr_silence_empty) + "\n\n" + note
+                        ? getStringSafe(my.nicegram.vr.R.string.vr_silence_empty) + "\n\n" + note
                         : note));
 
         // Anything referenced but not loaded is fetched from local storage; the rows show a
@@ -377,7 +377,7 @@ public class SilenceRulesActivity extends BaseFragment implements NotificationCe
             if (item.viewType == VIEW_TYPE_DIALOG) {
                 final UserCell cell = (UserCell) holder.itemView;
                 final CharSequence name = VrNames.name(currentAccount, item.dialogId,
-                        getStringSafe(app.nicegram.vr.R.string.vr_loading));
+                        getStringSafe(my.nicegram.vr.R.string.vr_loading));
                 cell.setData(VrNames.dialogObject(currentAccount, item.dialogId), name, null, 0);
             } else if (item.viewType == VIEW_TYPE_HEADER) {
                 ((HeaderCell) holder.itemView).setText(item.text);

@@ -189,7 +189,7 @@ default; name people, chats and words worth interrupting you; **while the app is
 messages do not arrive and appear here on the next launch**; actions *Got it* and *Name
 exceptions* → `SilenceRulesActivity`.
 
-**Done when.** Shown exactly once per install; `adb uninstall app.nicegram.vr` and reinstall
+**Done when.** Shown exactly once per install; `adb uninstall my.nicegram.vr` and reinstall
 shows it again; skipping it never re-shows it; the third line is present verbatim. *Device.*
 
 ---

@@ -43,7 +43,7 @@ public class FirstRunActivity extends BaseFragment {
     public View createView(Context context) {
         actionBar.setBackButtonImage(R.drawable.ic_ab_back);
         actionBar.setAllowOverlayTitle(true);
-        actionBar.setTitle(LocaleController.getString(app.nicegram.vr.R.string.vr_intro_title));
+        actionBar.setTitle(LocaleController.getString(my.nicegram.vr.R.string.vr_intro_title));
         actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
             @Override
             public void onItemClick(int id) {
@@ -62,15 +62,15 @@ public class FirstRunActivity extends BaseFragment {
         column.setPadding(AndroidUtilities.dp(24), AndroidUtilities.dp(24), AndroidUtilities.dp(24), AndroidUtilities.dp(24));
         root.addView(column, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER_VERTICAL));
 
-        column.addView(line(context, app.nicegram.vr.R.string.vr_intro_line1, true));
-        column.addView(line(context, app.nicegram.vr.R.string.vr_intro_line2, false));
-        column.addView(line(context, app.nicegram.vr.R.string.vr_intro_line3, false));
-        column.addView(line(context, app.nicegram.vr.R.string.vr_silence_note, false));
+        column.addView(line(context, my.nicegram.vr.R.string.vr_intro_line1, true));
+        column.addView(line(context, my.nicegram.vr.R.string.vr_intro_line2, false));
+        column.addView(line(context, my.nicegram.vr.R.string.vr_intro_line3, false));
+        column.addView(line(context, my.nicegram.vr.R.string.vr_silence_note, false));
 
         final LinearLayout buttons = new LinearLayout(context);
         buttons.setOrientation(LinearLayout.HORIZONTAL);
-        buttons.addView(button(context, app.nicegram.vr.R.string.vr_intro_accept, v -> accept()));
-        buttons.addView(button(context, app.nicegram.vr.R.string.vr_intro_exceptions, v -> {
+        buttons.addView(button(context, my.nicegram.vr.R.string.vr_intro_accept, v -> accept()));
+        buttons.addView(button(context, my.nicegram.vr.R.string.vr_intro_exceptions, v -> {
             markShown(getParentActivity() == null ? org.telegram.messenger.ApplicationLoader.applicationContext : getParentActivity());
             presentFragment(new SilenceRulesActivity(), true);
         }));
