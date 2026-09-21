@@ -1694,6 +1694,16 @@ public class LocaleController {
                 }
             }
 
+
+            // Nicegram VR: the same seam as getStringInternal, because a FORMATTED string is
+            // resolved here and never passes through that method. Without this, every rename
+            // that carries an argument — "Telegram %1$s", "%s Telegram Cache", "%s Telegram
+            // Local Database", the call branding with a name in it — was written, compiled,
+            // and never reached the screen.
+            final CharSequence brandedFormat = org.telegram.vr.VrBrand.rename(res, value);
+            if (brandedFormat != null) {
+                value = brandedFormat.toString();
+            }
             if (getInstance().currentLocale != null) {
                 return String.format(getInstance().currentLocale, value, args);
             } else {
@@ -1737,6 +1747,17 @@ public class LocaleController {
                         } catch (Exception ignored) {}
                     }
                 }
+            }
+
+
+            // Nicegram VR: the same seam as getStringInternal, because a FORMATTED string is
+            // resolved here and never passes through that method. Without this, every rename
+            // that carries an argument — "Telegram %1$s", "%s Telegram Cache", "%s Telegram
+            // Local Database", the call branding with a name in it — was written, compiled,
+            // and never reached the screen.
+            final CharSequence brandedFormat = org.telegram.vr.VrBrand.rename(res, value);
+            if (brandedFormat != null) {
+                value = brandedFormat.toString();
             }
 
             SpannableStringBuilder builder = new SpannableStringBuilder(value);
