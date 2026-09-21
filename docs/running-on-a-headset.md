@@ -187,6 +187,36 @@ upstream's strings arrive from the language pack and the system is `ru_RU`. Had 
 module's own strings stayed in Android resources, they would have been the only English text on
 an otherwise Russian screen.
 
+## Moving a secret to a provider: the scrubber is not a transport
+
+**21 September, and it cost a failed release run.** The four signing secrets were set in
+GitHub with:
+
+```bash
+use_secret.py run --env prod nicegram-vr NAME -- sh -c 'printf "%s" "$NAME"' | gh secret set NAME
+```
+
+The workflow then failed with `base64: invalid input` — while the environment showed the
+secret as present. The cause is that `use_secret.py` **removes the value from everything the
+child prints**. That is its whole job: a traceback that quotes a connection string, a verbose
+client echoing its own header, and `echo "$KEY"` all come back with `«KEY»` instead. So the
+placeholder is what reached GitHub.
+
+The tool built to stop a value leaking correctly stopped it being exported. Reading its output
+as a transport is using it backwards.
+
+**The door that works** is `vault.py inject <project> <env> <dir>`, which writes the `.env` the
+tool exists to write, from which each value is piped to `gh secret set` and the file is removed
+in the same command. And verify the round trip rather than assuming it:
+
+```
+decoded bytes: 4290   md5 77303a8dadf9747633d27ce3f4fefbc0
+keystore on disk:     md5 77303a8dadf9747633d27ce3f4fefbc0
+```
+
+A base64 secret that decodes to something other than the file is a release that fails after
+six minutes of building, which is how this one was found.
+
 ## What to check on a first run, in this order
 
 1. It starts, and stays up for half an hour without dying.
