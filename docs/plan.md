@@ -10,8 +10,9 @@
 > **P-13** (message action bar), **P-14** (gallery shortcuts), **P-15** (the `DialogsActivity`
 > half), **P-16** (store metadata, blocked on VRQ-001), **P-18** (load the headset strings into
 > the language pack — out of finding A-19, without which the interface is English whatever
-> language the user chose) and **P-19** (the rail of chat avatars beside an open chat, asked
-> for from inside the headset).
+> language the user chose) **P-19** (the rail of chat avatars), **P-20** (round videos clipped in the
+> portrait panel), **P-21** (notifications and calls on a platform with no push) and **P-22**
+> (draw in the air and send it).
 >
 > **This build has now run on a Quest 3**, 19 September 2026: installed in 12 s, started without
 > a crash, and the density fix proved itself in the running interface — a button declared 56 dp
@@ -577,6 +578,126 @@ different cell.
 a chat open, the rail shows avatars only and switching chats from it does not rebuild the left
 container; the frame reading while flicking the rail is no worse than the same reading in one
 column. *Device.*
+
+---
+
+## P-20 · Round video messages are clipped in the portrait panel — reported 21 September
+
+**Estimate:** one day, and most of it is looking at a headset.
+
+**What was reported.** Text messages read fine; a round video message ("кружок") is only
+partly visible now that the panel is portrait. Other media may be affected too — unchecked.
+
+**What the code says, and why that is not yet an answer.** Round sizes are computed once in
+`AndroidUtilities.checkDisplaySize` (`:2798-2806`) from RAW PIXELS:
+
+```java
+roundMessageSize            = min(displaySize.x, displaySize.y) * 0.6f
+roundPlayingMessageSize     = min(displaySize.x, displaySize.y) - dp(28)
+roundSidePlayingMessageSize = min(displaySize.x - dp(64), displaySize.y) - dp(28)
+```
+
+On the measured portrait panel (500×800 px, density 1.25 at the default step) that is 300 px
+idle and 385 px playing beside an avatar, against a 500 px panel — which **fits**, with room to
+spare. So the arithmetic does not reproduce the report, and the arithmetic is therefore the
+thing under suspicion: three findings on 19 September (A-08, A-20, A-21) were confident
+derivations that the device contradicted within hours.
+
+**The interaction worth checking first.** These three numbers are in pixels and never change,
+while everything around them — the avatar gutter `dp(64)`, the bubble insets — is in dp and
+DOES change with this build's density step. At a larger step the surroundings grow while the
+circle does not, so the relationship upstream assumed stops holding. If the report came from a
+step above the default, that is the cause and the fix belongs in our seam: compute these three
+from the same effective dp basis rather than from raw pixels.
+
+**Do.**
+1. On a headset, note the density step, then `adb shell dumpsys window` for the panel size.
+2. Open a chat with a round video, idle and playing, with and without an avatar beside it.
+3. Compare against the three values above computed for that panel and step.
+4. Check the other media the report suspects: photos, stickers, GIFs, and the media viewer.
+5. Only then decide whether the fix is a seam over these three numbers or something else.
+
+**Done when.** A round video is fully visible idle and playing, at every density step, and the
+values are pinned in a test the way `VrDensityTest` pins the scale.
+
+---
+
+## P-21 · Notifications and calls on a platform with no push — reported 21 September
+
+**Estimate:** three to five days, and it cannot be finished without deciding what "notification"
+means here.
+
+**The constraint that shapes everything, and it is not negotiable.** Horizon OS has no Google
+Play Services, this flavour excludes Firebase by name (`TMessagesProj_AppQuest/build.gradle:23`,
+`exclude group: 'com.google.firebase'`), and there is no other push transport on the device.
+**So there is no push while the app is not running.** A message or a call that arrives while
+Nicegram VR is closed cannot wake it. Anything promising otherwise would be a lie in the
+interface.
+
+What IS possible, and is what the request actually needs:
+
+- **While the app runs**, the MTProto connection delivers updates, and both messages and calls
+  arrive on it. The whole `voip/` stack is compiled in, so calls are present in this build;
+  nobody has ever placed or received one on a headset.
+- **Android notifications** for those events — a call that can be answered from the
+  notification, a message that opens its chat when tapped — are ordinary local notifications
+  and work without push.
+- **The master switch** already gates messages (`NotificationsMaster`, header). Calls do NOT go
+  through `appendMessage` and are therefore NOT gated by it today. Decide deliberately: a
+  silenced headset that still rings is a bug, and a silenced headset that misses a call is a
+  different bug. A missed call is not recoverable the way a message is.
+
+**Do.**
+1. Place and receive a call on a headset. Record what the user sees and hears, and whether the
+   panel comes forward. This has never been done.
+2. Check the incoming-call notification and its answer action on Horizon OS.
+3. Check that tapping a message notification opens that chat, in one column.
+4. Wire calls into the master switch, with the decision above written down.
+5. Say plainly, in the first-run screen, that nothing arrives while the app is closed. The
+   screen already promises quiet; it must not accidentally promise delivery.
+
+**Done when.** A call can be answered and a message notification opens its chat, on a device,
+with the master switch honoured in both — and the first-run text matches what the platform can
+actually do. *Device.*
+
+---
+
+## P-22 · Draw in the air and send it — asked for 21 September
+
+**Estimate:** two to three weeks. A feature, not a fix.
+
+**The idea, in the asker's words:** press the `+` in the composer, draw in the air with a brush,
+say "done" somewhere in the air, and the drawing is baked and sent to the chat — as a photo, a
+file, or a 3D object.
+
+**Why it is a headset feature and not a gimmick.** Everything else in this client is Telegram
+made reachable in VR. This is the first thing the headset can do that a phone cannot, and it
+sends through a transport the recipient already has.
+
+**The three outputs are three different amounts of work.**
+
+| Output | What it takes | What the recipient sees |
+|---|---|---|
+| Photo | render the strokes from one camera pose to a bitmap | an ordinary image, everywhere |
+| Animated GIF / video | render an orbit around the strokes | motion that shows it is 3D, still ordinary media |
+| 3D object | export `.glb`, send as a document | a file most clients cannot preview |
+
+**Recommendation: ship the photo first, then the orbit.** The 3D file is the least useful to a
+recipient and the most work, and it can be added later without redoing the first two.
+
+**Where.** Drawing and baking belong entirely in the headset module — a new
+`org.telegram.vr.quest.draw` package. The only shared seam is one more entry in the composer's
+attach menu, and P-12 already owes a composer seam for dictation; **do them together, once**,
+rather than patching that view twice. The send path is upstream's existing
+`SendMessagesHelper` for a photo or a document, so nothing new is needed on the network side.
+
+**Traps.** Hand tracking is not guaranteed — controllers must work too. A stroke buffer is the
+kind of thing that eats the 60 fps budget; the first device reading already showed one frame in
+ten missing 16.67 ms on a static screen. And there must be a preview before sending: this
+client's rule that recognised text is never sent unseen applies to a drawing just as much.
+
+**Done when.** A drawing made in the air arrives in a chat as an image the recipient can open,
+the frame budget holds while drawing, and nothing is sent without being seen first. *Device.*
 
 ## What this plan does not include, on purpose
 
