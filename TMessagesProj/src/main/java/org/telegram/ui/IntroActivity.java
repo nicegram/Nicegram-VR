@@ -153,7 +153,9 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
 
     @Override
     public View createView(Context context) {
-        logoDrawable = context.getResources().getDrawable(R.drawable.telegram_logo).mutate();
+        // Nicegram VR: this fork's own mark where upstream draws its logo. 0 elsewhere.
+        final int vrMark = org.telegram.vr.VrBrand.logoRes();
+        logoDrawable = context.getResources().getDrawable(vrMark != 0 ? vrMark : R.drawable.telegram_logo).mutate();
         logoDrawable.setBounds(0, dp(8.666f), dp(115), dp(35));
         SpannableStringBuilder ssb = new SpannableStringBuilder(LocaleController.getString(R.string.Page1Title));
         ssb.setSpan(new ImageSpan(logoDrawable), 0, ssb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

@@ -35,6 +35,7 @@ public final class VrBrand {
 
     private static volatile SparseArray<String> renames;
     private static volatile String appName;
+    private static volatile int logoRes;
 
     private VrBrand() {
     }
@@ -43,9 +44,19 @@ public final class VrBrand {
      * @param byResourceId resolved once by the caller, so this class never touches Resources
      * @param productName  what the app calls itself in its own title, or null to leave it
      */
-    public static void install(SparseArray<String> byResourceId, String productName) {
+    public static void install(SparseArray<String> byResourceId, String productName, int mark) {
         renames = byResourceId;
         appName = productName;
+        logoRes = mark;
+    }
+
+    /**
+     * The product's own mark, for the places upstream draws its logo as a picture: the intro
+     * screen and the stories row. 0 on every flavour that has not installed one, where those
+     * call sites are untouched.
+     */
+    public static int logoRes() {
+        return logoRes;
     }
 
     /** The product's own name, or null on every flavour that has not installed one. */

@@ -36,6 +36,26 @@ public final class VrBrandNames {
         names.put(R.string.NotificationHiddenName, PRODUCT);
         names.put(R.string.NotificationHiddenChatName, PRODUCT);
 
-        VrBrand.install(names, PRODUCT);
+        // Where the app speaks about ITSELF and upstream wrote its own name.
+        // "Update Telegram" updates THIS app; the passcode screen locks THIS app; the version
+        // and the cache on this device are THIS app's.
+        names.put(R.string.AppUpdate, "Update " + PRODUCT);
+        names.put(R.string.AppUpdateBeta, "Update " + PRODUCT + " Beta");
+        names.put(R.string.AppLocked, PRODUCT + " Locked");
+        names.put(R.string.TelegramVersion, PRODUCT + " %1$s");
+        names.put(R.string.TelegramCacheSize, "%s " + PRODUCT + " Cache");
+
+        // Everything below is the SERVICE and its products, and stays Telegram's:
+        //   TelegramFAQ, TelegramFeatures  - Telegram's own help pages
+        //   TelegramPassport*              - a Telegram service feature
+        //   TelegramContacts_*             - "N contacts on Telegram" is about the service
+        //   TelegramTones                  - Telegram's notification sounds
+        //   TelegramPremium*, TelegramBusiness*, TelegramStars*, AboutPremium*
+        //                                  - products bought from Telegram, not from us
+        //   Boosting* (65), Gift* (28), Voip*, Limit*, Privacy*, Revenue*
+        //                                  - service features, named correctly
+        // 486 strings mention Telegram. Nine are renamed. The other 477 are true.
+
+        VrBrand.install(names, PRODUCT, app.nicegram.vr.R.drawable.nicegram_mark);
     }
 }
