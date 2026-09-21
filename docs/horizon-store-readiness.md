@@ -60,6 +60,25 @@ from the fragment the search returned. **Fetch the complete list before doing th
 it is likely longer than what is shown here, and guessing at it is how this audit would need
 redoing.
 
+> **Closed, 21 September 2026.** The list loads now: `Tools/extract_prohibited.py` against the
+> live page yields **151** permission names. Eight permissions were removed from the quest
+> flavour with `tools:node="remove"` (the two contacts ones above, `GET_ACCOUNTS`,
+> `READ_PHONE_STATE`, `READ_PHONE_NUMBERS`, `ACCESS_BACKGROUND_LOCATION`,
+> `REQUEST_INSTALL_PACKAGES`, `SYSTEM_ALERT_WINDOW`), taking the build from 65 to **57**, of
+> which **zero** appear on Meta's list:
+>
+> ```
+> $ aapt2 dump badging nicegram-vr.apk | grep '^uses-permission' | ... | sort -u > ours.txt
+> $ comm -12 ours.txt prohibited.txt
+> (no output)
+> ```
+>
+> That comparison was run by hand against the **published** `v0.1.0-alpha.1` APK on
+> 21 September. The release workflow runs the same check, but it did **not** run for that
+> release: `Tools/extract_prohibited.py` had never been committed, and `|| true` turned the
+> resulting crash into a warning. The script is tracked now and a missing extractor fails the
+> release (A-25). Read the alpha's clean result as *measured locally*, not as *proved by CI*.
+
 ---
 
 ## 2. Four missing manifest declarations
