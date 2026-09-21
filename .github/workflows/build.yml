@@ -74,11 +74,29 @@ jobs:
         run: |
           set -eu
           apk=TMessagesProj_AppQuest/build/outputs/apk/quest/debug/nicegram-vr.apk
+          aapt=$(ls -d "$ANDROID_HOME"/build-tools/*/aapt2 | tail -1)
+
           abis=$(unzip -l "$apk" | awk -F/ '/lib\//{print $2}' | sort -u | tr '\n' ' ')
           echo "ABIs packaged: $abis"
           test "$abis" = "arm64-v8a " || { echo "expected arm64-v8a only"; exit 1; }
-          unzip -p "$apk" AndroidManifest.xml | grep -qa QuestApplicationLoader \
-            || { echo "application class is not QuestApplicationLoader"; exit 1; }
+
+          # The manifest inside an APK is BINARY xml whose string pool is UTF-16, so a
+          # byte-level grep for an ASCII literal can never match. The previous form of this
+          # check could only fail - and did, on the very first run that ever reached it, since
+          # every earlier run died at "Set up the Android SDK". aapt2 decodes the thing.
+          app=$("$aapt" dump xmltree --file AndroidManifest.xml "$apk" \
+            | sed -n '/E: application/,$p' \
+            | grep -m1 -o 'android:name(0x01010003)="[^"]*"' | sed 's/.*="//;s/"//')
+          echo "application class: $app"
+          test "$app" = "org.telegram.messenger.QuestApplicationLoader" \
+            || { echo "application class is '$app'"; exit 1; }
+
+          # The launcher label, which has regressed once before and which Meta requires to be
+          # this app's own rather than upstream's.
+          label=$("$aapt" dump badging "$apk" | sed -n "s/^application-label:'\(.*\)'$/\1/p")
+          echo "application label: $label"
+          test "$label" = "Nicegram VR" \
+            || { echo "the launcher label is '$label', not 'Nicegram VR'"; exit 1; }
 
       - name: Upload the APK
         uses: actions/upload-artifact@v4
