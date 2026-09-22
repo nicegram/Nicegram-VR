@@ -132,6 +132,23 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
     public boolean onFragmentCreate() {
         MessagesController.getGlobalMainSettings().edit().putLong("intro_crashed_time", System.currentTimeMillis()).apply();
 
+        // Nicegram VR: one page, not six.
+        //
+        // Upstream's pages 2-6 each pair a sentence with an illustration drawn by the OpenGL
+        // renderer below — Telegram's own artwork, made for Telegram's own words. Rewriting the
+        // words (A-25) left our sentences standing over someone else's pictures, and not even
+        // matching ones: "Open source, and free" appeared under the infinity symbol that meant
+        // "no limits on your media" in the original. Caught in a store screenshot, which is
+        // where it would have been seen first by a reviewer judging polish.
+        //
+        // Six pages of borrowed art cannot be fixed by editing text, and drawing five
+        // replacements is a different project. One page says what this is; the headset is not a
+        // place anyone wants a carousel.
+        if (org.telegram.vr.VrBrand.appName() != null) {
+            titles = new CharSequence[]{ null };
+            messages = new String[]{ LocaleController.getString(R.string.Page1Message) };
+            return true;
+        }
         titles = new CharSequence[]{
                 null,
                 LocaleController.getString(R.string.Page2Title),
@@ -260,7 +277,23 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
         frameContainerView.addView(frameLayout2, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.TOP, 0, 78, 0, 0));
 
         TextureView textureView = new TextureView(context);
-        frameLayout2.addView(textureView, LayoutHelper.createFrame(ICON_WIDTH_DP, ICON_HEIGHT_DP, Gravity.CENTER));
+        // Nicegram VR: the GL renderer draws Telegram's animated paper plane, which is Telegram's
+        // logo as the hero image of a client Telegram did not make. With one page there is also
+        // nothing left for it to animate between. Our own mark takes its place; the renderer is
+        // still constructed, because the surface listener below owns the egl thread's lifecycle
+        // and unpicking that is a larger change than this screen is worth.
+        final boolean vrBrandedIntro = org.telegram.vr.VrBrand.appName() != null
+                && org.telegram.vr.VrBrand.logoRes() != 0;
+        if (vrBrandedIntro) {
+            final android.widget.ImageView mark = new android.widget.ImageView(context);
+            mark.setImageResource(org.telegram.vr.VrBrand.logoRes());
+            mark.setScaleType(android.widget.ImageView.ScaleType.FIT_CENTER);
+            mark.setColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText),
+                    PorterDuff.Mode.SRC_IN);
+            frameLayout2.addView(mark, LayoutHelper.createFrame(ICON_HEIGHT_DP, ICON_HEIGHT_DP, Gravity.CENTER));
+        } else {
+            frameLayout2.addView(textureView, LayoutHelper.createFrame(ICON_WIDTH_DP, ICON_HEIGHT_DP, Gravity.CENTER));
+        }
         textureView.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
             @Override
             public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surface, int width, int height) {
@@ -400,7 +433,14 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
             destroyed = true;
         });
 
-        bottomPages = new BottomPagesView(context, viewPager, 6);
+        // Nicegram VR: the count was the literal 6, which drew six dots under the single page
+        // this build now has — the same incoherence as our words over upstream's pictures, one
+        // widget further down. Taken from the pages that exist, and hidden when there is one,
+        // because an indicator for a carousel that cannot be scrolled indicates nothing.
+        bottomPages = new BottomPagesView(context, viewPager, titles.length);
+        if (titles.length <= 1) {
+            bottomPages.setVisibility(View.GONE);
+        }
         frameContainerView.addView(bottomPages, LayoutHelper.createFrame(66, 5, Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, ICON_HEIGHT_DP + 200, 0, 0));
 
         switchLanguageTextView = new TextView(context);

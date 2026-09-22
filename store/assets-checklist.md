@@ -21,7 +21,7 @@ live requirements before submitting**: asset specs change and a stale spec is a 
 | App icon | **made**, 512 and 1024 | `assets/icon-512.png`, `assets/icon-1024.png` |
 | Logo on transparency | **made**, 1024 | `assets/logo-transparent-1024.png` — corner alpha 0, verified |
 | Cover art / hero | **made**, 2560×1440 and a 1440 square | `assets/cover-2560x1440.png`, `assets/cover-square-1440.png` |
-| Screenshots — onboarding | **made**, six frames | `assets/screenshots/onboarding-1…6.png` |
+| Screenshots — onboarding | **made**, one frame | `assets/screenshots/onboarding.png` |
 | Screenshots — the app in use | **still missing** | the six below; every one is behind sign-in |
 | Trailer | **missing** | optional at first submission; strong for the listing |
 
