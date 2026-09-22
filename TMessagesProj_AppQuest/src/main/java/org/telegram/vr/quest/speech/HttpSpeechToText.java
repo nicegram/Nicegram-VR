@@ -31,6 +31,17 @@ public final class HttpSpeechToText implements SpeechToText {
         if (!settings.isConfigured()) {
             return Result.failed(Failure.NOT_CONFIGURED);
         }
+        // Before the audio exists on any wire. A bad address used to surface as NO_CONNECTION,
+        // which tells a person to check their Wi-Fi over a typo; a plain-http address used to
+        // be sent, taking a recording of their voice and their token with it.
+        switch (SpeechSettings.endpointProblem(settings.endpoint())) {
+            case NOT_A_URL:
+                return Result.failed(Failure.BAD_ADDRESS);
+            case INSECURE:
+                return Result.failed(Failure.INSECURE_ADDRESS);
+            default:
+                break;
+        }
         if (audio == null || audio.length == 0) {
             return Result.failed(Failure.NOTHING_HEARD);
         }

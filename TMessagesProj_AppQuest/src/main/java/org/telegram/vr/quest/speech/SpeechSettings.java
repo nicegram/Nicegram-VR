@@ -44,6 +44,63 @@ public final class SpeechSettings {
         return !endpoint().isEmpty();
     }
 
+    /** What is wrong with an endpoint, decided before anything is sent to it. */
+    public enum EndpointProblem {
+        NONE,
+        /** No scheme, no host, or a scheme that is not http(s). */
+        NOT_A_URL,
+        /** Plain http to somewhere that is not this device. */
+        INSECURE
+    }
+
+    /**
+     * Checked because the address is the user's own and nothing else checks it.
+     *
+     * <p>Dictation posts a recording of somebody's voice and sets an {@code Authorization}
+     * header. Over plain {@code http} both cross the network readable by anyone on it — on a
+     * headset that is usually a home or office Wi-Fi, and the screen that collects the address
+     * promises the recording "goes nowhere else", which is true of the destination and says
+     * nothing about the wire. The file already refuses to put the token in a query string for
+     * the same class of reason; this is the other half of that decision.
+     *
+     * <p>Loopback is allowed, and deliberately: a recogniser running on the headset itself over
+     * {@code http://127.0.0.1} never leaves the device, and refusing it would remove the one
+     * configuration that needs no trust at all.
+     *
+     * <p>Pure and static so it is tested on the JVM rather than reasoned about.
+     */
+    public static EndpointProblem endpointProblem(String endpoint) {
+        if (endpoint == null || endpoint.trim().isEmpty()) {
+            return EndpointProblem.NOT_A_URL;
+        }
+        final java.net.URI uri;
+        try {
+            uri = new java.net.URI(endpoint.trim());
+        } catch (Throwable e) {
+            return EndpointProblem.NOT_A_URL;
+        }
+        final String scheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase(java.util.Locale.ROOT);
+        final String host = uri.getHost() == null ? "" : uri.getHost().toLowerCase(java.util.Locale.ROOT);
+        if (host.isEmpty() || !("http".equals(scheme) || "https".equals(scheme))) {
+            return EndpointProblem.NOT_A_URL;
+        }
+        if ("https".equals(scheme) || isLoopback(host)) {
+            return EndpointProblem.NONE;
+        }
+        return EndpointProblem.INSECURE;
+    }
+
+    /** `localhost`, the whole 127.0.0.0/8 block, and IPv6 `::1` however it was bracketed. */
+    private static boolean isLoopback(String host) {
+        final String bare = host.startsWith("[") && host.endsWith("]")
+                ? host.substring(1, host.length() - 1)
+                : host;
+        return "localhost".equals(bare)
+                || "::1".equals(bare)
+                || "0:0:0:0:0:0:0:1".equals(bare)
+                || bare.startsWith("127.");
+    }
+
     public void setEndpoint(String value) {
         prefs.edit().putString(KEY_ENDPOINT, value == null ? "" : value.trim()).apply();
     }

@@ -283,6 +283,12 @@ public class DictationActivity extends BaseFragment {
             case NO_PERMISSION:
                 status.setText(string(my.nicegram.vr.R.string.vr_dictation_denied));
                 break;
+            case BAD_ADDRESS:
+                status.setText(string(my.nicegram.vr.R.string.vr_dictation_bad_address));
+                break;
+            case INSECURE_ADDRESS:
+                status.setText(string(my.nicegram.vr.R.string.vr_dictation_insecure));
+                break;
             default:
                 status.setText(result.detail == null || result.detail.isEmpty()
                         ? string(my.nicegram.vr.R.string.vr_dictation_service_error)

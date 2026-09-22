@@ -144,4 +144,8 @@
     <string name="vr_start_folder_none">All chats</string>
     <string name="vr_start_folder_info">A session that opens in everything opens by scrolling. Pick a folder and the client starts there; your own tap on another tab still stands for the rest of the session.</string>
     <string name="vr_start_folder_empty">There are no folders on this account yet. Create one in Settings \u2192 Chat Folders, and it appears here.</string>
+
+    <!-- The endpoint is the user's own, and nothing else checks it -->
+    <string name="vr_dictation_bad_address">That is not a web address. It has to start with https:// and name a host.</string>
+    <string name="vr_dictation_insecure">That address is plain http, so a recording of your voice and your access token would cross the network readable by anyone on it. Use https:// \u2014 or 127.0.0.1 if the service runs on this headset.</string>
 </resources>

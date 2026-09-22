@@ -24,7 +24,20 @@ public interface SpeechToText {
         /** No endpoint or token has been entered yet. The way out is the settings screen. */
         NOT_CONFIGURED,
         /** The service answered with an error of its own. The way out is to look at settings. */
-        SERVICE_ERROR
+        SERVICE_ERROR,
+        /**
+         * The address is not a web address at all. Its own failure rather than NO_CONNECTION,
+         * because "check the network and try again" sends a person to look at their Wi-Fi over
+         * a typo — an error naming the wrong cause and the wrong next step.
+         */
+        BAD_ADDRESS,
+        /**
+         * The address is plain {@code http} to somewhere that is not this device. Refused
+         * rather than sent: the payload is a recording of the user's voice and the header
+         * carries their token, and neither crosses a network in the clear because the address
+         * field had no scheme check.
+         */
+        INSECURE_ADDRESS
     }
 
     final class Result {
