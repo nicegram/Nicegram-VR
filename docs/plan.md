@@ -23,6 +23,15 @@
 > [running-on-a-headset.md](running-on-a-headset.md). Every acceptance *behind sign-in* is still
 > owed, and that is most of them.
 
+**Where this backlog lives, for an agent or a manager changing it.** This file is the
+engineering plan. The *task registry* — statuses, owners, acceptance — is
+`nicegram-product-workspace/public/projects/nicegram-vr/` (private), where this project is
+`WORK-018` and its tasks are `VRQ-001…020`; the OKR mirror is
+`dataroom/docs/okr/backlog/nicegram-vr-quest-client.md`. **Status is changed in the workspace,
+never in the mirror**, and `npm run check` there computes the OKR totals from those files, so
+progress is never sent anywhere separately. How to add or edit a task:
+`nicegram-product-workspace/docs/MANAGER-GUIDE.md`.
+
 Written for an agent with no prior context. Each task says what to do, where exactly, what
 "done" means in a form that can be checked, and what has already gone wrong in that area so it
 is not repeated. Findings referenced as `A-nn` are in [audit-2026-09-19.md](audit-2026-09-19.md).

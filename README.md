@@ -22,6 +22,20 @@ client, its source is open — see [NOTICE.md](NOTICE.md) for the provenance and
 > [plan](docs/plan.md) says what is left. When something is not finished, this file says so
 > rather than implying otherwise.
 
+## Team and contact
+
+| | Who | How to reach |
+|---|---|---|
+| Maintainer, product decisions | **Sergey S** — [@sshlg](https://github.com/sshlg) | [sergey@appvillis.com](mailto:sergey@appvillis.com) |
+| Anything about this client | the Nicegram team | [t.me/nicegramchat](https://t.me/nicegramchat) |
+| Nicegram itself, downloads, help | — | [nicegram.me](https://nicegram.me) · [wiki.nicegram.me](https://wiki.nicegram.me) |
+| A security issue | — | [SECURITY.md](SECURITY.md) — please do not open a public issue first |
+
+Both links above were checked and answer 200. Nicegram is built by Appvillis; this repository is
+one client of several, and the rest of the team's areas — Android, backend, design, localisation,
+web and SEO — are coordinated through the community chat rather than through individual
+addresses.
+
 ## Why it exists
 
 People who spend hours in a headset take it off to answer one message. That is the whole
