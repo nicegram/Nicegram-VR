@@ -31,7 +31,7 @@ client, its source is open — see [NOTICE.md](NOTICE.md) for the provenance and
 | Nicegram itself, downloads, help | — | [nicegram.me](https://nicegram.me) · [wiki.nicegram.me](https://wiki.nicegram.me) |
 | A security issue | — | [SECURITY.md](SECURITY.md) — please do not open a public issue first |
 
-Both links above were checked and answer 200. Nicegram is built by Appvillis; this repository is
+All four links above were fetched and answer 200. Nicegram is built by Appvillis; this repository is
 one client of several, and the rest of the team's areas — Android, backend, design, localisation,
 web and SEO — are coordinated through the community chat rather than through individual
 addresses.
