@@ -7,13 +7,20 @@ built as a 2D Horizon OS application. It is a fork of
 [Telegram for Android](https://github.com/DrKLO/Telegram) and, like every other Nicegram
 client, its source is open — see [NOTICE.md](NOTICE.md) for the provenance and the licence.
 
-> **Status: early.** It builds, and as of 19 September 2026 it installs and starts on a
-> Quest 3 — 12 seconds to install, no crash, and the headset's readability scale measurably
-> reaching the interface. Nothing behind sign-in has been exercised yet, which is most of what
-> this client is for. The readings are in
-> [running-on-a-headset.md](docs/running-on-a-headset.md); an
-> [audit](docs/audit-2026-09-19.md) and a [plan](docs/plan.md) say exactly what is missing.
-> When something is not finished, this file says so rather than implying otherwise.
+> **Status: early.** It builds, installs and starts on a Quest 3, and there is a signed
+> pre-release to sideload — [v0.1.0-alpha.1](https://github.com/nicegram/Nicegram-VR/releases).
+> The package is 60.7 MB, 64-bit only, and requests 57 permissions, **none** of the 151 on
+> Meta's prohibited list. 51 unit tests across 11 classes run on every push.
+>
+> **Nothing behind sign-in has been exercised**, which is most of what this client is for:
+> no frame-rate reading in a real chat, no dictation against a real service, no measurement of
+> how fast anyone types. Nothing has been submitted to the Horizon Store, and one policy
+> question about third-party clients is open before anything can be.
+>
+> The readings are in [running-on-a-headset.md](docs/running-on-a-headset.md); the
+> [audit](docs/audit-2026-09-19.md) lists every finding A-01…A-33 with what proved it, and the
+> [plan](docs/plan.md) says what is left. When something is not finished, this file says so
+> rather than implying otherwise.
 
 ## Why it exists
 
