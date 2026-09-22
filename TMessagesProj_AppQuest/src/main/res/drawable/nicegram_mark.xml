@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Nicegram VR — the product's own mark, as a VECTOR and as a white glyph on nothing.
+
+  It replaces five PNG files that were, at every density, a single flat colour: 32x32, 48x48,
+  64x64, 96x96 and 128x128 of pure white and nothing else. They rendered as the white rectangle
+  on the intro screen, and nothing in the build could notice — a blank image compiles, packs and
+  draws exactly like a real one.
+
+  Two properties this shape has to keep, both load-bearing:
+
+  * WHITE, on a transparent background. DialogStoriesCell draws it under
+    PorterDuff.Mode.MULTIPLY (:341) so the theme can colour it; multiplying anything but white
+    throws the theme's colour away, and multiplying a gradient throws the gradient away too.
+  * A VECTOR. It is drawn at 22dp in the stories row and at launcher sizes elsewhere, and a
+    raster mark is one more set of five files to keep in step.
+
+  The glyph is the same N as the launcher foreground, taken from it rather than redrawn:
+  ic_launcher_default_foreground.xml, minus its black background square. The group below
+  shifts the viewport onto the glyph's own bounds (212..812 of a 1024 box), so the mark fills
+  its drawable instead of sitting in the launcher icon's safe-zone inset.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="600"
+    android:viewportHeight="600">
+    <group
+        android:translateX="-212"
+        android:translateY="-212">
+        <path
+            android:pathData="M735.6,361.7C776.9,361.7 810.4,328.2 810.4,286.9C810.4,245.5 776.9,212 735.6,212C694.3,212 660.8,245.5 660.8,286.9C660.8,328.2 694.3,361.7 735.6,361.7Z"
+            android:fillColor="#FFFFFFFF"/>
+        <path
+            android:pathData="M812,781.9C812,798.4 798.6,811.9 782.1,811.9L677.8,811.9C667.8,811.9 658.5,806.9 652.9,798.6L366.8,370.3C363.5,365.4 361.7,359.6 361.7,353.7L361.7,241.9C361.7,225.4 375.1,212 391.7,212L534.3,212C544.5,212 554,217.2 559.5,225.9L807.3,615.3C810.4,620.1 812,625.7 812,631.4V781.9Z"
+            android:fillColor="#FFFFFFFF"/>
+        <path
+            android:pathData="M430.5,573.7C433.7,578.6 435.5,584.4 435.5,590.4V782.1C435.5,798.6 422.1,812 405.6,812H241.9C225.4,812 212,798.6 212,782.1L212,499C212,482.5 225.4,469.1 241.9,469.1H344.6C354.5,469.1 363.9,474 369.4,482.4L430.5,573.7Z"
+            android:fillColor="#FFFFFFFF"/>
+    </group>
+</vector>

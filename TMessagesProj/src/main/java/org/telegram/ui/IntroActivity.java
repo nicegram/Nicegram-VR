@@ -157,9 +157,19 @@ public class IntroActivity extends BaseFragment implements NotificationCenter.No
         final int vrMark = org.telegram.vr.VrBrand.logoRes();
         logoDrawable = context.getResources().getDrawable(vrMark != 0 ? vrMark : R.drawable.telegram_logo).mutate();
         logoDrawable.setBounds(0, dp(8.666f), dp(115), dp(35));
-        SpannableStringBuilder ssb = new SpannableStringBuilder(LocaleController.getString(R.string.Page1Title));
-        ssb.setSpan(new ImageSpan(logoDrawable), 0, ssb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        titles[0] = ssb;
+        // Nicegram VR: the first page's title is NOT text upstream. It is a
+        // SpannableStringBuilder whose whole length is covered by an ImageSpan, so the string is
+        // only a ruler and the pixels are R.drawable.telegram_logo — a WORDMARK, forced into
+        // 115x26dp. This fork has a monogram and no wordmark; a square drawn into that box comes
+        // out as a bar, which is exactly what the panel showed. Same finding as the chat-list
+        // header, and the same answer: where the fork has a name, draw the name.
+        if (org.telegram.vr.VrBrand.appName() != null) {
+            titles[0] = LocaleController.getString(R.string.Page1Title);
+        } else {
+            SpannableStringBuilder ssb = new SpannableStringBuilder(LocaleController.getString(R.string.Page1Title));
+            ssb.setSpan(new ImageSpan(logoDrawable), 0, ssb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            titles[0] = ssb;
+        }
 
 
         actionBar.setAddToContainer(false);
