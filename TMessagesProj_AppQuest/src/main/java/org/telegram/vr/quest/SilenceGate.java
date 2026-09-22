@@ -70,7 +70,7 @@ public final class SilenceGate implements VrPolicy.Gate {
                 message.getDialogId(),
                 message.getSenderId(),
                 message.isOutOwner(),
-                message.messageText,
+                SilenceDecision.wordSource(message.messageOwner.message, message.messageText),
                 profile(currentAccount));
     }
 

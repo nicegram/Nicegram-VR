@@ -3,8 +3,6 @@ package org.telegram.vr.quest;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 /**
  * Nicegram VR — the one switch, above every rule.
  *
@@ -33,22 +31,26 @@ public final class NotificationsMaster {
     private static final String FILE = "nicegram_vr_silence";
     private static final String KEY_ON = "notifications_master_on";
 
-    /** Bumped on every change so cached readers notice without anyone remembering to tell them. */
-    private static final AtomicInteger GENERATION = new AtomicInteger();
-
     private static volatile Boolean cached;
 
     private NotificationsMaster() {
     }
 
-    public static int generation() {
-        return GENERATION.get();
-    }
-
+    /**
+     * Null-safe on purpose. The gate reads this through
+     * {@code ApplicationLoader.applicationContext}, and {@link org.telegram.vr.VrPolicy} fails
+     * OPEN on any throw — the right direction for a RULE, because a missed message is worse
+     * than an extra one, and the wrong direction for this switch, because OFF is not a default
+     * the user drifted into but a sentence they said. An NPE here would have shown a
+     * notification to somebody who had just asked for none.
+     */
     public static boolean isOn(Context context) {
         final Boolean value = cached;
         if (value != null) {
             return value;
+        }
+        if (context == null) {
+            return false;
         }
         final SharedPreferences prefs = context.getSharedPreferences(FILE, Context.MODE_PRIVATE);
         final boolean on = prefs.getBoolean(KEY_ON, false);
@@ -60,7 +62,6 @@ public final class NotificationsMaster {
         context.getSharedPreferences(FILE, Context.MODE_PRIVATE)
                 .edit().putBoolean(KEY_ON, on).apply();
         cached = on;
-        GENERATION.incrementAndGet();
     }
 
     public static boolean toggle(Context context) {

@@ -71,4 +71,37 @@ public class SilenceDecisionTest {
         SilenceProfile p = profile(Collections.emptySet(), Collections.emptySet(), "");
         assertFalse(SilenceDecision.allow(10L, 20L, false, "any text", p));
     }
+
+    // --- Which text a word rule reads. The rule was right and the argument was wrong: it was
+    // handed MessageObject.messageText, which for media is a description this CLIENT generates.
+
+    @Test
+    public void aWordInACaptionGetsThrough() {
+        // A photo whose caption says "срочно". messageText is the generated word "Photo".
+        SilenceProfile p = profile(Collections.emptySet(), Collections.emptySet(), "срочно");
+        assertTrue(SilenceDecision.allow(10L, 20L, false,
+                SilenceDecision.wordSource("срочно, посмотри", "Photo"), p));
+    }
+
+    @Test
+    public void theClientsOwnWordsAreNotTheSenders() {
+        // A photo with NO caption must not match a rule on the word "photo" — that word is this
+        // client's description of the message, not anything anybody wrote.
+        SilenceProfile p = profile(Collections.emptySet(), Collections.emptySet(), "photo");
+        assertFalse(SilenceDecision.allow(10L, 20L, false,
+                SilenceDecision.wordSource("", "Photo"), p));
+        assertFalse(SilenceDecision.allow(10L, 20L, false,
+                SilenceDecision.wordSource(null, "Photo"), p));
+    }
+
+    @Test
+    public void plainTextIsUnaffected() {
+        // For an ordinary message the two are the same value (MessageObject.java:6035), so the
+        // change must be invisible here.
+        SilenceProfile p = profile(Collections.emptySet(), Collections.emptySet(), "срочно");
+        assertTrue(SilenceDecision.allow(10L, 20L, false,
+                SilenceDecision.wordSource("это срочно", "это срочно"), p));
+        assertFalse(SilenceDecision.allow(10L, 20L, false,
+                SilenceDecision.wordSource("это подождёт", "это подождёт"), p));
+    }
 }

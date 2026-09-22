@@ -67,9 +67,11 @@ public class QuestApplicationLoader extends ApplicationLoader {
         // A default, not a lock: 60 fps is a condition of publishing here and media that
         // plays by itself is the cheapest way to lose it. The user can turn it back on.
         VrPerformance.applyDefaultsOnce(this);
-        // One column by default. A Quest 3 panel reports sw640dp, so Android hands this app the
-        // tablet layout and splits a surface that is only ~665 dp wide once the headset scale is
-        // applied — measured on a device, and it looked exactly as bad as that arithmetic says.
+        // One column by default. The number in this comment used to be sw640dp, which was true
+        // of the LANDSCAPE panel this build asked for until A-21 removed that request; the
+        // portrait panel a Quest 3 hands us now measures 500x800 px at 200 dpi — sw400dp
+        // (`adb shell dumpsys activity a my.nicegram.vr`, 21 September). Either way a split
+        // leaves the conversation squeezed, and it looked exactly as bad as that arithmetic says.
         VrLayout.applyDefaultsOnce(this);
         // The brand, and only the accent of it. Retries next start if the theme engine has not
         // loaded its themes yet — see VrTheme for why the marker is not written on failure.
