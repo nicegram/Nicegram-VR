@@ -36,8 +36,23 @@ metavr app install nicegram-vr.apk && metavr app launch my.nicegram.vr
 #    (adb exec-out screencap returns the compositor frame, not the panel —
 #     measured 2026-09-19, twice)
 ```
-The MCP tool `take_screenshot` with `method='metacam'` is the second route. **Neither has
-been tried yet** — no device has been reachable since the tooling was installed.
+The MCP tool `take_screenshot` with `method='metacam'` is the second route.
+
+> **The simulator route works, tried 22 September.** `take_screenshot` with
+> `method='screencap'` against `emulator-5554` returns the panel floating in the simulator's
+> room — the panel itself, not the compositor frame, which is what `adb exec-out screencap`
+> returns on a real headset. The intro screen came back correct and legible at 760x1200.
+>
+> **It does not unblock the six below, and the reason is not the tool.** Every one of them is
+> behind sign-in: a chat list, a conversation, dictation, the exceptions screen, the digest,
+> the headset settings. The simulator can photograph any screen the app will draw; it cannot
+> sign in to an account. What is still needed is a person signing in once, on a device or in
+> the simulator, with conversations that look like conversations.
+>
+> **Whether Meta accepts a simulator capture is untested.** The rule says "captured in the
+> headset". The Spatial Simulator is Meta's own tool and renders the same panel, but nothing
+> here proves a reviewer treats the two alike — treat the simulator set as a candidate, and
+> prefer `metacam` on a real Quest for the final upload.
 
 ## The six screenshots worth having
 

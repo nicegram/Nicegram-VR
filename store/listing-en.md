@@ -124,5 +124,14 @@ https://nicegram.me
 
 ## Support contact
 
-**OPEN — needs a decision.** A support address is required and must be one somebody reads.
-Do not invent one.
+**OPEN — needs a decision, and it is a person's decision.** A support address is required and
+must be one somebody reads. Do not invent one.
+
+The candidates that exist and were checked (both answer 200):
+
+| Candidate | What it is | Caveat |
+|---|---|---|
+| `t.me/nicegramchat` | the Nicegram community chat, already the contact on the repository's front page | Meta's form may want an email or a web form rather than a chat link |
+| `https://nicegram.me` | the product site | only useful if it carries a reachable support route |
+
+Neither is chosen here. Whoever will answer the mail picks it.

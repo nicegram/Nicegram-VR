@@ -149,6 +149,29 @@ tracking or anything about real optics.
 
 Five stages. Each one's exit is a thing you can check, not a feeling.
 
+> **Where this stands, 22 September 2026.** Stage 1 is done and measured; the rest is not, and
+> two of the three things still missing need a person rather than more code.
+>
+> | | State | What it rests on |
+> |---|---|---|
+> | **Stage 1** — uploadable package | **done** | 57 permissions, 0 of the 151 on Meta's live list; `installLocation`, `supportedDevices`, `<layout>` and a unique label all present in the release APK; v2-signed with the project key; arm64 only; 60.7 MB against a 1 GB limit; `versionCode` now advances independently of upstream (A-33) |
+> | **Stage 2** — good on the device | **partly** | it installs and runs on a Quest 3; the panel is 500×800 at 200 dpi; **nothing behind sign-in has been exercised**, so no frame reading, no dictation against a service, no input-speed measurement |
+> | **Stage 3** — VRC self-pass | **not started** | needs Stage 2's device work |
+> | **Stage 4** — business gates | **blocked on VRQ-001** | the policy question below. A Data Use Checkup is also owed if platform features are used |
+> | **Stage 5** — listing and submission | **partly** | the text is written (`store/listing-en.md`); **six screenshots and a support address are missing**, and both need a person |
+>
+> **The three things that block submission, in the order they can be started:**
+>
+> 1. **VRQ-001** — ask Meta whether a third-party client of someone else's messaging service may
+>    be published at all. A negative answer ends the store channel and nothing else matters.
+> 2. **A signed-in session** — every one of the six screenshots is behind it. The capture route
+>    itself now works (the Spatial Simulator, proven 22 September); what is missing is an
+>    account with conversations that look like conversations.
+> 3. **A support address** somebody reads. Two candidates are listed in the listing file; neither
+>    is chosen, because inventing one is worse than leaving it open.
+>
+> Sideload is unaffected by all three and works today.
+
 ### Stage 1 — Make the package uploadable *(blocks everything; ~2 days)*
 
 1. **Fetch the complete prohibited list** from `/resources/permissions-prohibited/` and the
