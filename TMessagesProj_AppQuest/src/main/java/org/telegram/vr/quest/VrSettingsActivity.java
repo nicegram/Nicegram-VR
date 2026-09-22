@@ -353,7 +353,7 @@ public class VrSettingsActivity extends BaseFragment {
         input.setTextSize(android.util.TypedValue.COMPLEX_UNIT_DIP, 18);
         input.setTextColor(Theme.getColor(Theme.key_dialogTextBlack));
         input.setHintTextColor(Theme.getColor(Theme.key_dialogTextHint));
-        input.setHintText(context.getString(hintRes));
+        input.setHintText(LocaleController.getString(hintRes));
         input.setSingleLine(true);
         input.setPadding(AndroidUtilities.dp(24), AndroidUtilities.dp(8),
                 AndroidUtilities.dp(24), AndroidUtilities.dp(8));
@@ -363,7 +363,7 @@ public class VrSettingsActivity extends BaseFragment {
         }
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(context.getString(titleRes));
+        builder.setTitle(LocaleController.getString(titleRes));
         builder.setView(input);
         builder.setPositiveButton(LocaleController.getString(my.nicegram.vr.R.string.vr_save), (dialog, which) -> {
             onSave.accept(input.getText() == null ? "" : input.getText().toString().trim());

@@ -515,10 +515,20 @@ compiled, merged and then dropped — measured on the 19 September debug APK, wh
 `LocaleController.getString(res)` is already done (A-19); what remains is the other half, which
 no code change can supply.
 
-**Do.** Take the 72 keys of `TMessagesProj_AppQuest/src/main/res/values/strings_vr.xml` and load
-them into the Nicegram language pack under exactly those resource entry names. The Russian
-source text is in git history at `7a54dbba` and its successors — it was written for these keys
-and should not be re-translated from scratch.
+**Do.** Load the entry names of `language-pack/strings_vr.ru.xml` into the Nicegram language
+pack. That file is the whole deliverable and it is ready: **99 keys**, one per key of
+`values/strings_vr.xml`, 47 carried over unchanged from `fc887365^` and 54 written since against
+the brand pack's voice. Its README says why it is not a `values-ru/` folder.
+
+> **Status, 22 September 2026.** Everything that can be done without the translation platform is
+> done. The code half turned out NOT to be finished as A-19 claimed: five strings were read
+> through a `Context`, which never asks the pack, and the first-run screen was one of them
+> (A-31). All five now read through `LocaleController`, and `LanguagePackReachabilityTest` fails
+> the build if a sixth appears. `LanguagePackParityTest` holds the artifact against the
+> resources — same key set, same format placeholders, and `values-ru/` may not come back.
+>
+> **What is left needs a person:** uploading those entry names to the pack, and then the device
+> check below. The count in the old text said 72 keys; it was 99 by the time anyone looked.
 
 **Done when.** With the app language set to Russian, the headset settings screen, the silence
 rules, the digest and the dictation screen read Russian, and with it set to English they read

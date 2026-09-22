@@ -88,7 +88,10 @@ public class FirstRunActivity extends BaseFragment {
 
     private TextView line(Context context, int resId, boolean big) {
         final TextView view = new TextView(context);
-        view.setText(context.getString(resId));
+        // Through LocaleController, not Context: the cloud language pack answers by resource
+        // ENTRY NAME, and a Context read never asks it. This is the first screen a user sees
+        // and it would have stayed English whatever language they chose (A-31).
+        view.setText(LocaleController.getString(resId));
         view.setTextColor(Theme.getColor(big ? Theme.key_windowBackgroundWhiteBlackText : Theme.key_windowBackgroundWhiteGrayText));
         view.setTextSize(android.util.TypedValue.COMPLEX_UNIT_DIP, big ? 18 : 16);
         view.setPadding(0, AndroidUtilities.dp(8), 0, AndroidUtilities.dp(8));
@@ -97,7 +100,7 @@ public class FirstRunActivity extends BaseFragment {
 
     private TextView button(Context context, int resId, View.OnClickListener onClick) {
         final TextView view = new TextView(context);
-        view.setText(context.getString(resId));
+        view.setText(LocaleController.getString(resId));
         view.setTextColor(Theme.getColor(Theme.key_featuredStickers_buttonText));
         view.setBackground(Theme.createSimpleSelectorRoundRectDrawable(AndroidUtilities.dp(8),
                 Theme.getColor(Theme.key_featuredStickers_addButton),

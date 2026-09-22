@@ -301,11 +301,14 @@ public class SilenceRulesActivity extends BaseFragment implements NotificationCe
         return out;
     }
 
+    /**
+     * Through LocaleController, which needs no Context at all — that is why the null-safety this
+     * helper was built for is gone with it. A Context read never asks the cloud language pack,
+     * which answers by resource ENTRY NAME, so every string read this way was English forever
+     * however the pack was loaded (A-31).
+     */
     private String getStringSafe(int resId) {
-        final Context context = getParentActivity() != null
-                ? getParentActivity()
-                : org.telegram.messenger.ApplicationLoader.applicationContext;
-        return context.getString(resId);
+        return LocaleController.getString(resId);
     }
 
     private static class Item {

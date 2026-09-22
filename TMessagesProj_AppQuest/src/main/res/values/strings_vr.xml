@@ -14,8 +14,10 @@
   The channel that works: read every one of these through `LocaleController.getString(res)`,
   which asks the language pack by this file's resource entry name and falls back to the English
   below. Russian is added by loading these keys into the pack, not by adding a folder here. The
-  Russian source text that used to sit in `values-ru/strings_vr.xml` is in git history at
-  7a54dbba and its successors.
+  Russian now lives beside this file as an upload artifact — `language-pack/strings_vr.ru.xml`,
+  with its own README — and two tests keep it honest: `LanguagePackParityTest` fails when the
+  two sides drift apart or disagree about a `%1$s`, and `LanguagePackReachabilityTest` fails
+  when a string here is read through a `Context`, which never asks the pack.
 -->
 <resources>
     <string name="vr_silence_title">Exceptions to the silence</string>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Nicegram VR — the Russian source for the CLOUD LANGUAGE PACK.
+
+  THIS FILE IS NOT COMPILED, AND IT MUST NOT BE COPIED INTO res/values-ru/.
+
+  The package strips every Android locale — `localeFilters += ["zz"]`,
+  TMessagesProj_AppQuest/build.gradle:124 — because Telegram serves its own language packs at
+  runtime. A values-ru/ folder here is compiled, merged, and then dropped from the APK; it was
+  tried, it shipped nothing, and it was deleted at fc887365 ("the localisation that never
+  shipped"). The only channel that reaches a user is the pack, which answers by resource ENTRY
+  NAME through LocaleController.
+
+  So this file is an upload artifact, not a resource. Load these entry names into the Nicegram
+  language pack; the English beside them stays in values/strings_vr.xml as the fallback.
+
+  Parity with the English is checked by LanguagePackParityTest, which fails when a key is added
+  on one side only or when the two disagree about their format placeholders.
+
+  Voice: calm-expert, from the brand pack at
+  nicegram-product-workspace/public/projects/nicegram-vr/design/docs/brand/strings.md —
+  "шлем" not "хедсет", "панель" not "окно", "тишина" not "режим не беспокоить", an error names
+  its cause and the next step, a button names the action rather than the object.
+-->
+<resources>
+    <string name="vr_silence_title">Исключения из тишины</string>
+    <string name="vr_silence_people">Люди и чаты</string>
+    <string name="vr_silence_words">Слова</string>
+    <string name="vr_silence_add_chat">Добавить человека или чат</string>
+    <string name="vr_silence_add_word">Добавить слово</string>
+    <string name="vr_silence_empty">Пока тихо для всех.</string>
+    <string name="vr_silence_note">Это настройка только для шлема. Уведомления на телефоне не меняются.</string>
+    <string name="vr_silence_remove_title">Убрать исключение?</string>
+    <string name="vr_silence_remove_text">Сообщения от %1$s снова станут тихими.</string>
+    <string name="vr_silence_remove">Убрать</string>
+    <string name="vr_word_title">Слово в сообщении</string>
+    <string name="vr_word_hint">Например: срочно</string>
+    <string name="vr_word_duplicate">Такое исключение уже есть.</string>
+    <string name="vr_word_empty">Введите слово.</string>
+    <string name="vr_save">Сохранить</string>
+    <string name="vr_cancel">Отмена</string>
+    <string name="vr_loading">Загружается…</string>
+    <string name="vr_digest_title">Накопилось</string>
+    <string name="vr_digest_empty">За это время никто не писал.</string>
+    <string name="vr_digest_since">С %1$s</string>
+    <string name="vr_digest_mark_seen">Отметить всё просмотренным</string>
+    <string name="vr_digest_row_value">%1$d чатов</string>
+    <string name="vr_silence_chats_header">Чаты</string>
+    <string name="vr_silence_count">%1$d</string>
+    <string name="vr_intro_title">Здесь тихо</string>
+    <string name="vr_intro_line1">По умолчанию не приходит ничего: ни баннеров, ни звука.</string>
+    <string name="vr_intro_line2">Назовите людей, чаты и слова, ради которых вас можно отвлечь.</string>
+    <string name="vr_intro_line3">Пока приложение закрыто, сообщения не приходят. Они появятся здесь при следующем запуске.</string>
+    <string name="vr_intro_accept">Понятно</string>
+    <string name="vr_intro_exceptions">Назвать исключения</string>
+    <plurals name="vr_digest_messages">
+        <item quantity="one">%1$d сообщение</item>
+        <item quantity="few">%1$d сообщения</item>
+        <item quantity="many">%1$d сообщений</item>
+        <item quantity="other">%1$d сообщения</item>
+    </plurals>
+    <string name="vr_settings_title">Шлем</string>
+    <string name="vr_settings_display">Отображение</string>
+    <string name="vr_settings_motion">Движение</string>
+    <string name="vr_settings_quiet">Тишина</string>
+    <string name="vr_density">Размер интерфейса</string>
+    <string name="vr_density_info">Каждый шаг говорит, сколько списка чатов он вам оставляет, потому что именно это вы и чувствуете. Цели, по которым вы целитесь, меньше не становятся: луч держится с точностью около градуса, и это свойство руки, а не настройка.</string>
+    <string name="vr_density_applies_next_start">Применится при следующем запуске.</string>
+    <string name="vr_autoplay">Воспроизводить медиа автоматически</string>
+    <string name="vr_stickers">Анимированные стикеры в чатах</string>
+    <string name="vr_motion_info">По умолчанию выключено. Медиа, играющее само, — самый дешёвый способ потерять частоту кадров, нужную шлему.</string>
+    <string name="vr_reset">Сбросить настройки шлема</string>
+    <string name="vr_reset_text">Размер интерфейса и движение вернутся к значениям по умолчанию. Исключения не затрагиваются.</string>
+    <string name="vr_reset_do">Сбросить</string>
+
+    <!-- Диктовка -->
+    <string name="vr_settings_dictation">Диктовка</string>
+    <string name="vr_dictation_title">Диктовка</string>
+    <string name="vr_dictation_test">Проверить диктовку</string>
+    <string name="vr_dictation_start">Говорить</string>
+    <string name="vr_dictation_stop">Стоп</string>
+    <string name="vr_dictation_listening">Слушаю. Говорите, потом нажмите «Стоп».</string>
+    <string name="vr_dictation_recognizing">Распознаю…</string>
+    <string name="vr_dictation_check">Прочитайте текст, прежде чем его использовать.</string>
+    <string name="vr_dictation_recipient">Записи уходят в %1$s.</string>
+    <string name="vr_dictation_not_configured">Служба распознавания не указана. Добавьте её адрес и токен ниже.</string>
+    <string name="vr_dictation_disclosure">Запись вашего голоса отправляется в %1$s, чтобы превратить её в текст. Больше никуда она не идёт, и текст никогда не уходит в чат сам — вы читаете его первым.</string>
+    <string name="vr_dictation_allow">Разрешить микрофон</string>
+    <string name="vr_dictation_denied">Микрофон выключен. Диктовке он нужен; всё остальное в приложении работает без него.</string>
+    <string name="vr_dictation_busy">Микрофон не открылся. Возможно, его держит другое приложение.</string>
+    <string name="vr_dictation_empty">Ничего не услышал. Скажите чуть громче и попробуйте снова.</string>
+    <string name="vr_dictation_network">Служба распознавания не ответила. Проверьте сеть и попробуйте снова.</string>
+    <string name="vr_dictation_service_error">Служба распознавания отклонила запрос.</string>
+    <string name="vr_dictation_service_said">Служба распознавания отклонила запрос: %1$s</string>
+    <string name="vr_dictation_endpoint">Адрес распознавания</string>
+    <string name="vr_dictation_endpoint_hint">https://…</string>
+    <string name="vr_dictation_token">Токен доступа</string>
+    <string name="vr_dictation_token_hint">Оставьте пустым, чтобы сохранить прежний</string>
+    <string name="vr_dictation_language">Язык</string>
+    <string name="vr_dictation_language_hint">ru-RU, en-US…</string>
+    <string name="vr_dictation_not_set">не указан</string>
+    <string name="vr_dictation_info">Диктовка выключена, пока вы не дадите ей службу, с которой говорить. Адрес и токен — ваши: в приложение ничего не встроено, и никуда ничего не уходит, пока вы не нажали «Говорить».</string>
+
+    <!-- Размещение и размер -->
+    <string name="vr_layout">Размещение</string>
+    <string name="vr_layout_single">По одному</string>
+    <string name="vr_layout_split">Список и чат рядом</string>
+    <string name="vr_layout_info">Панель шлема широка в пикселях и узка в размере, которым всё нарисовано, поэтому список и чат сразу оставляют разговор стиснутым. По умолчанию — по одному: список чатов или открытый чат.</string>
+    <string name="vr_density_most_rows">Больше списка</string>
+    <string name="vr_density_balanced">Поровну</string>
+    <string name="vr_density_larger">Крупнее</string>
+    <string name="vr_density_largest">Самый крупный</string>
+    <string name="vr_density_rows">%1$s — примерно %2$d чатов</string>
+
+    <!-- Переключатель в шапке списка чатов -->
+    <string name="vr_master_on">Прерывать можно — решают ваши исключения</string>
+    <string name="vr_master_off">Здесь тихо — ничто вас не прервёт</string>
+
+    <!-- О приложении -->
+    <string name="vr_settings_about">О приложении</string>
+    <string name="vr_about_source">Исходный код</string>
+    <string name="vr_about_site">О Nicegram</string>
+    <string name="vr_about_terms">Условия использования</string>
+    <string name="vr_about_privacy">Политика конфиденциальности</string>
+    <string name="vr_about_info">Nicegram VR — неофициальный клиент Telegram с открытым исходным кодом, сделанный для шлема. Он не создан Telegram и не одобрен им. Ваш аккаунт, ваши сообщения и правила, которым они подчиняются, остаются телеграмовскими; этот клиент добавляет тихую панель, из которой можно ответить. Условия и политика конфиденциальности Nicegram распространяются на это приложение, телеграмовские — на ваш аккаунт.</string>
+
+    <!-- Первая страница вступления -->
+    <string name="vr_intro_message">**Неофициальный** клиент Telegram, сделанный для шлема.\nПо умолчанию тихо — вы сами решаете, что может вас прервать.</string>
+
+    <!-- Страницы 2–6 вступления -->
+    <string name="vr_page2_title">Тихо</string>
+    <string name="vr_page2_message">**Ничего** не приходит, пока вы не разрешите.\nНазовите людей, чаты и слова, ради которых вас можно отвлечь.</string>
+    <string name="vr_page3_title">Вертикально</string>
+    <string name="vr_page3_message">Панель формы телефона, а не стены.\nПоставьте её там, где удобно.</string>
+    <string name="vr_page4_title">Читаемо</string>
+    <string name="vr_page4_message">Четыре размера интерфейса.\nВыберите тот, что читается на вытянутой руке.</string>
+    <string name="vr_page5_title">Открыто</string>
+    <string name="vr_page5_message">**Открытый исходный код**, и бесплатно.\nЧитайте код или соберите сами.</string>
+    <string name="vr_page6_title">Один аккаунт</string>
+    <string name="vr_page6_message">Тот же аккаунт, что на телефоне.\nЧто прочитано здесь — прочитано и там.</string>
+</resources>
