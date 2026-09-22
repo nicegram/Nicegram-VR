@@ -11,7 +11,8 @@ turns a document that reads as authoritative into one that is wrong in a way nob
 
 What it checks, and nothing else:
 
-  * every repository path named in a document exists
+  * every repository path named in a document exists — except paths under a build directory,
+    which name a location rather than a file and are checked only where a build has run
   * every `file:line` citation points at a file that HAS that line
   * every relative Markdown link resolves to a file
   * a short list of counts that documents state and that can be recomputed
@@ -61,10 +62,26 @@ def find_by_name(name: str) -> pathlib.Path | None:
     return hits[0] if len(hits) == 1 else None
 
 
+# Directories a build creates. A document naming `…/build/outputs/apk/…` is describing WHERE a
+# build puts a file, not claiming the file is there — and on a fresh checkout it is not. This
+# check ran once in CI before that was true of it, and turned a correct repository red.
+GENERATED = ("build", ".cxx", "outputs", ".gradle")
+
+
+def is_generated(raw: str) -> bool:
+    return any(part in GENERATED for part in pathlib.PurePath(raw).parts)
+
+
 def check_paths(doc: pathlib.Path, text: str, failures: list[str], checked: list[str]) -> None:
     for match in PATH_RE.finditer(text):
         raw = match.group(0).rstrip(".,;:")
         target = ROOT / raw
+        # A generated path is verified only where a build has happened; elsewhere the claim is
+        # about a location and cannot be checked without building, which this must not do.
+        if is_generated(raw):
+            root_of_it = ROOT / pathlib.PurePath(raw).parts[0]
+            if not (root_of_it / "build").exists() and not (root_of_it / ".cxx").exists():
+                continue
         checked.append(f"path {raw}")
         if target.exists():
             continue
