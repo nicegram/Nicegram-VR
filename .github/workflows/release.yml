@@ -145,8 +145,11 @@ jobs:
 
             Not made or endorsed by Telegram. Your account, messages and the rules they follow
             stay Telegram's, under its [Terms](https://telegram.org/tos) and
-            [Privacy Policy](https://telegram.org/privacy). This client's own terms are at
-            [nicegram.me/terms-of-use](https://nicegram.me/terms-of-use).
+            [Privacy Policy](https://telegram.org/privacy). This app has its own —
+            [Terms of Use](https://nicegram.github.io/Nicegram-VR/terms.html) and
+            [Privacy Policy](https://nicegram.github.io/Nicegram-VR/privacy.html) — because it
+            asks for a microphone and sends a recording to a service you name, which the phone
+            clients' pages do not cover. Support: support@appvillis.com.
 
             ### Install
 
