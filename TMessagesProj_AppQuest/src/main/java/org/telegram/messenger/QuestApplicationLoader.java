@@ -9,6 +9,7 @@ import org.telegram.vr.quest.FirstRunActivity;
 import org.telegram.vr.quest.QuestRuntime;
 import org.telegram.vr.quest.SilenceRulesActivity;
 import org.telegram.vr.quest.VrLayout;
+import org.telegram.vr.quest.VrStartFolder;
 import org.telegram.vr.quest.VrPerformance;
 import org.telegram.vr.quest.VrTheme;
 import org.telegram.vr.quest.VrSettingsActivity;
@@ -133,6 +134,10 @@ public class QuestApplicationLoader extends ApplicationLoader {
                 return new VrSettingsActivity();
             }
         });
+        // Which folder a session opens on. The setting holds the SERVER's filter id, so it
+        // survives a restart; DialogsActivity translates it to a tab once, after the folders
+        // have loaded, and never fights a tab the user taps afterwards.
+        VrEntryPoints.installStartupFilter(() -> VrStartFolder.filterId(QuestApplicationLoader.this));
         // Shown at most once per install, and it is the app's only chance to say that a closed
         // client receives nothing before the user finds it out by missing something.
         VrEntryPoints.installFirstRun(currentAccount ->

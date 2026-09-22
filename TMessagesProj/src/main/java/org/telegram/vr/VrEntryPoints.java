@@ -60,12 +60,35 @@ public final class VrEntryPoints {
      * one, so a headset session starts in the narrow view rather than in everything.
      */
     public interface StartupFilter {
-        /** @return the filter id to select once per session, or Integer.MIN_VALUE for none. */
+        /**
+         * @return the PERSISTENT {@code DialogFilter.id} to select once per session, or
+         *         {@code Integer.MIN_VALUE} for none. Never {@code localId}, which is a
+         *         process counter and means a different folder on the next launch.
+         */
         int filterId();
     }
 
+    private static volatile boolean startupFilterPending;
+
     public static void installStartupFilter(StartupFilter filter) {
         startupFilter = filter;
+        startupFilterPending = filter != null;
+    }
+
+    /**
+     * True until the startup folder has been applied once in this process.
+     *
+     * The selection is a one-shot rather than a rule: after it, the user's own tab taps must
+     * stand, and a chat-list rebuild — of which there are many — must not snap them back to the
+     * folder they deliberately left.
+     */
+    public static boolean startupFilterPending() {
+        return startupFilterPending && startupFilter != null;
+    }
+
+    /** Disarms the one-shot. Called whether or not the folder was found. */
+    public static void markStartupFilterApplied() {
+        startupFilterPending = false;
     }
 
     /** Integer.MIN_VALUE on every build except a headset one that has the setting set. */

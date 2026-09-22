@@ -13,6 +13,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.LiteMode;
+import org.telegram.messenger.FileLog;
+import org.telegram.messenger.UserConfig;
+import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.R;
 import org.telegram.ui.ActionBar.ActionBar;
@@ -63,6 +66,7 @@ public class VrSettingsActivity extends BaseFragment {
     private static final int ID_ABOUT_SITE = 13;
     private static final int ID_ABOUT_TERMS = 14;
     private static final int ID_ABOUT_PRIVACY = 15;
+    private static final int ID_START_FOLDER = 16;
 
     /**
      * The two links that resolve for anyone. Checked rather than assumed: the repository is
@@ -135,6 +139,9 @@ public class VrSettingsActivity extends BaseFragment {
                 break;
             case ID_LAYOUT:
                 chooseLayout(context);
+                break;
+            case ID_START_FOLDER:
+                chooseStartFolder(context);
                 break;
             case ID_ABOUT_SOURCE:
                 Browser.openUrl(context, SOURCE_URL);
@@ -286,6 +293,10 @@ public class VrSettingsActivity extends BaseFragment {
         items.add(Item.setting(ID_LAYOUT, LocaleController.getString(my.nicegram.vr.R.string.vr_layout),
                 layoutLabel()));
         items.add(Item.info(LocaleController.getString(my.nicegram.vr.R.string.vr_layout_info)));
+        items.add(Item.setting(ID_START_FOLDER,
+                LocaleController.getString(my.nicegram.vr.R.string.vr_start_folder),
+                startFolderLabel(context)));
+        items.add(Item.info(LocaleController.getString(my.nicegram.vr.R.string.vr_start_folder_info)));
 
         items.add(Item.header(LocaleController.getString(my.nicegram.vr.R.string.vr_settings_motion)));
         items.add(Item.check(ID_AUTOPLAY, LocaleController.getString(my.nicegram.vr.R.string.vr_autoplay), isAutoplayOn()));
@@ -422,6 +433,73 @@ public class VrSettingsActivity extends BaseFragment {
         });
         builder.setNegativeButton(LocaleController.getString(my.nicegram.vr.R.string.vr_cancel), null);
         showDialog(builder.create());
+    }
+
+    /**
+     * The folders of the CURRENT account, plus "All chats" for none.
+     *
+     * The list is read live rather than cached: a folder can be created, renamed or deleted from
+     * the phone in the same account, and a settings screen showing a folder that no longer
+     * exists is how a user learns not to trust the screen. If the chosen folder disappears, the
+     * label falls back to "All chats" and the client opens where upstream would — the selection
+     * in DialogsActivity simply finds nothing to match.
+     */
+    private void chooseStartFolder(Context context) {
+        final ArrayList<MessagesController.DialogFilter> filters = folders();
+        if (filters.isEmpty()) {
+            final AlertDialog.Builder empty = new AlertDialog.Builder(context);
+            empty.setTitle(LocaleController.getString(my.nicegram.vr.R.string.vr_start_folder));
+            empty.setMessage(LocaleController.getString(my.nicegram.vr.R.string.vr_start_folder_empty));
+            empty.setPositiveButton(LocaleController.getString(my.nicegram.vr.R.string.vr_intro_accept), null);
+            showDialog(empty.create());
+            return;
+        }
+        final CharSequence[] labels = new CharSequence[filters.size() + 1];
+        labels[0] = LocaleController.getString(my.nicegram.vr.R.string.vr_start_folder_none);
+        for (int i = 0; i < filters.size(); i++) {
+            labels[i + 1] = filters.get(i).name;
+        }
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(LocaleController.getString(my.nicegram.vr.R.string.vr_start_folder));
+        builder.setItems(labels, (dialog, which) -> {
+            // DialogFilter.id, never localId: the second is a process counter and would mean a
+            // different folder on the next launch. See VrStartFolder.
+            VrStartFolder.set(ApplicationLoader.applicationContext,
+                    which == 0 ? VrStartFolder.NONE : filters.get(which - 1).id);
+            rebuild();
+            showRestartNote(context);
+        });
+        builder.setNegativeButton(LocaleController.getString(my.nicegram.vr.R.string.vr_cancel), null);
+        showDialog(builder.create());
+    }
+
+    /** Every real folder of the selected account; the "All chats" pseudo-filter is not one. */
+    private ArrayList<MessagesController.DialogFilter> folders() {
+        final ArrayList<MessagesController.DialogFilter> out = new ArrayList<>();
+        try {
+            for (MessagesController.DialogFilter f :
+                    MessagesController.getInstance(UserConfig.selectedAccount).getDialogFilters()) {
+                if (f != null && !f.isDefault()) {
+                    out.add(f);
+                }
+            }
+        } catch (Throwable e) {
+            // A settings row is not worth a crash; an empty list reads as "no folders yet".
+            FileLog.e(e);
+        }
+        return out;
+    }
+
+    private CharSequence startFolderLabel(Context context) {
+        final int wanted = VrStartFolder.filterId(context);
+        if (wanted != VrStartFolder.NONE) {
+            for (MessagesController.DialogFilter f : folders()) {
+                if (f.id == wanted) {
+                    return f.name;
+                }
+            }
+        }
+        return LocaleController.getString(my.nicegram.vr.R.string.vr_start_folder_none);
     }
 
     private String densityLabel(Context context) {

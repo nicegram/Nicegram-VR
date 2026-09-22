@@ -7,12 +7,15 @@
 >
 > Open: **P-09** (device protocol — the first run happened; what is left is behind sign-in),
 > **P-10** (sign in by code), **P-12** (the composer trigger, the second half of dictation),
-> **P-13** (message action bar), **P-14** (gallery shortcuts), **P-15** (the `DialogsActivity`
-> half), **P-16** (store metadata, blocked on VRQ-001), **P-18** (load the headset strings into
-> the language pack — out of finding A-19, without which the interface is English whatever
-> language the user chose) **P-19** (the rail of chat avatars), **P-20** (round videos clipped in the
-> portrait panel), **P-21** (notifications and calls on a platform with no push) and **P-22**
-> (draw in the air and send it).
+> **P-13** (message action bar), **P-14** (gallery shortcuts), **P-16** (store metadata, blocked
+> on VRQ-001), **P-19** (the rail of chat avatars), **P-21** (notifications and calls on a
+> platform with no push) and **P-22** (draw in the air and send it).
+>
+> **Closed since, 21–22 September:** **P-20** (round videos — the size was frozen from the
+> DISPLAY's configuration and never recomputed for the PANEL; A-27), **P-15** (the
+> `DialogsActivity` half, and the setting beside it), and **P-18** as far as code can take it —
+> all five strings that could never be translated are fixed (A-31) and the Russian is an upload
+> artifact in `language-pack/`, so what remains of it is one upload by whoever owns the pack.
 >
 > **This build has now run on a Quest 3**, 19 September 2026: installed in 12 s, started without
 > a crash, and the density fix proved itself in the running interface — a button declared 56 dp
@@ -470,6 +473,52 @@ select that tab through a `VrEntryPoints.startupFilterId()` hook.
 
 **Done when.** With the setting set, the app opens on that folder after restart; unset, it
 opens where upstream would. *Device.*
+
+> **Built, 22 September 2026.** The seam existed and had zero callers on either side — that is
+> what "its seam and not its wiring" meant. Both ends are wired now:
+>
+> | Part | Where |
+> |---|---|
+> | the setting, holding the PERSISTENT `DialogFilter.id` | `VrStartFolder` (new) |
+> | one-shot per session | `VrEntryPoints.startupFilterPending()` / `markStartupFilterApplied()` |
+> | the selection | `DialogsActivity.updateFilterTabs`, after `finishAddingTabs`, once `filters.size() > 1` |
+> | the row and its chooser | `VrSettingsActivity`, under Layout, listing the account's live folders |
+> | four strings, en + ru | `strings_vr.xml`, `language-pack/strings_vr.ru.xml` |
+>
+> **The trap, found while reading rather than after shipping:** `DialogFilter` carries two ints
+> and only one survives a restart. `localId` is `dialogFilterPointer++`
+> (`MessagesController.java:1295`) — a process counter — and it is what `FilterTabsView` calls
+> its *stable* id, which is true within a session and false across one. So the setting stores
+> `id` and the tab is found by that row's `localId`; swapped, the client would open a different
+> folder every launch and the folder list would get the blame. `StartFolderIdentityTest` asserts
+> the call, and was **watched failing** against a planted `localId == wanted` before being
+> believed.
+>
+> Still owed: the device check. Nothing above proves the folder is the one that opens; it proves
+> the client asks for the right one.
+
+> **Built, 22 September 2026.** The seam existed and had zero callers on either side — that is
+> what "its seam and not its wiring" meant. Both ends are wired now:
+>
+> | Part | Where |
+> |---|---|
+> | the setting, holding the PERSISTENT `DialogFilter.id` | `VrStartFolder` (new) |
+> | one-shot per session | `VrEntryPoints.startupFilterPending()` / `markStartupFilterApplied()` |
+> | the selection | `DialogsActivity.updateFilterTabs`, after `finishAddingTabs`, once `filters.size() > 1` |
+> | the row and its chooser | `VrSettingsActivity`, under Layout, listing the account's live folders |
+> | four strings, en + ru | `strings_vr.xml`, `language-pack/strings_vr.ru.xml` |
+>
+> **The trap, found while reading rather than after shipping:** `DialogFilter` carries two ints
+> and only one survives a restart. `localId` is `dialogFilterPointer++`
+> (`MessagesController.java:1295`) — a process counter — and it is what `FilterTabsView` calls
+> its *stable* id, which is true within a session and false across one. So the setting stores
+> `id` and the tab is found by that row's `localId`; swapped, the client would open a different
+> folder every launch and the folder list would get the blame. `StartFolderIdentityTest` asserts
+> the call, and was **watched failing** against a planted `localId == wanted` before being
+> believed.
+>
+> Still owed: the device check. Nothing above proves the folder is the one that opens; it proves
+> the client asks for the right one.
 
 ---
 

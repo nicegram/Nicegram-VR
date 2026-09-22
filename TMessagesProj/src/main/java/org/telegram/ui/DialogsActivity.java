@@ -6946,6 +6946,34 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                     viewPages[a].listView.setScrollingTouchSlop(RecyclerView.TOUCH_SLOP_PAGING);
                 }
                 filterTabsView.finishAddingTabs(animatedUpdateItems);
+                // Nicegram VR: open the session in one folder, once. A headset session that
+                // starts in everything starts by scrolling, and the narrow view is the point of
+                // the device. Inert on every other flavour, where nothing is installed.
+                //
+                // The setting stores DialogFilter.id, which is the SERVER's id and survives a
+                // restart. `localId` — what FilterTabsView calls its stable id — is
+                // `dialogFilterPointer++` (MessagesController:1295), a process counter: storing
+                // it would open a different folder on every launch, convincingly enough that
+                // the folder list would get the blame. So the translation happens here, against
+                // the live list, and only here.
+                //
+                // Waits for real folders to exist: before they load, `filters` holds only the
+                // default tab and a one-shot spent then would be spent on nothing.
+                if (org.telegram.vr.VrEntryPoints.startupFilterPending() && filters.size() > 1) {
+                    final int wanted = org.telegram.vr.VrEntryPoints.startupFilterId();
+                    org.telegram.vr.VrEntryPoints.markStartupFilterApplied();
+                    if (wanted != Integer.MIN_VALUE) {
+                        for (int a = 0, N = filters.size(); a < N; a++) {
+                            if (filters.get(a).id == wanted) {
+                                if (filterTabsView.selectTabWithStableId(filters.get(a).localId)) {
+                                    viewPages[0].selectedType = a;
+                                    updateCurrentTab = true;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
                 if (updateCurrentTab) {
                     switchToCurrentSelectedMode(false);
                 }
