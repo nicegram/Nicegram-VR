@@ -105,8 +105,25 @@ jobs:
             echo "prohibited permissions: 0 of $(wc -l < /tmp/prohibited.txt | tr -d ' ') on Meta's live list"
           fi
 
+          # The tag and the package must agree about what version this is. They are set in two
+          # different places — a git tag, and NICEGRAM_VR_VERSION in gradle.properties — so
+          # nothing but a check keeps them together, and a release page saying 0.2.0 over a
+          # package saying 0.1.0 is a support thread nobody can close.
+          VNAME=$("$AAPT" dump badging "$APK" | sed -n "s/.*versionName='\([^']*\)'.*/\1/p")
+          VCODE=$("$AAPT" dump badging "$APK" | sed -n "s/.*versionCode='\([^']*\)'.*/\1/p")
+          echo "versionName: $VNAME   versionCode: $VCODE"
+          TAG_VERSION=$(echo "${GITHUB_REF_NAME#v}" | sed 's/-.*//')
+          case "$VNAME" in
+            "$TAG_VERSION"*) ;;
+            *) echo "::error::the tag says $TAG_VERSION and the package says '$VNAME'."
+               echo "::error::Set NICEGRAM_VR_VERSION in gradle.properties to match the tag."
+               exit 1 ;;
+          esac
+
           SIZE=$(stat -c%s "$APK")
           echo "size=$(( SIZE / 1024 / 1024 )) MB" >> "$GITHUB_OUTPUT"
+          echo "vname=$VNAME" >> "$GITHUB_OUTPUT"
+          echo "vcode=$VCODE" >> "$GITHUB_OUTPUT"
           echo "perms=$(wc -l < /tmp/ours.txt | tr -d ' ')" >> "$GITHUB_OUTPUT"
           echo "abis=$(unzip -l "$APK" | grep -o 'lib/[a-z0-9-]*' | sort -u | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
           "$APKSIGNER" verify --print-certs "$APK" | grep -i 'certificate DN' || true
@@ -137,6 +154,7 @@ jobs:
 
             | | |
             |---|---|
+            | Version | ${{ steps.checks.outputs.vname }}, code ${{ steps.checks.outputs.vcode }} |
             | Size | ${{ steps.checks.outputs.size }} (store limit 1 GB) |
             | ABIs | ${{ steps.checks.outputs.abis }} (64-bit only) |
             | Permissions | ${{ steps.checks.outputs.perms }}, **none prohibited by Meta** |

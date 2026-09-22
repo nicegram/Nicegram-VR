@@ -100,6 +100,27 @@ tasks.configureEach { task ->
     }
 }
 
+/**
+ * Nicegram VR: a required integer property, with the same loudness as the credential guard.
+ *
+ * Deliberately NOT defaulted. A missing NICEGRAM_VR_BUILD would silently reset the version code
+ * to a number below the one already published, and the failure would surface as a rejected
+ * upload days later rather than as a message here.
+ */
+String questVersionProperty(String name) {
+    if (!project.hasProperty(name)) {
+        throw new GradleException(
+            "Nicegram VR cannot be built without " + name + " in gradle.properties.\n" +
+            "It carries this product's own version, separate from Telegram's APP_VERSION_* —\n" +
+            "the build number is what makes each store upload's versionCode larger than the\n" +
+            "last, and the name is what a tester reads. An upstream merge that dropped either\n" +
+            "would otherwise reset the version silently, and the failure would surface days\n" +
+            "later as a rejected upload."
+        )
+    }
+    return project.property(name).toString().trim()
+}
+
 android {
     compileSdkVersion 36
     buildToolsVersion '36.0.0'
@@ -192,8 +213,22 @@ android {
         applicationId "my.nicegram.vr"
         minSdkVersion 29
         targetSdkVersion 36
-        versionCode Integer.parseInt(APP_VERSION_CODE)
-        versionName APP_VERSION_NAME
+        // Nicegram VR's version, not Telegram's.
+        //
+        // versionCode must INCREASE with every store upload, and upstream's APP_VERSION_CODE
+        // only moves when upstream does — so two of our releases from one base collided, and
+        // the second upload would have been refused. NICEGRAM_VR_BUILD opens 100 slots between
+        // upstream bumps, and the arithmetic stays monotonic across them:
+        //
+        //   7089 build 0  -> (708900)*10+9 = 7089009
+        //   7089 build 99 -> (708999)*10+9 = 7089999
+        //   7090 build 0  -> (709000)*10+9 = 7090009   <- still larger
+        //
+        // (the *10+abi is applied by the output override below, unchanged.)
+        versionCode Integer.parseInt(APP_VERSION_CODE) * 100 + Integer.parseInt(questVersionProperty('NICEGRAM_VR_BUILD'))
+        // What a tester reads. "12.10.3" is the Telegram release this is built on and says
+        // nothing about which Nicegram VR they have; both are here, each labelled.
+        versionName questVersionProperty('NICEGRAM_VR_VERSION') + " (Telegram " + APP_VERSION_NAME + ")"
         ndkVersion "27.2.12479018"
 
         multiDexEnabled true
