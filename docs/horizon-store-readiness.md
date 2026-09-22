@@ -106,7 +106,7 @@ Recorded so nobody audits it twice.
 | Requirement | Evidence |
 |---|---|
 | `VRC.Quest.Packaging.2` — v2 signature | `apksigner verify` prints a V2 signer, DN `Nicegram VR` |
-| `VRC.Quest.Packaging.5` — APK < 1 GB | **60.7 MB** release (134 MB debug) |
+| `VRC.Quest.Packaging.5` — APK < 1 GB | **60.6 MB** release (134 MB debug) |
 | `VRC.Quest.Packaging.6` — 64-bit only | `native-code: 'arm64-v8a'`, nothing else |
 | Release manifest — not debuggable | `application-debuggable` absent from the release badging |
 | Release manifest — `excludeFromRecents` | present on the launch activity |
@@ -154,7 +154,7 @@ Five stages. Each one's exit is a thing you can check, not a feeling.
 >
 > | | State | What it rests on |
 > |---|---|---|
-> | **Stage 1** — uploadable package | **done** | 57 permissions, 0 of the 151 on Meta's live list; `installLocation`, `supportedDevices`, `<layout>` and a unique label all present in the release APK; v2-signed with the project key; arm64 only; 60.7 MB against a 1 GB limit; `versionCode` now advances independently of upstream (A-33) |
+> | **Stage 1** — uploadable package | **done** | 57 permissions, 0 of the 151 on Meta's live list; `installLocation`, `supportedDevices`, `<layout>` and a unique label all present in the release APK; v2-signed with the project key; arm64 only; 60.6 MB against a 1 GB limit; `versionCode` now advances independently of upstream (A-33) |
 > | **Stage 2** — good on the device | **partly** | it installs and runs on a Quest 3; the panel is 500×800 at 200 dpi; **nothing behind sign-in has been exercised**, so no frame reading, no dictation against a service, no input-speed measurement |
 > | **Stage 3** — VRC self-pass | **not started** | needs Stage 2's device work |
 > | **Stage 4** — business gates | **blocked on VRQ-001** | the policy question below. A Data Use Checkup is also owed if platform features are used |

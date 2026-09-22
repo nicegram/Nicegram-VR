@@ -121,7 +121,10 @@ jobs:
           esac
 
           SIZE=$(stat -c%s "$APK")
-          echo "size=$(( SIZE / 1024 / 1024 )) MB" >> "$GITHUB_OUTPUT"
+          # Decimal MB, because that is what the release page beside these notes displays.
+          # Dividing by 1024 gives MiB and labelling it "MB" made the notes contradict the page
+          # they are attached to — 57 against GitHub's 60.6, for one identical file.
+          echo "size=$(awk -v b="$SIZE" 'BEGIN{printf "%.1f", b/1000000}') MB" >> "$GITHUB_OUTPUT"
           echo "vname=$VNAME" >> "$GITHUB_OUTPUT"
           echo "vcode=$VCODE" >> "$GITHUB_OUTPUT"
           echo "perms=$(wc -l < /tmp/ours.txt | tr -d ' ')" >> "$GITHUB_OUTPUT"
