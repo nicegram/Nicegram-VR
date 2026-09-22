@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — Nicegram VR</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #16161a; --muted: #5b5b66; --line: #e4e4ea;
+    --accent: #6f4bd8; --card: #f7f7fa;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e0e11; --fg: #ececf1; --muted: #a0a0ad; --line: #26262e;
+      --accent: #8b5ff2; --card: #17171c;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e0e11; --fg: #ececf1; --muted: #a0a0ad; --line: #26262e;
+    --accent: #8b5ff2; --card: #17171c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 17px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+  .wrap { max-width: 44rem; margin: 0 auto; padding: 3rem 16px 5rem; }
+  h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 .4rem; letter-spacing: -.02em; }
+  h2 { font-size: 1.25rem; margin: 2.6rem 0 .7rem; letter-spacing: -.01em; }
+  .sub { color: var(--muted); margin: 0 0 2.4rem; }
+  a { color: var(--accent); }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 2.5rem 0; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: .95rem; }
+  th, td { text-align: left; padding: .6rem .7rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  code { background: var(--card); padding: .12em .38em; border-radius: 4px; font-size: .88em; }
+  .note { background: var(--card); border-left: 3px solid var(--accent); padding: .9rem 1rem; border-radius: 0 6px 6px 0; margin: 1.4rem 0; }
+  footer { color: var(--muted); font-size: .9rem; margin-top: 3.5rem; }
+  ul { padding-left: 1.2rem; }
+  li { margin: .35rem 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Privacy Policy</h1>
+<p class="sub"><strong>Nicegram VR</strong> for Meta Quest · effective 22&nbsp;September&nbsp;2026</p>
+
+<p>Nicegram VR is an unofficial, open-source Telegram client for Meta Quest 3 and Quest&nbsp;3S,
+published by Appvillis. This policy covers <strong>the application</strong>. It does not cover
+Telegram: your account, your messages and your contacts live on Telegram’s servers under
+<a href="https://telegram.org/privacy">Telegram’s Privacy Policy</a> and
+<a href="https://telegram.org/tos">Terms of Service</a>, which we neither set nor change.</p>
+
+<div class="note">
+<strong>The short version.</strong> The app collects nothing and sends nothing to us. It has no
+analytics, no advertising and no crash reporting of its own. The only servers it talks to are
+Telegram’s — and, if and only if you configure one yourself, the speech-recognition service you
+choose for dictation.
+</div>
+
+<h2>What we collect</h2>
+<p><strong>Nothing.</strong> Appvillis operates no server for this application and receives no
+data from it. There is no account with us, no identifier assigned by us, and no telemetry.</p>
+
+<table>
+  <tr><th>Category</th><th>Collected by Nicegram VR</th></tr>
+  <tr><td>Personal identifiers, contacts, messages</td><td>No</td></tr>
+  <tr><td>Usage analytics, events, session data</td><td>No</td></tr>
+  <tr><td>Crash or diagnostic reports</td><td>No</td></tr>
+  <tr><td>Advertising identifiers, tracking</td><td>No</td></tr>
+  <tr><td>Location</td><td>No</td></tr>
+  <tr><td>Audio recordings</td><td>No — see <em>Microphone</em> below</td></tr>
+</table>
+
+<h2>Where your data actually goes</h2>
+<p>Three destinations, and no others.</p>
+<ul>
+  <li><strong>Telegram.</strong> Signing in, reading and sending happen against Telegram’s API
+  exactly as they do in the official client. Telegram’s policy governs everything that arrives
+  there.</li>
+  <li><strong>Your device.</strong> Settings this app adds — the silence profile, the interface
+  size, the layout, the folder it opens in — are stored in the app’s private storage on the
+  headset. They are never written to your Telegram account, which is deliberate: an account-level
+  mute would also silence the phone in your pocket.</li>
+  <li><strong>A speech-recognition service you name.</strong> Only if you enter one. See below.</li>
+</ul>
+
+<h2>Microphone</h2>
+<p>The app requests microphone access for two things you start yourself: recording a voice
+message, and dictation.</p>
+<ul>
+  <li><strong>Nothing is recorded until you act.</strong> There is no listening in the background
+  and no wake word.</li>
+  <li><strong>Dictation is off until you configure it.</strong> No recognition service is built
+  in. You supply the address and, if it needs one, a token; both are stored on the device only.</li>
+  <li><strong>The recording goes to that address and nowhere else</strong>, over HTTPS. The app
+  refuses to send it over plain <code>http</code> to anywhere but this device, because a
+  recording of your voice and your access token would otherwise cross the network in the
+  clear.</li>
+  <li><strong>Recognised text is never sent on its own.</strong> It appears for you to read, and
+  you decide whether it is sent.</li>
+  <li>What that service does with the audio is governed by <em>its</em> policy, not this one.
+  Choose it accordingly.</li>
+</ul>
+
+<h2>Notifications</h2>
+<p>Horizon OS has no Google Play Services, so this app has <strong>no push notifications</strong>.
+Messages and calls reach you only while the app is running. Nothing arrives while it is closed;
+what accumulated is shown the next time you open it. This is a property of the platform, stated
+on the app’s first screen.</p>
+
+<h2>Third-party code</h2>
+<p>The app is a fork of <a href="https://github.com/DrKLO/Telegram">Telegram for Android</a> and
+inherits its dependencies. Two things are worth stating plainly rather than leaving to be
+discovered:</p>
+<ul>
+  <li><strong>Firebase is removed from this build.</strong> Upstream ships Firebase Cloud
+  Messaging, and its initialiser is a content provider that would start on every launch. The
+  Quest build removes the initialiser, the messaging service and the registration receiver from
+  its manifest, so no Firebase component runs and no installation is registered with Google.</li>
+  <li><strong>Google Play Services libraries are still compiled in</strong>, inherited from
+  upstream — sign-in, Cast and vision classes among them. Horizon OS has no Play Services, so
+  none of them can execute; the keys that would activate Google sign-in are cleared in this
+  build. They are inert code, not a data path.</li>
+</ul>
+
+<h2>Children</h2>
+<p>This app is not directed at children. Telegram requires its users to meet its own minimum age;
+this client adds no separate account and no separate age gate.</p>
+
+<h2>Deleting your data</h2>
+<p>Uninstalling the app removes everything it stored on the headset, including the silence
+profile and any dictation address or token. Data held by Telegram is deleted through Telegram —
+see <a href="https://telegram.org/faq#q-how-do-i-delete-my-account">Telegram’s account deletion</a>.
+We hold nothing to delete.</p>
+
+<h2>Changes</h2>
+<p>If this policy changes, the new version appears at this address with a new effective date. The
+history of this page is public in the repository below.</p>
+
+<h2>Contact</h2>
+<p>Questions about this policy, or about the app’s handling of data:
+<a href="mailto:support@appvillis.com">support@appvillis.com</a></p>
+
+<hr>
+<footer>
+<p><strong>Nicegram VR</strong> — an unofficial Telegram client. Not made by, affiliated with or
+endorsed by Telegram.<br>
+Source: <a href="https://github.com/nicegram/Nicegram-VR">github.com/nicegram/Nicegram-VR</a> ·
+<a href="terms.html">Terms of Use</a> ·
+<a href="https://nicegram.me">nicegram.me</a></p>
+</footer>
+
+</div>
+</body>
+</html>
