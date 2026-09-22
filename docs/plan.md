@@ -767,6 +767,47 @@ client's rule that recognised text is never sent unseen applies to a drawing jus
 **Done when.** A drawing made in the air arrives in a chat as an image the recipient can open,
 the frame budget holds while drawing, and nothing is sent without being seen first. *Device.*
 
+## P-23 … P-28 · The VR room — `docs/vr-room.md`
+
+Six phases, specified separately because the specification is longer than this file's entries and
+because one of its findings changes the store schedule. In short:
+
+| | | |
+|---|---|---|
+| P-23 | the button and the call | ~2 days |
+| P-24 | the immersive activity — **the risk lives here** | ~1 week |
+| P-25 | voice in the room | ~3 days |
+| P-26 | the shared monitor | ~4 days |
+| P-27 | the drawing surface and its relay on DigitalOcean | ~1 week |
+| P-28 | the store consequences of becoming a hybrid app | ~3 days |
+
+**The finding that matters most:** voice, participants, encryption, the SFU and screen sharing
+are already in this codebase — `voip/ConferenceCall.java`, 35 group-call TL constructors, 54
+presentation references in `VoIPService.java`, and an entry point at `ChatActivity.java:18849`.
+A room is a Telegram group call with a body, not a new calling stack.
+
+**The finding that changes the schedule:** an immersive activity moves the app from the 2D-panel
+VRC subset to the full immersive set. Submit the 2D client first; the room ships as an update.
+
+**Phase A is worth doing alone.** It ships an ordinary group-call button and measures whether
+anyone presses it before phases B–E are built.
+
+---
+
+## P-29 · Analytics — `docs/analytics.md`
+
+Aptabase, self-hosted on DigitalOcean: the Kotlin SDK is MIT and therefore compatible with this
+app's GPL-2.0, while the server is AGPL-3.0 and never linked in. PostHog was rejected for this
+shape — its self-hosting is the deployment its own authors steer people away from, and its
+strongest features are the ones a messenger must switch off.
+
+**It has a prerequisite that is not code:** the privacy policy published on 22 September says the
+app collects nothing, and that has to change in the same commit as the first event. A Data Use
+Checkup is owed to Meta before the next submission. Ten events are listed and the boundary is
+absolute: nothing about conversations, correspondents or their content.
+
+---
+
 ## What this plan does not include, on purpose
 
 - Calls and video calls from the headset (no forward camera; a different product).
