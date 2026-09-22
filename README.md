@@ -26,7 +26,7 @@ client, its source is open — see [NOTICE.md](NOTICE.md) for the provenance and
 
 | | Who | How to reach |
 |---|---|---|
-| Maintainer, product decisions | **Sergey S** — [@sshlg](https://github.com/sshlg) | [sergey@appvillis.com](mailto:sergey@appvillis.com) |
+| Maintainer, product decisions | **Sergey S** — [@sshlg](https://github.com/sshlg) | [Website(https://sshlg.me/) |
 | Anything about this client | the Nicegram team | [t.me/nicegramchat](https://t.me/nicegramchat) |
 | Nicegram itself, downloads, help | — | [nicegram.me](https://nicegram.me) · [wiki.nicegram.me](https://wiki.nicegram.me) |
 | A security issue | — | [SECURITY.md](SECURITY.md) — please do not open a public issue first |
