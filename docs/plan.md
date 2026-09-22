@@ -347,8 +347,9 @@ list, and dictation end to end against a configured service.
 - TL: `TLRPC.java:50523` `TL_auth_exportLoginToken`, `:50542` `TL_auth_importLoginToken`,
   `:50557` `TL_auth_acceptLoginToken`; responses `:18263` `TL_auth_loginToken`, `:18281`
   `TL_auth_loginTokenMigrateTo`, `TL_auth_loginTokenSuccess`.
-- QR rendering: `TMessagesProj/src/main/java/com/google/zxing/qrcode/QRCodeWriter.java` is
-  vendored; `org.telegram.messenger.TelegramQRCodeWriter` is used at `QrActivity.java:1311`.
+- QR rendering: `TMessagesProj/src/main/java/org/telegram/messenger/TelegramQRCodeWriter.java`.
+  An earlier version of this line claimed a vendored `com/google/zxing/qrcode/QRCodeWriter.java`;
+  there is no such file anywhere in this repository, and `Tools/check_docs.py` is what said so.
   No new dependency.
 
 **Flow.** `exportLoginToken(api_id, api_hash, except_ids)` → render `tg://login?token=<base64url>`
@@ -550,8 +551,9 @@ comment** — the earlier decision not to write them from memory stands.
    user-configured recipient, not a "Nicegram server". Split "People and chats" back into two.
 2. **screens.md.** SCR-25, SCR-26 → `Coverage: TMessagesProj_AppQuest/.../SilenceRulesActivity.java`,
    status `drifted` until P-09 passes them, then `built`.
-3. **Dataroom.** `docs/architecture/nicegram-vr-quest-20260919.md:3` — status line names the
-   revision it describes and points at this plan.
+3. **Dataroom.** `dataroom/docs/architecture/nicegram-vr-quest-20260919.md:3` — status line
+   names the revision it describes and points at this plan. The path is in the **dataroom**
+   repository, not this one; unqualified it reads as a broken link here.
 4. **Rendered docs.** Add to the workspace's `npm run check` a step that runs
    `design/docs/render.py` and fails on a diff, so Markdown and HTML cannot drift.
 
@@ -574,9 +576,9 @@ compiled, merged and then dropped — measured on the 19 September debug APK, wh
 no code change can supply.
 
 **Do.** Load the entry names of `language-pack/strings_vr.ru.xml` into the Nicegram language
-pack. That file is the whole deliverable and it is ready: **99 keys**, one per key of
-`values/strings_vr.xml`, 47 carried over unchanged from `fc887365^` and 54 written since against
-the brand pack's voice. Its README says why it is not a `values-ru/` folder.
+pack. That file is the whole deliverable and it is ready: **104 keys**, one per key of
+`values/strings_vr.xml`, 47 carried over unchanged from `fc887365^` and the rest written since
+against the brand pack's voice. Its README says why it is not a `values-ru/` folder.
 
 > **Status, 22 September 2026.** Everything that can be done without the translation platform is
 > done. The code half turned out NOT to be finished as A-19 claimed: five strings were read
