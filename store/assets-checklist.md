@@ -16,12 +16,34 @@ live requirements before submitting**: asset specs change and a stale spec is a 
 
 ## The set to produce
 
-| Asset | Status | Note |
+| Asset | Status | File |
 |---|---|---|
-| App icon | **have** — `ic_launcher_default`, Nicegram's own monogram on `#000000` | check the transparent-background variant is what the form wants |
-| Cover art / hero | **missing** | keep all text out of the top and bottom fifths |
-| Screenshots (min. several) | **missing** | must come off a headset or the Spatial Simulator |
+| App icon | **made**, 512 and 1024 | `assets/icon-512.png`, `assets/icon-1024.png` |
+| Logo on transparency | **made**, 1024 | `assets/logo-transparent-1024.png` — corner alpha 0, verified |
+| Cover art / hero | **made**, 2560×1440 and a 1440 square | `assets/cover-2560x1440.png`, `assets/cover-square-1440.png` |
+| Screenshots — onboarding | **made**, six frames | `assets/screenshots/onboarding-1…6.png` |
+| Screenshots — the app in use | **still missing** | the six below; every one is behind sign-in |
 | Trailer | **missing** | optional at first submission; strong for the listing |
+
+Everything marked *made* is rendered by `store/make-assets.py` from the app's **own vector mark**
+— `drawable/nicegram_mark.xml`, the file the running app draws — rather than exported by hand.
+Re-run it and the store art cannot drift from the product. A hand-exported folder is exactly what
+let a blank white mark ship for three days (A-34).
+
+Checked by pixel rather than by eye:
+
+| Check | Result |
+|---|---|
+| no text in the cover's top or bottom 20% | **clear on both covers** — every sampled row in those bands is a single gradient colour |
+| the logo's background is transparent | **alpha 0** at the corner |
+| the icon carries the brand mark | rendered from the vector, not upscaled from the 192 px launcher icon |
+
+**What the onboarding screenshots are, and what they are not.** They are six real frames of the
+app, captured from the Spatial Simulator at 2064×2208. They are **not** the six below: they show
+the app introducing itself, not the app in use, and a listing carried by onboarding alone is a
+listing that shows nothing being done. Two further caveats, both untested rather than known:
+whether Meta accepts a simulator capture where the rule says "captured in the headset", and
+whether a near-square 0.935 aspect suits placements that expect 16:9.
 
 ## How to capture them without a headset in hand
 

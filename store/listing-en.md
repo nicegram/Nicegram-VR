@@ -119,19 +119,29 @@ https://nicegram.me/terms-of-use
 ## Website
 
 ```
-https://nicegram.me
+https://nicegram.github.io/Nicegram-VR/privacy.html
 ```
+
+## Terms of use URL
+
+```
+https://nicegram.github.io/Nicegram-VR/terms.html
+```
+
+Both are this application's own, not the company's phone-client pages, because this app asks for
+a microphone, sends a recording to a service the user names, and keeps a notification profile
+that deliberately never reaches the Telegram account — none of which the phone policy covers.
+They are served by GitHub Pages from the `gh-pages` branch of this repository, so their history
+is public and a change to either is a commit. Both answer 200 (checked 22 September).
 
 ## Support contact
 
-**OPEN — needs a decision, and it is a person's decision.** A support address is required and
-must be one somebody reads. Do not invent one.
+**Decided 22 September 2026 by the owner:**
 
-The candidates that exist and were checked (both answer 200):
+```
+support@appvillis.com
+```
 
-| Candidate | What it is | Caveat |
-|---|---|---|
-| `t.me/nicegramchat` | the Nicegram community chat, already the contact on the repository's front page | Meta's form may want an email or a web form rather than a chat link |
-| `https://nicegram.me` | the product site | only useful if it carries a reachable support route |
-
-Neither is chosen here. Whoever will answer the mail picks it.
+The community chat `t.me/nicegramchat` stays the informal route and is on the repository's front
+page; the address above is the one for the store form, because Meta wants somewhere a person
+answers.

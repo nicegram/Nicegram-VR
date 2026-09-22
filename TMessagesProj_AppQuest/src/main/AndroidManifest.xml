@@ -124,5 +124,24 @@
                 android:minWidth="360dp"
                 android:minHeight="480dp" />
         </activity>
+
+        <!-- Firebase, removed whole. It arrives from upstream's dependencies even though this
+             flavour ships no google-services.json of its own, and FirebaseInitProvider is a
+             ContentProvider: it starts BEFORE Application.onCreate, on every launch, whatever
+             this build's code does. Horizon OS has no Play Services, so none of it can work —
+             what it can still do is initialise against Telegram's Firebase project, whose
+             config strings come through as resources from TMessagesProj, and attempt an
+             installation registration with Google from a device that asked for none of it.
+
+             Nothing in this flavour calls Firebase. The path that would —
+             GooglePushListenerServiceProvider.onRequestPushToken, PushListenerController:1697 —
+             is replaced by NoPushProvider, whose onRequestPushToken is empty. So these four
+             are dead weight with a network habit, and the manifest is where they are stopped. -->
+        <provider android:name="com.google.firebase.provider.FirebaseInitProvider"
+            android:authorities="${applicationId}.firebaseinitprovider" tools:node="remove" />
+        <service android:name="com.google.firebase.messaging.FirebaseMessagingService" tools:node="remove" />
+        <service android:name="com.google.firebase.components.ComponentDiscoveryService" tools:node="remove" />
+        <receiver android:name="com.google.firebase.iid.FirebaseInstanceIdReceiver" tools:node="remove" />
+
     </application>
 </manifest>
