@@ -58,7 +58,10 @@ public class DictationActivity extends BaseFragment {
     @Override
     public void onFragmentDestroy() {
         if (recorder != null && recorder.isRecording()) {
-            recorder.cancel();
+            // Off the main thread: cancel joins the capture thread for up to two seconds, and
+            // this runs while a fragment is being torn down. See VoiceRecorder.stop.
+            final VoiceRecorder leaving = recorder;
+            org.telegram.messenger.Utilities.globalQueue.postRunnable(leaving::cancel);
         }
         super.onFragmentDestroy();
     }

@@ -496,6 +496,9 @@ the interface in an instrumentation test or a debug action. *Device for the seco
 >
 > **Not built:** the draft behaviour this task's title mentions, and the cancel during
 > recognition. Both are small and both want a device to design against.
+>
+> **One defect in it was found and fixed the same day (A-44):** leaving the chat while
+> dictating left the microphone held with nothing on screen to stop it.
 
 **Estimate:** four to six days. Depends on P-11.
 

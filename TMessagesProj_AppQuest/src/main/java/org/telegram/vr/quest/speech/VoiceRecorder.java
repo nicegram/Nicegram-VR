@@ -106,7 +106,14 @@ public final class VoiceRecorder {
         return true;
     }
 
-    /** @return what was captured, never null; empty when nothing was. */
+    /**
+     * @return what was captured, never null; empty when nothing was.
+     *
+     * <p><b>Blocks for up to two seconds</b> joining the capture thread, so do not call it on
+     * the main thread from a path that runs during a screen transition — see
+     * {@code DictationButton.onDetachedFromWindow}, which posts it to a background queue for
+     * exactly that reason.
+     */
     public synchronized byte[] stop() {
         recording = false;
         final Thread t = thread;

@@ -85,6 +85,33 @@ public class DictationButton extends ImageView {
         setOnClickListener(v -> toggle());
     }
 
+    /**
+     * Leaving the chat stops the recording, and it has to.
+     *
+     * <p>{@link VoiceRecorder} holds an {@code AudioRecord} and a thread for up to sixty
+     * seconds. Without this, closing the chat mid-sentence leaves the microphone held by a view
+     * that is no longer on screen — with the system's recording indicator lit, and nothing
+     * anywhere to press to stop it. On a headset that is worse than on a phone: there is no
+     * notification shade to go looking in.
+     *
+     * <p>The audio is discarded rather than recognised — {@code cancel()} rather than
+     * {@code stop()}. Somebody who left the chat did not ask for text in it, and putting words
+     * into a field they walked away from is its own surprise.
+     *
+     * <p><b>Off the main thread</b>, because {@code VoiceRecorder.stop} joins the capture thread
+     * for up to two seconds. That wait is nothing in practice — the loop checks a volatile flag
+     * — but a detach is a screen transition, and two seconds of frozen interface at the worst
+     * possible moment is not a risk worth taking for a tidier call site.
+     */
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (recorder.isRecording()) {
+            level = 0f;
+            Utilities.globalQueue.postRunnable(recorder::cancel);
+        }
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
