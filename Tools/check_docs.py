@@ -210,6 +210,24 @@ def check_counts(failures: list[str], checked: list[str]) -> None:
                   "size is where every measurement in these documents comes from"
             )
 
+    # The audit's own headline count. It said "twenty of the twenty-three" for four days after
+    # the file held forty-three findings — a summary that drifts from the list beneath it is
+    # worse than no summary, because it is the line people read instead of the list.
+    audit = ROOT / "docs/audit-2026-09-19.md"
+    if audit.is_file():
+        body = audit.read_text(encoding="utf-8")
+        headings = re.findall(r"^### (A-\d+) · ", body, re.M)
+        # A finding counts as fixed when the first line under its heading says so.
+        fixed = len(re.findall(r"^### A-\d+ · [^\n]*\n\n\*\*(?:FIXED|CLOSED)", body, re.M))
+        checked.append(f"audit findings = {len(headings)}, fixed = {fixed}")
+        for name, claimed in stated(r"\*\*(\d+) findings; ", "docs/audit-2026-09-19.md"):
+            if claimed != len(headings):
+                failures.append(f"{name}: says {claimed} findings; the file has {len(headings)}")
+        for name, claimed in stated(r"findings; (?:\*\*)?(\d+) fixed", "docs/audit-2026-09-19.md"):
+            if claimed != fixed:
+                failures.append(f"{name}: says {claimed} fixed; {fixed} say so under their own "
+                                f"heading")
+
     # Language-pack key parity is owned by LanguagePackParityTest; what is checked here is the
     # count the documents quote, because that is the part a test cannot see.
     en = ROOT / "TMessagesProj_AppQuest/src/main/res/values/strings_vr.xml"
