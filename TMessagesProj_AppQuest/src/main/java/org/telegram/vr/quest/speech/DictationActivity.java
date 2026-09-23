@@ -21,6 +21,7 @@ import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.vr.quest.VrDensity;
+import org.telegram.vr.quest.VrStrings;
 
 /**
  * Nicegram VR — dictation, end to end, on a screen of its own.
@@ -136,7 +137,7 @@ public class DictationActivity extends BaseFragment {
      * from resources is therefore English forever, whatever language the user picked.
      */
     private static String string(int resId) {
-        return LocaleController.getString(resId);
+        return VrStrings.get(resId);
     }
 
     private void idle() {

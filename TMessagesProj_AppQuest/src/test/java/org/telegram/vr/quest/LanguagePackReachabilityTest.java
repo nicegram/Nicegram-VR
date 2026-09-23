@@ -36,11 +36,24 @@ import java.util.regex.Pattern;
  */
 public class LanguagePackReachabilityTest {
 
-    /** A string read that bypasses the pack. The receiver may be any expression ending in a name. */
+    /**
+     * A string read that cannot work for THIS module's resources.
+     *
+     * <p>Both halves are broken, for opposite reasons. A {@code Context} read never asks the
+     * cloud language pack, so the string stays English for ever. And
+     * {@code LocaleController.getString(int)} cannot resolve one of this module's ids: it maps
+     * the id to a name hash and then asks the packaged localization asset for that hash, and
+     * that asset is built from UPSTREAM's strings.xml. Ours were never in it, so every such
+     * read produced the literal text {@code LOC_ERR:null} on screen (A-36).
+     *
+     * <p>{@link org.telegram.vr.quest.VrStrings} is the path that works: the pack by entry
+     * NAME, then this module's own compiled string.
+     */
     private static final Pattern CONTEXT_READ = Pattern.compile(
             "\\b(?:[A-Za-z_][A-Za-z0-9_]*+(?:\\(\\))?\\.)?getResources\\(\\)\\.getString\\("
             + "|\\b(?:context|mContext|activity|getContext\\(\\)|getParentActivity\\(\\)|this)"
-            + "\\.getString\\(");
+            + "\\.getString\\("
+            + "|LocaleController\\.(?:getString|formatString)\\(my\\.nicegram\\.vr\\.R\\.string");
 
     /**
      * The one file allowed to read strings through a Context, and the reason is in its own
@@ -54,8 +67,8 @@ public class LanguagePackReachabilityTest {
     public void noHeadsetStringIsReadThroughAContext() throws IOException {
         final List<String> offenders = new ArrayList<>();
         for (File file : sources()) {
-            if (EXEMPT.equals(file.getName())) {
-                continue;
+            if (EXEMPT.equals(file.getName()) || "VrStrings.java".equals(file.getName())) {
+                continue;  // VrStrings IS the correct path, and its javadoc quotes the wrong one
             }
             final String[] lines =
                     new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8).split("\n", -1);
@@ -68,9 +81,9 @@ public class LanguagePackReachabilityTest {
         }
         if (!offenders.isEmpty()) {
             fail("These read a string through a Context, so the cloud language pack can never "
-                    + "reach them and they stay English in every language:\n  "
+                    + "reach them, or cannot resolve them at all and put LOC_ERR:null on screen:\n  "
                     + String.join("\n  ", offenders)
-                    + "\nUse LocaleController.getString(resId) — it needs no Context.");
+                    + "\nUse VrStrings.get(resId) — the pack by name, then this module's own string.");
         }
     }
 
@@ -83,12 +96,12 @@ public class LanguagePackReachabilityTest {
         boolean sawALocaleControllerRead = false;
         for (File file : files) {
             final String body = new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
-            if (body.contains("LocaleController.getString(")) {
+            if (body.contains("VrStrings.get(")) {
                 sawALocaleControllerRead = true;
                 break;
             }
         }
-        assertTrue("no file reads a string through LocaleController at all, which means this "
+        assertTrue("no file reads a string through VrStrings at all, which means this "
                 + "test is now checking a module that no longer draws strings", sawALocaleControllerRead);
     }
 

@@ -4,6 +4,7 @@ import org.telegram.vr.VrDisplay;
 import org.telegram.vr.VrEntryPoints;
 import org.telegram.vr.VrPolicy;
 import org.telegram.vr.quest.SilenceGate;
+import org.telegram.vr.quest.VrStrings;
 import org.telegram.vr.quest.DigestActivity;
 import org.telegram.vr.quest.FirstRunActivity;
 import org.telegram.vr.quest.QuestRuntime;
@@ -86,13 +87,13 @@ public class QuestApplicationLoader extends ApplicationLoader {
         VrEntryPoints.installSilenceRow(new VrEntryPoints.SettingsRow() {
             @Override
             public CharSequence title() {
-                return LocaleController.getString(my.nicegram.vr.R.string.vr_silence_title);
+                return VrStrings.get(my.nicegram.vr.R.string.vr_silence_title);
             }
 
             @Override
             public CharSequence value() {
                 final int n = SilenceRulesActivity.count(org.telegram.messenger.UserConfig.selectedAccount);
-                return n == 0 ? null : LocaleController.formatString(my.nicegram.vr.R.string.vr_silence_count, n);
+                return n == 0 ? null : VrStrings.format(my.nicegram.vr.R.string.vr_silence_count, n);
             }
 
             @Override
@@ -103,14 +104,14 @@ public class QuestApplicationLoader extends ApplicationLoader {
         VrEntryPoints.installDigestRow(new VrEntryPoints.SettingsRow() {
             @Override
             public CharSequence title() {
-                return LocaleController.getString(my.nicegram.vr.R.string.vr_digest_title);
+                return VrStrings.get(my.nicegram.vr.R.string.vr_digest_title);
             }
 
             @Override
             public CharSequence value() {
                 final org.telegram.vr.quest.Digest digest = QuestRuntime.digest();
                 final int chats = digest == null ? 0 : digest.chatCount();
-                return chats == 0 ? null : LocaleController.formatString(my.nicegram.vr.R.string.vr_digest_row_value, chats);
+                return chats == 0 ? null : VrStrings.format(my.nicegram.vr.R.string.vr_digest_row_value, chats);
             }
 
             @Override
@@ -121,7 +122,7 @@ public class QuestApplicationLoader extends ApplicationLoader {
         VrEntryPoints.installHeadsetRow(new VrEntryPoints.SettingsRow() {
             @Override
             public CharSequence title() {
-                return LocaleController.getString(my.nicegram.vr.R.string.vr_settings_title);
+                return VrStrings.get(my.nicegram.vr.R.string.vr_settings_title);
             }
 
             @Override
