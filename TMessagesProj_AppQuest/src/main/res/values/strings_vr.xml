@@ -148,4 +148,17 @@
     <!-- The endpoint is the user's own, and nothing else checks it -->
     <string name="vr_dictation_bad_address">That is not a web address. It has to start with https:// and name a host.</string>
     <string name="vr_dictation_insecure">That address is plain http, so a recording of your voice and your access token would cross the network readable by anyone on it. Use https:// \u2014 or 127.0.0.1 if the service runs on this headset.</string>
+    <!-- Nicegram on a phone, offered once, on the third launch (A-38). The headset cannot be
+         the only place this account is read from: it is taken off, and then nothing arrives at
+         all. A QR code because there is no other way out of a headset - the phone that would
+         install it is already in the room, and typing a URL with a ray is the worst thing in
+         this product. -->
+    <string name="vr_mobile_title">Nicegram on your phone</string>
+    <string name="vr_mobile_lead">Take it with you.</string>
+    <string name="vr_mobile_body">The headset comes off. Nicegram on your phone is the same account, the same chats \u2014 and it does receive messages while you are doing something else.</string>
+    <string name="vr_mobile_ios">iPhone</string>
+    <string name="vr_mobile_android">Android</string>
+    <string name="vr_mobile_open_ios">Open the App Store link</string>
+    <string name="vr_mobile_open_android">Open the Google Play link</string>
+    <string name="vr_mobile_dismiss_hint">Shown once. Back closes it.</string>
 </resources>

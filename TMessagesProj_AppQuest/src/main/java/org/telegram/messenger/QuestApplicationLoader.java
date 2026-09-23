@@ -7,6 +7,8 @@ import org.telegram.vr.quest.SilenceGate;
 import org.telegram.vr.quest.VrStrings;
 import org.telegram.vr.quest.DigestActivity;
 import org.telegram.vr.quest.FirstRunActivity;
+import org.telegram.vr.quest.MobilePromoActivity;
+import org.telegram.vr.quest.VrMobilePromo;
 import org.telegram.vr.quest.QuestRuntime;
 import org.telegram.vr.quest.SilenceRulesActivity;
 import org.telegram.vr.quest.VrLayout;
@@ -139,10 +141,21 @@ public class QuestApplicationLoader extends ApplicationLoader {
         // survives a restart; DialogsActivity translates it to a tab once, after the folders
         // have loaded, and never fights a tab the user taps afterwards.
         VrEntryPoints.installStartupFilter(() -> VrStartFolder.filterId(QuestApplicationLoader.this));
-        // Shown at most once per install, and it is the app's only chance to say that a closed
-        // client receives nothing before the user finds it out by missing something.
-        VrEntryPoints.installFirstRun(currentAccount ->
-                FirstRunActivity.isDue(QuestApplicationLoader.this) ? new FirstRunActivity() : null);
+        // Counts this launch, once per process. The offer below is due on the third one, and
+        // an activity recreated by a panel resize must not spend a session doing it.
+        VrMobilePromo.countSession(this);
+        // Two one-time screens, in a fixed order. The first-run screen wins whenever it is due,
+        // because a client that says nothing about its own silence has misled someone; only
+        // after it has been seen can the third launch carry the offer of the phone app.
+        VrEntryPoints.installFirstRun(currentAccount -> {
+            if (FirstRunActivity.isDue(QuestApplicationLoader.this)) {
+                return new FirstRunActivity();
+            }
+            if (VrMobilePromo.isDue(QuestApplicationLoader.this)) {
+                return new MobilePromoActivity();
+            }
+            return null;
+        });
     }
 
     @Override

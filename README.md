@@ -8,9 +8,9 @@ built as a 2D Horizon OS application. It is a fork of
 client, its source is open — see [NOTICE.md](NOTICE.md) for the provenance and the licence.
 
 > **Status: early.** It builds, installs and starts on a Quest 3, and there is a signed
-> pre-release to sideload — [v0.1.0-alpha.1](https://github.com/nicegram/Nicegram-VR/releases).
+> pre-release to sideload — [v0.1.0-alpha.3](https://github.com/nicegram/Nicegram-VR/releases).
 > The package is 60.6 MB, 64-bit only, and requests 57 permissions, **none** of the 151 on
-> Meta's prohibited list. 53 unit tests across 12 classes run on every push.
+> Meta's prohibited list. 58 unit tests across 13 classes run on every push.
 >
 > **Nothing behind sign-in has been exercised**, which is most of what this client is for:
 > no frame-rate reading in a real chat, no dictation against a real service, no measurement of

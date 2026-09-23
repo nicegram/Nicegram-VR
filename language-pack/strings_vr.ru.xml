@@ -147,4 +147,13 @@
     <!-- Адрес указывает пользователь, и больше его никто не проверяет -->
     <string name="vr_dictation_bad_address">Это не веб-адрес. Он должен начинаться с https:// и называть хост.</string>
     <string name="vr_dictation_insecure">Этот адрес \u2014 обычный http, поэтому запись вашего голоса и токен доступа пойдут по сети открыто, читаемые любым, кто в ней есть. Укажите https:// \u2014 или 127.0.0.1, если служба работает на самом шлеме.</string>
+    <!-- Nicegram на телефоне, предложение один раз, на третьем запуске (A-38) -->
+    <string name="vr_mobile_title">Nicegram на телефоне</string>
+    <string name="vr_mobile_lead">Возьмите с собой.</string>
+    <string name="vr_mobile_body">Шлем снимают. Nicegram на телефоне \u2014 тот же аккаунт и те же чаты, и он получает сообщения, пока вы заняты другим.</string>
+    <string name="vr_mobile_ios">iPhone</string>
+    <string name="vr_mobile_android">Android</string>
+    <string name="vr_mobile_open_ios">Открыть ссылку в App Store</string>
+    <string name="vr_mobile_open_android">Открыть ссылку в Google Play</string>
+    <string name="vr_mobile_dismiss_hint">Показывается один раз. «Назад» закрывает.</string>
 </resources>

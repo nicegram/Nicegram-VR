@@ -576,7 +576,7 @@ compiled, merged and then dropped — measured on the 19 September debug APK, wh
 no code change can supply.
 
 **Do.** Load the entry names of `language-pack/strings_vr.ru.xml` into the Nicegram language
-pack. That file is the whole deliverable and it is ready: **104 keys**, one per key of
+pack. That file is the whole deliverable and it is ready: **112 keys**, one per key of
 `values/strings_vr.xml`, 47 carried over unchanged from `fc887365^` and the rest written since
 against the brand pack's voice. Its README says why it is not a `values-ru/` folder.
 
@@ -807,6 +807,40 @@ strongest features are the ones a messenger must switch off.
 app collects nothing, and that has to change in the same commit as the first event. A Data Use
 Checkup is owed to Meta before the next submission. Ten events are listed and the boundary is
 absolute: nothing about conversations, correspondents or their content.
+
+---
+
+## P-30 · Nicegram on the phone, offered once, on the third launch — asked for 23 September
+
+**DONE.** `MobilePromoActivity`, `VrMobilePromo`, `VrQrCode`, five tests.
+
+The headset cannot be the only place this account is read from — it comes off, and this build
+has no push, so while it is off nothing arrives at all (P-21). The phone app is the other half
+of that sentence, and it is worth saying once.
+
+**When.** The third launch, once per install, never again. The first launch already spends its
+one screen on something the user must know; a second ask beside it turns the first minute into
+two adverts before anything has been earned. `VrMobilePromo.countSession` counts once per
+PROCESS rather than per activity — a Horizon panel's activity is recreated on a configuration
+change, and resizing the panel is a configuration change, which would otherwise turn one
+session into several and fire the offer on the first day. `VrMobilePromo.due(sessions,
+alreadyShown)` is pure, so the rule is five assertions rather than a comment.
+
+**Order.** Both one-time screens go through the same registry slot, and the first-run screen
+wins whenever it is still due: only after the client has said that it is silent can it ask for
+anything (`QuestApplicationLoader.java:149`).
+
+**Why QR codes.** There is no other way out of a headset. A link is not tappable from someone
+else's device, typing a URL with a ray is the worst interaction this product has, and the phone
+that would install the app is already in the room. Two codes rather than one chooser page,
+because whoever scans is holding the phone and already knows which one it is. Both destinations
+answered 200 on 23 September; both buttons below the codes open the same URL for anyone who
+would rather send it to themselves.
+
+**Where the encoder lives.** `com.google.zxing` is an `implementation` dependency of
+`TMessagesProj` (`build.gradle:51`), so the headset module cannot name `EncodeHintType` at all.
+`org.telegram.vr.VrQrCode` renders on that side and returns a `Bitmap` or null; promoting zxing
+to `api` would put it on the classpath of every flavour that has no use for it.
 
 ---
 
