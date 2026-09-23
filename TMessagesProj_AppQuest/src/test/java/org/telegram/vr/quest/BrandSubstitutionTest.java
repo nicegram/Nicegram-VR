@@ -139,4 +139,25 @@ public class BrandSubstitutionTest {
         throw new IllegalStateException("could not find " + relative + " above "
                 + System.getProperty("user.dir"));
     }
+
+    /**
+     * The version line is a REPLACEMENT, and its replacement must still carry the product's
+     * name — which lives in {@code VrBrandNames.PRODUCT} everywhere else, so the one copy of
+     * it that sits in a resource file is held against the constant here rather than trusted.
+     */
+    @Test
+    public void theVersionStringStillNamesTheProduct() throws IOException {
+        final String strings = source(
+                "TMessagesProj_AppQuest/src/main/res/values/strings_vr.xml");
+        final Matcher m = Pattern.compile(
+                "<string name=\"vr_app_version\">([^<]+)</string>").matcher(strings);
+        assertTrue("vr_app_version is gone; VrBrandNames still routes TelegramVersion to it",
+                m.find());
+        final String value = m.group(1);
+        assertTrue("vr_app_version is \"" + value + "\", which does not name "
+                        + VrBrandNames.PRODUCT,
+                value.contains(VrBrandNames.PRODUCT));
+        assertTrue("vr_app_version lost its %1$s and would print no version at all",
+                value.contains("%1$s"));
+    }
 }

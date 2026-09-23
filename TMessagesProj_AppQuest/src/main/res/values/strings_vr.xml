@@ -153,6 +153,13 @@
          all. A QR code because there is no other way out of a headset - the phone that would
          install it is already in the room, and typing a URL with a ray is the worst thing in
          this product. -->
+    <!-- The version line in Settings. It is a REPLACEMENT rather than a rename, because
+         upstream's sentence is "Telegram for Android %1$s" and substituting the name into it
+         gives "Nicegram VR for Android" - true of the package and odd on a headset. Nothing
+         here needs translating, but it goes through the pack like every other own-string so
+         that a language which wants a different word order can have one. -->
+    <string name="vr_app_version">Nicegram VR %1$s</string>
+
     <string name="vr_mobile_title">Nicegram on your phone</string>
     <string name="vr_mobile_lead">Take it with you.</string>
     <string name="vr_mobile_body">The headset comes off. Nicegram on your phone is the same account, the same chats \u2014 and it does receive messages while you are doing something else.</string>

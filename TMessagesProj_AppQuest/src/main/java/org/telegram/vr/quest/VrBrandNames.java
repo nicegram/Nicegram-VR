@@ -22,13 +22,13 @@ import org.telegram.vr.VrBrand;
  * <h3>Two kinds of entry, and why the difference matters</h3>
  *
  * <b>A rename</b> keeps upstream's sentence and puts this product's name where the service's
- * was — so "\u041E\u0431\u043D\u043E\u0432\u0438\u0442\u044C Telegram" becomes "\u041E\u0431\u043D\u043E\u0432\u0438\u0442\u044C Nicegram VR" and stays Russian. Thirty-six
+ * was — so "\u041E\u0431\u043D\u043E\u0432\u0438\u0442\u044C Telegram" becomes "\u041E\u0431\u043D\u043E\u0432\u0438\u0442\u044C Nicegram VR" and stays Russian. Thirty-five
  * entries. <b>A replacement</b> is one of this module's OWN sentences standing in for
- * upstream's, because the original said something this client must not say; eleven entries,
+ * upstream's, because the original said something this client must not say; twelve entries,
  * read from the pack by entry name so they are translatable too.
  *
  * <p>Everything here used to be the second kind, written out in finished English. That is why
- * a Russian interface turned English wherever the app named itself (A-39): thirty-six sentences
+ * a Russian interface turned English wherever the app named itself (A-39): thirty-five sentences
  * the pack had already translated were thrown away and replaced by ours.
  */
 public final class VrBrandNames {
@@ -168,7 +168,10 @@ public final class VrBrandNames {
         english.put(R.string.AppUpdate, "Update " + PRODUCT);
         english.put(R.string.AppUpdateBeta, "Update " + PRODUCT + " Beta");
         english.put(R.string.AppLocked, PRODUCT + " Locked");
-        english.put(R.string.TelegramVersion, PRODUCT + " %1$s");
+        // Upstream is "Telegram for Android %1$s". Substituting the name into it would
+        // give "Nicegram VR for Android" - true of the package, odd on a headset - so
+        // this one is replaced outright rather than renamed.
+        own(context, ourKeys, ourEnglish, R.string.TelegramVersion, my.nicegram.vr.R.string.vr_app_version);
         english.put(R.string.TelegramCacheSize, "%s " + PRODUCT + " Cache");
 
         // --- Storage, cache and database: all of it is THIS app's, on this device. ---
@@ -226,7 +229,7 @@ public final class VrBrandNames {
         //   Boosting* (65), Gift* (28), Voip*, Limit*, Privacy*, Revenue*
         //                                  - service features, named correctly
         // 508 strings mention Telegram. FORTY-SEVEN are touched - every place the app
-        // speaks about ITSELF: thirty-six renamed by substitution, eleven replaced outright.
+        // speaks about ITSELF: thirty-five renamed by substitution, twelve replaced outright.
         // The rest are true: they name the service, its products, its terms, or another
         // client.
 
