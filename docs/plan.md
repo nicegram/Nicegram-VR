@@ -618,10 +618,23 @@ opens where upstream would. *Device.*
 
 ## P-16 · Store metadata — `VRQ-001` then manifest
 
-Blocked on the policy answer (VRQ-001). When it arrives, add to
-`TMessagesProj_AppQuest/src/main/AndroidManifest.xml` the device-support and launch-category
-declarations **copied from the current Horizon documentation with the URL and date in a
-comment** — the earlier decision not to write them from memory stands.
+> **The manifest half is DONE and was never blocked on the policy answer.** The device-support
+> declaration, the panel's default and minimum size, and `installLocation` are all in — verified
+> on 23 September by reading the built APK, not the source, and recorded with what proved it in
+> [horizon-store-readiness.md](horizon-store-readiness.md) §2, which had said "we have none of
+> it" for four days after they shipped.
+>
+> Those declarations are how the app runs correctly on Horizon OS, not merely how it is
+> submitted, so waiting on a store answer to add them was the wrong dependency. The sideloaded
+> build wanted them too.
+>
+> **What is still blocked on Q-01** is the store LISTING — the description, the age rating, the
+> submission itself. That is metadata about a product in a shop, and there is no point writing
+> it until it is known whether the shop will take it.
+
+The earlier decision not to write platform declarations from memory stands: anything added to
+`TMessagesProj_AppQuest/src/main/AndroidManifest.xml` is **copied from the current Horizon
+documentation with the URL and date in a comment**.
 
 ---
 

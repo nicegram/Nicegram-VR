@@ -81,21 +81,33 @@ redoing.
 
 ---
 
-## 2. Four missing manifest declarations
+## 2. The four manifest declarations — all four are in, measured 23 September 2026
 
-Meta's porting guide gives the exact shape a 2D Android app needs. We have **none** of it:
+**This section said "we have none of it" for four days after all four had shipped.** Read from
+the built APK rather than from the source, with
+`aapt2 dump xmltree --file AndroidManifest.xml`:
 
-| Declaration | Ours | What it does |
+| Declaration | Ours | Read from |
 |---|---|---|
-| `com.oculus.supportedDevices` = `quest2\|questpro\|quest3\|quest3s` | **missing** | declares which headsets the app supports |
-| `<layout android:defaultWidth android:defaultHeight>` | **missing** | **the initial size of the panel** |
-| `<layout android:minWidth android:minHeight>` | missing (optional) | a floor, only if the layout breaks below it |
-| `android:installLocation="auto"` | **missing** | required by the release-manifest spec |
+| `com.oculus.supportedDevices` = `quest2\|questpro\|quest3\|quest3s` | **present** | debug and standalone APK |
+| `<layout android:defaultWidth="420dp" android:defaultHeight="720dp">` | **present** | both |
+| `<layout android:minWidth="360dp" android:minHeight="480dp">` | **present** | both |
+| `android:installLocation="auto"` | **present** | both |
 
-The second row is worth stopping on. **The panel's default size is ours to declare**, and we
-have been fighting it from the other end all week — landscape, then portrait, then the density
-re-base, then round videos clipped. Meta's own example declares `1024dp × 640dp`. Declaring
-the size directly is the supported mechanism; `screenOrientation` was the improvised one.
+And the three release-spec items that go with them, on the **standalone** APK:
+
+| Requirement | Ours |
+|---|---|
+| `android:debuggable` absent | **absent** (it is `true` in the debug APK, which is correct) |
+| `android.hardware.vr.headtracking` absent or `required="false"` for a 2D panel app | **absent entirely** |
+| launch activity `android:excludeFromRecents="true"` | **present** on `LaunchActivity` |
+
+The second row of the first table is still worth stopping on. **The panel's default size is ours
+to declare**, and it was fought from the other end for a week — landscape, then portrait, then
+the density re-base, then round videos clipped (P-20) — because this declaration was missing.
+420×720 dp is a phone's shape, which is what a column of short lines wants; at the measured
+system density of 1.25 that is 525×900 px, and it is where every panel measurement in these
+documents comes from. `screenOrientation` was the improvised mechanism; this is the supported one.
 
 ---
 

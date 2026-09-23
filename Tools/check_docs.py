@@ -189,6 +189,27 @@ def check_counts(failures: list[str], checked: list[str]) -> None:
                 "(docs/horizon-store-readiness.md, docs/audit-2026-09-19.md)"
             )
 
+        # The four Horizon declarations. horizon-store-readiness.md §2 said "we have none of
+        # it" for four days after all four had shipped, and a document that understates what is
+        # done sends someone to do it again. The APK was read once, on 23 September, and
+        # recorded there; this is the part that can be checked on every run.
+        body = manifest.read_text(encoding="utf-8")
+        horizon = {
+            "com.oculus.supportedDevices": 'android:name="com.oculus.supportedDevices"',
+            "the panel's default size": "android:defaultWidth=",
+            "the panel's minimum size": "android:minWidth=",
+            "installLocation": 'android:installLocation="auto"',
+        }
+        missing = [name for name, needle in horizon.items() if needle not in body]
+        checked.append(f"horizon manifest declarations present = {len(horizon) - len(missing)}"
+                       f" of {len(horizon)}")
+        if missing:
+            failures.append(
+                "the quest manifest no longer declares " + ", ".join(missing)
+                + " — docs/horizon-store-readiness.md §2 says all four are in, and the panel's "
+                  "size is where every measurement in these documents comes from"
+            )
+
     # Language-pack key parity is owned by LanguagePackParityTest; what is checked here is the
     # count the documents quote, because that is the part a test cannot see.
     en = ROOT / "TMessagesProj_AppQuest/src/main/res/values/strings_vr.xml"
