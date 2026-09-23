@@ -74,7 +74,7 @@ jobs:
         env:
           TELEGRAM_APP_ID: ${{ secrets.TELEGRAM_APP_ID }}
           TELEGRAM_APP_HASH: ${{ secrets.TELEGRAM_APP_HASH }}
-        run: ./gradlew --no-daemon :TMessagesProj_AppQuest:testQuestDebugUnitTest :TMessagesProj_AppQuest:assembleQuestDebug
+        run: ./gradlew --no-daemon -PquestAbiOnly :TMessagesProj_AppQuest:testQuestDebugUnitTest :TMessagesProj_AppQuest:assembleQuestDebug
 
       - name: Check the artifact rather than the log
         run: |

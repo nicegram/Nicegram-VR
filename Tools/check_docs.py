@@ -209,6 +209,15 @@ def check_counts(failures: list[str], checked: list[str]) -> None:
             if claimed != n_en:
                 failures.append(f"{name}: claims **{claimed} keys**; there are {n_en}")
 
+    # The brand string registry lives in the product workspace and calls itself canonical. It
+    # named its strings by meaning (`dictation.busy`) while the client names them the Android way
+    # (`vr_dictation_busy`), so until 23 September 2026 the claim was unenforceable — two key
+    # spaces with nothing between them. The registry now carries the mapping table; this reads it.
+    #
+    # The check lives HERE rather than in the workspace because only this repository can break
+    # the contract: the registry is a document, and a document does not drift on its own.
+    check_string_registry(failures, checked)
+
     # The unit-test count, when a test run is on disk to compare against.
     results = sorted((ROOT / "TMessagesProj_AppQuest/build/test-results/testQuestDebugUnitTest").glob("TEST-*.xml"))
     if results:
@@ -220,6 +229,66 @@ def check_counts(failures: list[str], checked: list[str]) -> None:
                     f"{name}: says {claimed} tests; the last run on disk has {total}. "
                     "Re-run the suite or correct the document."
                 )
+
+
+
+def check_string_registry(failures: list[str], checked: list[str]) -> None:
+    """`shipped` rows of the brand registry must equal what the client actually ships.
+
+    Skips, loudly, when the workspace is not checked out beside this repository — a machine
+    without it is not a machine with a drifted registry, and a check that fails on absence
+    teaches people to ignore it.
+
+    Only `shipped` rows are compared. A `proposed` row describes a screen that may not exist,
+    and holding code to it would be holding code to a design that has not been built.
+    """
+    registry = (ROOT.parent / "nicegram-product-workspace"
+                / "public/projects/nicegram-vr/design/docs/brand/strings.md")
+    strings = ROOT / "TMessagesProj_AppQuest/src/main/res/values/strings_vr.xml"
+    if not registry.is_file() or not strings.is_file():
+        checked.append("brand string registry: not checked out beside this repo, skipped")
+        return
+
+    reg = registry.read_text(encoding="utf-8")
+    mapping = dict(re.findall(r"^\| `([a-z0-9.]+)` \| `(vr_[a-z0-9_]+)` \|", reg, re.M))
+    if not mapping:
+        failures.append("brand registry: the key-mapping table is gone, so `shipped` is a word "
+                        "nobody checks — see its 'Соответствие ключей' section")
+        return
+
+    body = strings.read_text(encoding="utf-8")
+    shipped = {m.group(1): m.group(2) for m in
+               re.finditer(r'<string name="([^"]+)"[^>]*>(.*?)</string>', body, re.S)}
+
+    def norm(text: str) -> str:
+        text = re.sub(r"\\u([0-9a-fA-F]{4})", lambda m: chr(int(m.group(1), 16)), text)
+        text = text.replace("%1$s", "%s").replace("\\'", "'")
+        return " ".join(text.split())
+
+    compared = 0
+    for line in reg.splitlines():
+        if "| shipped |" not in line:
+            continue
+        cells = [c.strip() for c in line.split("|")]
+        if len(cells) < 5:
+            continue
+        key, want = cells[1], cells[3]
+        res = mapping.get(key)
+        if res is None:
+            failures.append(f"brand registry: `{key}` is marked shipped and has no row in the "
+                            f"key-mapping table, so nothing compares it to the client")
+            continue
+        if res not in shipped:
+            failures.append(f"brand registry: `{key}` maps to `{res}`, which is not in "
+                            f"values/strings_vr.xml any more")
+            continue
+        compared += 1
+        if norm(shipped[res]) != norm(want):
+            failures.append(
+                f"brand registry: `{key}` says {want!r}; `{res}` in the client says "
+                f"{norm(shipped[res])!r}"
+            )
+    checked.append(f"brand string registry: {compared} shipped rows equal the client's")
 
 
 # Addresses that appear as ILLUSTRATIONS and must not resolve — the dictation documents use them

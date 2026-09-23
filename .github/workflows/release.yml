@@ -63,7 +63,7 @@ jobs:
         run: |
           set -eo pipefail
           export NICEGRAM_VR_KEYSTORE="$RUNNER_TEMP/release.jks"
-          ./gradlew :TMessagesProj_AppQuest:assembleQuestStandalone --no-daemon
+          ./gradlew -PquestAbiOnly :TMessagesProj_AppQuest:assembleQuestStandalone --no-daemon
 
       - name: Check the package before anyone downloads it
         id: checks

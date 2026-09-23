@@ -142,6 +142,24 @@ android {
         minSdkVersion 21
         targetSdkVersion 36
 
+        // Nicegram VR — see CONTRIBUTING.md, "It needs about 25 GB".
+        //
+        // This module has no abiFilters of its own, so CMake compiles armeabi-v7a, arm64-v8a,
+        // x86 and x86_64 on every build. The Quest app's own `abiFilters "arm64-v8a"`
+        // (TMessagesProj_AppQuest/build.gradle:204) decides only what is PACKAGED, not what is
+        // compiled — so a Quest-only build spends three quarters of its native compile, and
+        // about 8.5 GB of .cxx (measured 23 September 2026), on ABIs it then throws away.
+        //
+        // `-PquestAbiOnly` restricts it. The DEFAULT IS UNCHANGED on purpose: the other
+        // flavours are built from this same module and need all four, and whether they stay
+        // maintained here is an open question for the operator (A-06, plan.md Q-03). Flipping
+        // the default is one line once that is answered.
+        if (project.hasProperty('questAbiOnly')) {
+            ndk {
+                abiFilters 'arm64-v8a'
+            }
+        }
+
         buildConfigField "int", "TELEGRAM_APP_ID", (secret("TELEGRAM_APP_ID").isEmpty() ? "0" : secret("TELEGRAM_APP_ID"))
         buildConfigField "String", "TELEGRAM_APP_HASH", "\"" + secret("TELEGRAM_APP_HASH") + "\""
 

@@ -1465,10 +1465,15 @@ public class LocaleController {
         if (value == null) {
             value = "LOC_ERR:" + key;
         }
-        // Nicegram VR: the one point every drawn string passes through, and the only place a
-        // rename can outlive the cloud language pack — which answers "Telegram" for AppName in
-        // every language, whatever strings.xml says. Inert on every other flavour: one null
-        // check. See org.telegram.vr.VrBrand for why this is keyed by id and not by text.
+        // Nicegram VR seam (VrBrand) — see docs/vr-layer.md#seams, findings A-19, A-26, A-39.
+        // One of the points every drawn string passes through, and the only place a rename can
+        // outlive the cloud language pack — which answers "Telegram" for AppName in every
+        // language, whatever strings.xml says. Inert on every other flavour: one null check.
+        //
+        // THERE ARE THREE OF THESE, not one. formatString and formatSpannable repeat the
+        // cloud-pack-then-resource lookup inline and do not call this method, so a rename added
+        // here alone is silently inert in both of them (A-26). BrandSeamCoverageTest fails the
+        // build if a fourth lookup path appears without the seam.
         final CharSequence branded = org.telegram.vr.VrBrand.rename(res, value);
         if (branded != null && branded != value) {
             return branded.toString();

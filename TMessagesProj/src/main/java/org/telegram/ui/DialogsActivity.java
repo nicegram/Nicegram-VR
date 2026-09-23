@@ -3278,7 +3278,9 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
             // Nicegram VR: the master notification switch, in the header because "not now" is a
             // thing people decide in the moment and should not have to go looking for. Null on
-            // every other flavour — see org.telegram.vr.VrEntryPoints.HeaderToggle.
+            // every other flavour — Nicegram VR seam (VrEntryPoints), docs/vr-layer.md#seams.
+            // What it switches is LOCAL to this device: it never writes account notification
+            // settings, so a phone in a pocket keeps whatever it had.
             final org.telegram.vr.VrEntryPoints.HeaderToggle vrToggle =
                     org.telegram.vr.VrEntryPoints.headerToggle();
             if (vrToggle != null) {

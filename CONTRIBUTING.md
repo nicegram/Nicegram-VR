@@ -14,6 +14,53 @@ The submodules are not optional and the clone is large: thirteen of them, pinned
 revisions upstream pinned, including FFmpeg and BoringSSL. A first native build takes a while;
 it is compiled for `arm64-v8a` only, because that is what Quest 3 and 3S are.
 
+### It needs about 25 GB, and it does not say so politely when it runs out
+
+Measured on 23 September 2026 on the development machine: `TMessagesProj/.cxx` alone reached
+**12 GB** and the two `build/` trees another **13 GB**. When the disk filled, the build failed
+like this:
+
+```
+StarAppsSheet.java:28: error: error while writing <anonymous ...>:
+  .../classes/org/telegram/ui/Components/StarAppsSheet$1.class: No space left on device
+```
+
+That is a `javac` **error** on a source file, in a file nobody touched. It reads exactly like a
+code defect and is not one — check `df -h` before believing it.
+
+**What is safe to delete when it happens**, in the order worth trying:
+
+| Path | Size then | Cost of deleting |
+|---|---|---|
+| `TMessagesProj/.cxx/*/*/{x86,x86_64,armeabi-v7a}` | 8.5 GB | **it comes straight back** unless you build with `-PquestAbiOnly` — see below. |
+| `~/.gradle/caches/build-cache-1` | 1.1 GB | measured: the next build took **35 minutes**. Not worth 1.1 GB. |
+| `TMessagesProj*/build/intermediates` | 12.7 GB | a full Java/dex rebuild. Leave `.cxx` alone or the native rebuild is added to it. |
+
+Never delete `.cxx/*/*/arm64-v8a` to save space: that is the one ABI this build actually needs,
+and it is the slowest thing in the project to regenerate.
+
+### `-PquestAbiOnly`, and why deleting the other ABIs alone does nothing
+
+`TMessagesProj_AppQuest` sets `abiFilters "arm64-v8a"` (`TMessagesProj_AppQuest/build.gradle:204`), and it is easy to
+read that as "this build compiles one ABI". It does not. `abiFilters` on the app decides what is
+**packaged**; the library module `TMessagesProj` has no filter of its own, so CMake compiles all
+four ABIs on every build and the Quest APK then throws three of them away.
+
+That was measured the hard way on 23 September 2026: the three unused ABI trees were deleted to
+free 8.5 GB, and the next `assembleQuestDebug` rebuilt every one of them.
+
+```sh
+./gradlew -PquestAbiOnly :TMessagesProj_AppQuest:assembleQuestDebug
+```
+
+restricts the library to `arm64-v8a` for that invocation. **Both CI workflows pass it**, because
+both build only the Quest APK.
+
+The default is deliberately unchanged: the Huawei and standard flavours are built from the same
+module and need all four ABIs, and whether they stay maintained in this fork is an open question
+for the operator (finding A-06, `docs/plan.md` Q-03). If the answer is "unmaintained", the flag
+becomes the default and this section gets shorter.
+
 ## One trap, before you commit anything
 
 `git add -A` in a clone whose submodules are not initialised **stages their deletion**: git sees

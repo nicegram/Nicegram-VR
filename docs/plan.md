@@ -84,6 +84,10 @@ P-17 docs reconciliation (runs alongside everything)
 
 ## P-01 · Apply the density factor where density is actually set — `VRQ-015`
 
+> **DONE**, `72f2f218`. The factor is applied inside `checkDisplaySize` through the `VrDisplay`
+> registry — `AndroidUtilities.java:2755`, `density *= org.telegram.vr.VrDisplay.factor();` —
+> which clamps anything outside 0.5–4 back to 1. Closes A-01. *Device check still owed.*
+
 **Fixes:** A-01 (critical). **Estimate:** half a day.
 
 **Why.** `VrDensity.apply()` multiplies `AndroidUtilities.density` in `Application.onCreate`,
@@ -129,6 +133,11 @@ chasing three call sites forever. Do not call `Theme.reloadAllResources` yoursel
 
 ## P-02 · Move the silence gate to the single choke point — `VRQ-016`
 
+> **DONE**, `72f2f218`. The gate sits inside `appendMessage`
+> (`NotificationsController.java:1367`), before the de-duplication loop, at
+> `NotificationsController.java:1374` — so neither caller can be added to later without it.
+> Closes A-02. *Device check still owed.*
+
 **Fixes:** A-02 (high). **Estimate:** half a day.
 
 **Why.** Notifications enter the queue through `appendMessage`
@@ -164,6 +173,9 @@ loop, not after, or a suppressed message that was already in the queue leaks thr
 
 ## P-03 · Make the digest real — `VRQ-006`
 
+> **DONE**, `31a8273b`. `DigestActivity.java:39` is a real screen and is reachable; `lastText`
+> is a truncated `String` and entries cap at 200 dialogs, which is what A-03 was about.
+
 **Fixes:** A-03 (high). **Estimate:** two to three days.
 
 **Where.**
@@ -189,6 +201,10 @@ loop, not after, or a suppressed message that was already in the queue leaks thr
 
 ## P-04 · First-run screen "It is quiet here" — `VRQ-005`
 
+> **DONE.** `FirstRunActivity` — three sentences and the one that cannot be dropped: while the
+> app is closed, nothing arrives. Shown at most once per install, through
+> `VrEntryPoints.installFirstRun`. Made scrollable on 23 September (A-40).
+
 **Fixes:** the product's honesty on first launch; the delivery-limit disclosure. **Estimate:** one day.
 
 **Where.** `LaunchActivity.java:1089-1091` returns `LoginActivity` or `IntroActivity` as the
@@ -208,6 +224,10 @@ shows it again; skipping it never re-shows it; the third line is present verbati
 ---
 
 ## P-05 · Exceptions screen, second pass — `VRQ-005`
+
+> **DONE**, `31a8273b`. `SilenceRulesActivity` has avatars, two sections and names loaded from
+> local storage with a placeholder until they land; the Notifications row carries its own count.
+> Closes A-12, A-13, and A-16 for the screens that exist.
 
 **Fixes:** A-12, A-13, A-16. **Estimate:** one day.
 
@@ -231,6 +251,14 @@ profile of ten people. *Device.*
 ---
 
 ## P-06 · Repository hygiene — `VRQ-017`
+
+> **DONE except one operator decision.** A-04 (`7cdabe86`), A-05, A-11, A-14 and A-17 are all
+> closed — secrets travel from the vault on stdin, the build refuses api_id 4 by name, and the
+> concurrency bump has a test that runs 4000 of them.
+>
+> **A-06 is still open and is not an engineering call:** whether the other flavours (Huawei,
+> the standard build) stay unmaintained here or get the same fail-by-name treatment. It is
+> question **Q-03** in the operator list at the end of this file.
 
 **Fixes:** A-04, A-05, A-06, A-11, A-14, A-17. **Estimate:** one day.
 
@@ -261,6 +289,10 @@ profile of ten people. *Device.*
 
 ## P-07 · Headset settings screen — `VRQ-012`
 
+> **DONE.** `VrSettingsActivity` — 615 lines: interface size, layout, motion, the start folder,
+> dictation and a reset. Reached from the registry row rather than from a hardcoded reference,
+> because shared code cannot name this module.
+
 **Fixes:** density is a setter with no UI; SCR-27. **Estimate:** two days.
 
 **Where.** New `VrSettingsActivity` in the headset module, reached from a row in
@@ -281,6 +313,10 @@ effect on next launch and does; the screen itself meets the 64 dp floor at all t
 ---
 
 ## P-08 · Performance profile defaults — `VRQ-013`
+
+> **DONE.** `VrPerformance.applyDefaultsOnce` (`VrPerformance.java:28`) sets them once per
+> install, as defaults rather than locks: autoplay off is the cheapest way to keep 60 fps, and
+> the user can turn it back on. *The frame-rate reading itself is still owed on a device.*
 
 **Fixes:** the 60 fps store gate. **Estimate:** one day plus measurement.
 
@@ -303,6 +339,9 @@ above 60 fps. *Device.*
 ---
 
 ## P-09 · Device protocol — `VRQ-014`
+
+> **DONE.** `docs/running-on-a-headset.md` — 231 lines: adb over Wi-Fi, the install, what to
+> read and in what order, and why a port number in a runbook is a fact with a half-life.
 
 Runs first after P-01 and P-02, and again after every later task. Steps and order are in
 [running-on-a-headset.md](running-on-a-headset.md); the acceptance list is in
@@ -557,6 +596,26 @@ comment** — the earlier decision not to write them from memory stands.
 
 ## P-17 · Documentation reconciliation — `VRQ-018`
 
+> **DONE, 23 September 2026**, all four items — and item 1 turned out to be describing something
+> that could not be done as written.
+>
+> **1. Strings.** The registry names strings by meaning (`dictation.busy`); the client names them
+> the Android way (`vr_dictation_busy`). **Two key spaces with nothing between them** — so
+> "the registry is canonical" was an unenforceable claim, and neither generating one from the
+> other nor comparing them was possible. The registry now carries a mapping table for its
+> twelve `shipped` rows, and `Tools/check_docs.py` compares each one's English against
+> `values/strings_vr.xml`, normalising `\uXXXX` and `%s`/`%1$s`. Measured on the day: **12 of 12
+> equal**, no drift to fix. The check lives on the client side because only the client can break
+> the contract, and it skips loudly when the workspace is not checked out beside it.
+>
+> `proposed` rows are deliberately not compared: one describes a screen that may not exist, and
+> holding code to it would hold code to a design nobody built.
+>
+> **2. screens.md** — SCR-25 and SCR-26 carry their coverage.
+> **3. Dataroom** — the status line names its revision and points here.
+> **4. Rendered docs** — `scripts/check-vr-docs.mjs` re-runs `render.py` and fails on a diff; it
+> is in the workspace's `npm run check`.
+
 **Fixes:** A-09, A-10, A-15, A-18. Runs alongside every task that changes UI or copy.
 
 1. **Strings.** The registry in the workspace (`design/docs/brand/strings.md`) is canonical.
@@ -572,9 +631,7 @@ comment** — the earlier decision not to write them from memory stands.
    `design/docs/render.py` and fails on a diff, so Markdown and HTML cannot drift.
 
 **Done when.** A grep for "Кода нет" in dataroom returns nothing; `npm run check` fails when an
-`.md` changes without its `.html`; every `vr_*` string matches the registry.
-
----
+`.md` changes without its `.html`; every `shipped` registry row matches its client resource.
 
 ---
 
@@ -882,6 +939,30 @@ every step but one.
 `TMessagesProj` (`build.gradle:51`), so the headset module cannot name `EncodeHintType` at all.
 `org.telegram.vr.VrQrCode` renders on that side and returns a `Bitmap` or null; promoting zxing
 to `api` would put it on the classpath of every flavour that has no use for it.
+
+---
+
+## Questions for the operator — the only things an agent cannot do itself
+
+Kept here rather than scattered through the plan, so that the count is visible and nothing
+waits on a question nobody knew existed. **Everything on this list needs an account, a device or
+a decision that is not an engineering call.** Work that is merely hard is not on it.
+
+Each says what is blocked by it, so that a "no" is as useful as a "yes".
+
+| # | Question | Blocks | Prepared for you |
+|---|---|---|---|
+| **Q-01** | May a third-party client of another messenger be published on the Horizon Store? (`VRQ-001`) | The whole store path — stages 4 and 5 of [horizon-store-readiness.md](horizon-store-readiness.md). Sideloading is unaffected. | A draft letter: [store/meta-policy-letter.md](../store/meta-policy-letter.md) |
+| **Q-02** | Does the third-launch phone-app offer count as an advertisement under app policy 2.1.1? (`VRQ-002`) | Nothing today. If the answer is no, one line comes out of `QuestApplicationLoader.java:149` before submission. | Same letter; the clauses are quoted in it |
+| **Q-03** | The other flavours — Huawei and the standard build — stay unmaintained here, or get the same fail-by-name credential treatment? (`A-06`) | P-06's last item. Nothing else. | Both options costed in A-06 |
+| **Q-04** | Analytics: opt-out (on by default) or opt-in (off by default)? | P-29 entirely — the privacy policy text is written from the answer, and it is published, so it cannot be guessed and corrected later. | Ten events and the boundary are already decided in [analytics.md](analytics.md) |
+| **Q-05** | One signed-in session on a headset, to capture the six in-use store screenshots. | Stage 5 of the store path. The capture recipe is written and the frames are named. | [store/assets-checklist.md](../store/assets-checklist.md) |
+| **Q-06** | Upload `language-pack/strings_vr.ru.xml` to the Nicegram translation platform. | P-18 — the Russian interface. The code half is finished and guarded; this is the half no code change can supply. | The file is ready and parity-tested against the resources |
+| **Q-07** | Developer organisation verification on the Meta dashboard. | Any submission at all. | — |
+| **Q-08** | Data Use Checkup, the IARC age-rating questionnaire, and GRAC if South Korea is in scope. | Submission, and platform features stay limited to test users without a current DUC. | — |
+
+**Eight open.** Q-01 and Q-02 travel in one letter; Q-07 and Q-08 are the same dashboard
+session. Q-03 and Q-04 are decisions and cost nothing but a reply.
 
 ---
 

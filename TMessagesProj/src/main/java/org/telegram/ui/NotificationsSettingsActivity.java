@@ -119,7 +119,9 @@ public class NotificationsSettingsActivity extends BaseFragment implements Notif
     private int vrDigestRow;
     private int vrHeadsetRow;
 
-    // Nicegram VR: the fragments live in the headset module and are reached through the registry.
+    // Nicegram VR seam (VrEntryPoints) — see docs/vr-layer.md#seams.
+    // The fragments live in the headset module and are reached through the registry, because the
+    // dependency runs the other way and shared code cannot name them.
     private org.telegram.vr.VrEntryPoints.SettingsRow vrRow(int position) {
         if (position == vrSilenceRow) {
             return org.telegram.vr.VrEntryPoints.silenceRow();

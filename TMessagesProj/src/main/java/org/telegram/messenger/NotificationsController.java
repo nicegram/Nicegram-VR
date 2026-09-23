@@ -1369,6 +1369,7 @@ public class NotificationsController extends BaseController implements Notificat
         // processNewMessages (live updates) and from processLoadedUnreadMessages (launch and
         // reconnect — on a headset the dominant path). The gate sits here rather than at either
         // caller so neither can be added to later without it. Inert on every other flavour.
+        // Nicegram VR seam (VrPolicy) — see docs/vr-layer.md#seams, finding A-02.
         // Unread counts are unaffected: both callers compute them from their dialogs argument,
         // not from pushMessages.
         if (!org.telegram.vr.VrPolicy.allows(currentAccount, messageObject)) {

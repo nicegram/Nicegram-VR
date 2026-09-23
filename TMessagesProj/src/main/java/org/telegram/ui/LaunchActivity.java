@@ -6963,9 +6963,12 @@ public class LaunchActivity extends BasePermissionsActivity implements INavigati
     protected void onResume() {
         super.onResume();
         isResumed = true;
-        // Nicegram VR: a one-time screen the headset build may be due to show. Null on every
-        // other flavour, and the headset build owns the "once" because only it knows what it
-        // has already shown. Guarded on an activated client so it cannot land on the login flow.
+        // Nicegram VR seam (VrEntryPoints) — see docs/vr-layer.md#seams.
+        // A one-time screen the headset build may be due to show. Null on every other flavour,
+        // and the headset build owns the "once" because only it knows what it has already shown.
+        // Guarded on an activated client so it cannot land on the login flow. TWO screens come
+        // through this one slot in a fixed order — first-run, then the phone-app offer on the
+        // third launch (plan.md P-04, P-30); the headset build decides which, not this line.
         if (UserConfig.getInstance(currentAccount).isClientActivated()) {
             final BaseFragment vrFirstRun = org.telegram.vr.VrEntryPoints.takeFirstRunFragment(currentAccount);
             if (vrFirstRun != null) {

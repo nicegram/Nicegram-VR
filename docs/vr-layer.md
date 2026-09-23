@@ -9,18 +9,28 @@ Upstream is a working messenger. Folders, filters, per-chat notification setting
 documents and Opus voice messages already exist and are not reimplemented here. What a headset
 needs and a phone does not is a short list, and it lives in `TMessagesProj_AppQuest`.
 
-Two registries sit inside shared code, and both are inert unless the headset build fills them
-in, so every other flavour behaves exactly as upstream:
+<a id="seams"></a>
 
-- `org.telegram.vr.VrPolicy`, called from `NotificationsController.processNewMessages`. With no
-  gate installed it returns every message untouched.
-- `org.telegram.vr.VrEntryPoints`, read by `NotificationsSettingsActivity`. It exists because
-  the dependency runs one way: the library cannot name a screen or a string that lives in the
-  headset module. With nothing installed the row does not exist and the shared edit is three
-  lines and a null check.
+**Four registries** sit inside shared code, all in `org.telegram.vr`, and every one of them is
+inert unless the headset build fills it in — so every other flavour behaves exactly as upstream.
+They exist because the dependency runs one way: the library module cannot name a class, a screen
+or a string that lives in `TMessagesProj_AppQuest`.
 
-Keeping that count low is a goal rather than an accident — each edit is a merge conflict every
-time upstream moves.
+| Registry | Read from | What it decides | Inert as |
+|---|---|---|---|
+| `VrPolicy` | `NotificationsController.appendMessage:1374` | whether a message may interrupt anyone | returns every message untouched |
+| `VrEntryPoints` | `NotificationsSettingsActivity`, `LaunchActivity:6970`, `DialogsActivity` | which headset-owned screens and controls appear in shared UI, and which chat folder a session opens on | null rows, `Integer.MIN_VALUE` folder, no first-run fragment |
+| `VrDisplay` | `AndroidUtilities.checkDisplaySize:2755` | the density multiplier, clamped to 0.5–4 | factor 1.0 |
+| `VrBrand` | `LocaleController.getStringInternal:1472` and two `formatString` paths | what this application calls itself, and its mark | one volatile read and a null check |
+
+**Keeping that count low is a goal rather than an accident** — each edit is a merge conflict
+every time upstream moves. Two of the four were added only after a defect proved a registry was
+the smaller change: `VrDisplay` because the density assignment happens inside upstream's own
+method (A-01), `VrBrand` because the cloud language pack answers "Telegram" for `AppName` in
+every language whatever `strings.xml` says (A-19, A-39).
+
+**Every one of those call sites carries a comment naming this section.** A shared-code edit with
+no explanation beside it is the one an upstream merge deletes without anybody noticing.
 
 ## Silence
 
