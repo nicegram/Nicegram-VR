@@ -1048,9 +1048,12 @@ Each says what is blocked by it, so that a "no" is as useful as a "yes".
 | **Q-06** | Upload `language-pack/strings_vr.ru.xml` to the Nicegram translation platform. | P-18 — the Russian interface. The code half is finished and guarded; this is the half no code change can supply. | The file is ready and parity-tested against the resources |
 | **Q-07** | Developer organisation verification on the Meta dashboard. | Any submission at all. | — |
 | **Q-08** | Data Use Checkup, the IARC age-rating questionnaire, and GRAC if South Korea is in scope. | Submission, and platform features stay limited to test users without a current DUC. | — |
+| **Q-09** | **Cut `v0.1.0-alpha.4`?** The published pre-release carries `LOC_ERR:null` on every screen this fork adds, and nineteen commits have landed since — among them the call that rang regardless of the silence rules. | Nothing in the repository. It blocks **anyone who downloads the app today**, which is the reason it is on this list at all. | Both release pages now carry the defect in a warning at the top, added 23 September. The release workflow runs on a tag push and takes the keystore from the vault — cutting it is one `git tag` and one `git push`, on your word |
 
-**Eight open.** Q-01 and Q-02 travel in one letter; Q-07 and Q-08 are the same dashboard
-session. Q-03 and Q-04 are decisions and cost nothing but a reply.
+**Nine open.** Q-01 and Q-02 travel in one letter; Q-07 and Q-08 are the same dashboard
+session. Q-03, Q-04 and Q-09 are decisions and cost nothing but a reply — and **Q-09 is the
+only one on this list where waiting has a cost that falls on somebody else**, because the
+build people can download today is the broken one.
 
 ---
 

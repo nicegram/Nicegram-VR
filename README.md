@@ -7,8 +7,14 @@ built as a 2D Horizon OS application. It is a fork of
 [Telegram for Android](https://github.com/DrKLO/Telegram) and, like every other Nicegram
 client, its source is open — see [NOTICE.md](NOTICE.md) for the provenance and the licence.
 
-> **Status: early.** It builds, installs and starts on a Quest 3, and there is a signed
-> pre-release to sideload — [v0.1.0-alpha.3](https://github.com/nicegram/Nicegram-VR/releases).
+> **Status: early.** It builds, installs and starts on a Quest 3.
+>
+> **The published pre-release is not the build to install.**
+> [v0.1.0-alpha.3](https://github.com/nicegram/Nicegram-VR/releases) predates the fix for A-36,
+> so every screen this fork adds reads `LOC_ERR:null` — the first-run screen, the silence rules,
+> the digest. Nineteen commits have landed since, including a call that rang regardless of those
+> rules. Both release pages say so at the top now; **build from `main`**, or wait for a
+> pre-release that an operator decides to cut (`docs/plan.md` Q-09).
 > The package is 60.6 MB, 64-bit only, and requests 57 permissions, **none** of the 151 on
 > Meta's prohibited list. 86 unit tests across 19 classes run on every push.
 >
