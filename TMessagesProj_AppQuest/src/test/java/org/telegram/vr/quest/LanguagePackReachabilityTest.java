@@ -72,9 +72,13 @@ public class LanguagePackReachabilityTest {
 
     /**
      * The one file allowed to read strings through a Context, and the reason is in its own
-     * header: {@code VrBrandNames} fills the map that {@code LocaleController} consults, so
-     * asking {@code LocaleController} from inside it would recurse. Those strings are English
-     * today by the same design, and P-18 fixes all of them together.
+     * header: {@code VrBrandNames} is called from inside the rename seam, so a read through
+     * {@code LocaleController.getString(int)} would re-enter it.
+     *
+     * <p>What it reads through the Context is only the FALLBACK — the compiled English kept
+     * for when the pack has no key and for when a translation writes the service's name some
+     * third way. The live read is {@code LocaleController.getServerString(entryName)}, which
+     * does not pass back through the seam, so those sentences are translatable (A-39).
      */
     private static final String EXEMPT = "VrBrandNames.java";
 

@@ -580,12 +580,26 @@ pack. That file is the whole deliverable and it is ready: **112 keys**, one per 
 `values/strings_vr.xml`, 47 carried over unchanged from `fc887365^` and the rest written since
 against the brand pack's voice. Its README says why it is not a `values-ru/` folder.
 
-> **Status, 22 September 2026.** Everything that can be done without the translation platform is
-> done. The code half turned out NOT to be finished as A-19 claimed: five strings were read
-> through a `Context`, which never asks the pack, and the first-run screen was one of them
-> (A-31). All five now read through `LocaleController`, and `LanguagePackReachabilityTest` fails
-> the build if a sixth appears. `LanguagePackParityTest` holds the artifact against the
-> resources — same key set, same format placeholders, and `values-ru/` may not come back.
+> **Status, 23 September 2026.** Everything that can be done without the translation platform is
+> done, and the code half has now been wrong three times.
+>
+> A-19 declared the reading side finished; A-31 found five strings read through a `Context`,
+> which never asks the pack, the first-run screen among them. A-36 found that the replacement —
+> `LocaleController.getString(res)` — cannot resolve one of this module's ids at all and put the
+> literal text `LOC_ERR:null` on every headset screen; the working path is `VrStrings`, which
+> asks the pack by entry NAME and falls back to the compiled string. A-38 then found that the
+> guard written against A-31 matched one line at a time and had let two wrapped calls through.
+>
+> `LanguagePackReachabilityTest` now matches across line breaks and fails the build on either
+> mistake. `LanguagePackParityTest` holds the artifact against the resources — same key set,
+> same format placeholders, and `values-ru/` may not come back.
+>
+> **The brand names are part of this and were not counted before (A-39).** Forty-two of the
+> forty-seven entries in `VrBrandNames` were finished English sentences that replaced whatever
+> the pack had just returned. Thirty-six are renames now — the product's name substituted into
+> the translated sentence — and the other eleven are read through `getServerString` by entry
+> name, so they arrive in Russian as soon as the keys below are loaded. The old note in that
+> file said this plan would fix them; it would not have, and that sentence is gone.
 >
 > **What is left needs a person:** uploading those entry names to the pack, and then the device
 > check below. The count in the old text said 72 keys; it was 99 by the time anyone looked.

@@ -1,7 +1,5 @@
 package org.telegram.vr;
 
-import android.util.SparseArray;
-
 /**
  * Nicegram VR — where this application names itself.
  *
@@ -12,28 +10,39 @@ import android.util.SparseArray;
  * and only falls back to the resource — and the pack answers "Telegram" for {@code AppName} in
  * every language. That is the same mechanism finding A-19 turned up from the other side.
  *
- * So the rename happens after the pack has spoken, at the one point every string in the client
+ * So the rename happens after the pack has spoken, at the points every string in the client
  * passes through, and it is keyed by RESOURCE ID rather than by matching text.
  *
  * <h3>Why not replace the word "Telegram" everywhere</h3>
  *
- * Because most of its 508 occurrences are correct. "Telegram" names the SERVICE this client
- * connects to and the PROTOCOL it speaks; "Nicegram servers" would be a lie, and so would
+ * Because most of the 508 strings that mention it are correct. "Telegram" names the SERVICE
+ * this client connects to and the PROTOCOL it speaks; "Nicegram servers" would be a lie, and so would
  * pointing telegram.org/privacy or /tos at another domain — those are the terms governing the
  * user's account, which this project does not set. Upstream asks forks not to pass themselves
  * off as official, and that duty is discharged by naming the APPLICATION honestly, not by
  * scrubbing the service's name out of its own client.
  *
- * <h3>The hot path</h3>
+ * <h3>Why a delegate rather than a map</h3>
  *
- * Every string the client draws goes through {@link #rename}. It must therefore cost nothing
- * when no brand is installed — one null check — and a SparseArray lookup when one is. Resolving
- * a resource entry NAME per call would put a Resources lookup on the layout path of a client
- * held to 60 fps, which is why the map is built once, at install, and keyed by id.
+ * It used to hold a {@code SparseArray<String>} of finished replacement sentences, which meant
+ * every renamed string was frozen in the language it was written in — English — whatever
+ * language the user had chosen (A-39). Deciding what a string becomes needs the value the pack
+ * just returned, and that decision belongs to the module that owns the list. This class keeps
+ * only the seam: one volatile read and a null check on every flavour that installs nothing.
  */
 public final class VrBrand {
 
-    private static volatile SparseArray<String> renames;
+    /** Implemented by the flavour that has a brand. Called for EVERY string the client draws. */
+    public interface Renamer {
+        /**
+         * @param resourceId the string being resolved
+         * @param value      what the language pack or the resource just returned
+         * @return the replacement, or null to leave {@code value} exactly as it is
+         */
+        CharSequence rename(int resourceId, CharSequence value);
+    }
+
+    private static volatile Renamer renamer;
     private static volatile String appName;
     private static volatile int logoRes;
 
@@ -41,11 +50,10 @@ public final class VrBrand {
     }
 
     /**
-     * @param byResourceId resolved once by the caller, so this class never touches Resources
-     * @param productName  what the app calls itself in its own title, or null to leave it
+     * @param productName what the app calls itself in its own title, or null to leave it
      */
-    public static void install(SparseArray<String> byResourceId, String productName, int mark) {
-        renames = byResourceId;
+    public static void install(Renamer delegate, String productName, int mark) {
+        renamer = delegate;
         appName = productName;
         logoRes = mark;
     }
@@ -66,15 +74,15 @@ public final class VrBrand {
 
     /**
      * Replaces a resolved string when this build has renamed it. Fails open in every direction:
-     * no brand, no map entry, or anything unexpected leaves upstream's value untouched.
+     * no brand, no rule for this id, or anything unexpected leaves upstream's value untouched.
      */
     public static CharSequence rename(int resourceId, CharSequence value) {
-        final SparseArray<String> map = renames;
-        if (map == null) {
+        final Renamer delegate = renamer;
+        if (delegate == null) {
             return value;
         }
         try {
-            final String replacement = map.get(resourceId);
+            final CharSequence replacement = delegate.rename(resourceId, value);
             return replacement == null ? value : replacement;
         } catch (Throwable e) {
             return value;
