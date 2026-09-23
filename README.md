@@ -26,6 +26,9 @@ client, its source is open — see [NOTICE.md](NOTICE.md) for the provenance and
 > **two** policy questions are open before anything can be — a third-party client of another
 > messenger (VRQ-001), and whether the phone-app offer counts as an advertisement (VRQ-002).
 >
+> One device session would answer most of what is still open — the agenda is
+> [device-session.md](docs/device-session.md).
+>
 > The readings are in [running-on-a-headset.md](docs/running-on-a-headset.md); the
 > [audit](docs/audit-2026-09-19.md) lists every finding A-01…A-41 with what proved it, and the
 > [plan](docs/plan.md) says what is left. When something is not finished, this file says so

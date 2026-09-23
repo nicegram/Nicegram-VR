@@ -219,6 +219,12 @@ six minutes of building, which is how this one was found.
 
 ## What to check on a first run, in this order
 
+> **This list is from 19 September and predates twenty-five findings.** It is kept because it
+> is still the right first five minutes. The full agenda — every measurement any finding or task
+> is still waiting on, in an order that sets nothing up twice — is
+> [device-session.md](device-session.md). Take this document to get in; take that one to know
+> what the session was for.
+
 1. It starts, and stays up for half an hour without dying.
 2. Sign-in completes. Until the sign-in-by-code screen exists, this is the phone-number path,
    typed with a ray, and it is as unpleasant as that sounds — that is the reason the screen is

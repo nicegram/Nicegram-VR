@@ -1033,6 +1033,33 @@ to `api` would put it on the classpath of every flavour that has no use for it.
 
 ---
 
+## Where the autonomous work stops, and why
+
+Checked on 24 September, item by item, rather than assumed: **every task still open in this plan
+is waiting on a headset or on an answer, and none is waiting on engineering.**
+
+| Task | Waiting on |
+|---|---|
+| P-13 message action bar | a headset — it is a hover-and-dwell interaction, and its shape cannot be designed against a screenshot |
+| P-14 gallery shortcuts | a headset — the capture folder must be resolved through `MediaStore` buckets *on Horizon OS*, and it has moved between versions |
+| P-19 avatar rail | a headset — it is a visual layout whose entire "done when" is a frame reading |
+| P-22 draw in the air | a headset, and the frame budget while drawing |
+| P-23 … P-28 the VR room | a headset, plus a server nobody has authorised deploying |
+| P-29 analytics | **Q-04** — the privacy policy is written from the answer and it is published, so it cannot be guessed and corrected |
+| P-18 language pack | **Q-06** — the upload, which no code change can supply |
+| P-16 store listing | **Q-01** — no point writing metadata about a product in a shop that may not take it |
+
+**P-19 was started and deliberately stopped**, and the reason is this session's own lesson.
+Its seam points are found and written down above; building it blind would mean shipping a
+visual layout nobody has seen. That is exactly what produced A-40, a screen that did not fit
+the panel, and A-35, six store frames verified as distinct by hash and showing the wrong thing.
+Things a person will look at have to be looked at.
+
+So the work that remains for an agent is not code. It is making the device session worth what it
+costs, which is [device-session.md](device-session.md).
+
+---
+
 ## Questions for the operator — the only things an agent cannot do itself
 
 Kept here rather than scattered through the plan, so that the count is visible and nothing
@@ -1047,7 +1074,7 @@ Each says what is blocked by it, so that a "no" is as useful as a "yes".
 | **Q-02** | Does the third-launch phone-app offer count as an advertisement under app policy 2.1.1? (`VRQ-002`) | Nothing today. If the answer is no, one line comes out of `QuestApplicationLoader.java:149` before submission. | Same letter; the clauses are quoted in it |
 | **Q-03** | The other flavours — Huawei and the standard build — stay unmaintained here, or get the same fail-by-name credential treatment? (`A-06`) | P-06's last item. Nothing else. | Both options costed in A-06 |
 | **Q-04** | Analytics: opt-out (on by default) or opt-in (off by default)? | P-29 entirely — the privacy policy text is written from the answer, and it is published, so it cannot be guessed and corrected later. | Ten events and the boundary are already decided in [analytics.md](analytics.md) |
-| **Q-05** | One signed-in session on a headset, to capture the six in-use store screenshots. | Stage 5 of the store path. The capture recipe is written and the frames are named. | [store/assets-checklist.md](../store/assets-checklist.md) |
+| **Q-05** | One signed-in session on a headset. The six store frames are the smallest part of what it is worth. | Stage 5 of the store path — **and most of the remaining uncertainty in this project.** Fifty-two lines across this plan and the audit are waiting on it. | [device-session.md](device-session.md) — the whole agenda, ordered, with what each row closes |
 | **Q-06** | Upload `language-pack/strings_vr.ru.xml` to the Nicegram translation platform. | P-18 — the Russian interface. The code half is finished and guarded; this is the half no code change can supply. | The file is ready and parity-tested against the resources |
 | **Q-07** | Developer organisation verification on the Meta dashboard. | Any submission at all. | — |
 | **Q-08** | Data Use Checkup, the IARC age-rating questionnaire, and GRAC if South Korea is in scope. | Submission, and platform features stay limited to test users without a current DUC. | — |
