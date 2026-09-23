@@ -107,14 +107,14 @@ requires defaulting to the user's language and falling back to English.
 ```
 https://nicegram.me/privacy-policy
 ```
-*Verified 200 on 2026-09-21.*
+*Verified 200 on 2026-09-21 and again on 2026-09-23.*
 
 ## Terms of use URL
 
 ```
 https://nicegram.me/terms-of-use
 ```
-*Verified 200 on 2026-09-21; titled "Nicegram Terms Of Use".*
+*Verified 200 on 2026-09-21 and again on 2026-09-23; titled "Nicegram Terms Of Use".*
 
 ## Website
 

@@ -21,7 +21,7 @@ live requirements before submitting**: asset specs change and a stale spec is a 
 | App icon | **made**, 512 and 1024 | `assets/icon-512.png`, `assets/icon-1024.png` |
 | Logo on transparency | **made**, 1024 | `assets/logo-transparent-1024.png` — corner alpha 0, verified |
 | Cover art / hero | **made**, 2560×1440 and a 1440 square | `assets/cover-2560x1440.png`, `assets/cover-square-1440.png` |
-| Screenshots — onboarding | **made**, one frame | `assets/screenshots/onboarding.png` |
+| Screenshots — onboarding | **made**, one frame, looked at 23 September | `assets/screenshots/onboarding.png` |
 | Screenshots — the app in use | **still missing** | the six below; every one is behind sign-in |
 | Trailer | **missing** | optional at first submission; strong for the listing |
 
@@ -38,12 +38,27 @@ Checked by pixel rather than by eye:
 | the logo's background is transparent | **alpha 0** at the corner |
 | the icon carries the brand mark | rendered from the vector, not upscaled from the 192 px launcher icon |
 
-**What the onboarding screenshots are, and what they are not.** They are six real frames of the
-app, captured from the Spatial Simulator at 2064×2208. They are **not** the six below: they show
-the app introducing itself, not the app in use, and a listing carried by onboarding alone is a
-listing that shows nothing being done. Two further caveats, both untested rather than known:
-whether Meta accepts a simulator capture where the rule says "captured in the headset", and
-whether a near-square 0.935 aspect suits placements that expect 16:9.
+**What the onboarding screenshot is, and what it is not.** It is **one** real frame of the app,
+captured from the Spatial Simulator at 2064×2208 — `assets/screenshots/onboarding.png`.
+
+This paragraph said "six real frames" until 23 September, and the six it counted no longer
+exist: A-35 cut the intro carousel from six pages to one, because five of them were Telegram's
+marketing about Telegram's service under our words. One page is the whole of onboarding now, and
+one frame is the whole of it captured.
+
+**Looked at, not hashed.** Opened and read on 23 September: one page, the Nicegram mark rather
+than Telegram's animated plane, the title as text, the violet day/night control, and the
+subtitle "An **unofficial** Telegram client, built for a headset. Quiet by default — you choose
+what may interrupt you." No `LOC_ERR` — those strings reach the screen through `VrBrandNames`,
+which was never on the broken path (A-36). A-35 exists because six frames were once verified as
+six *distinct* images by hash and shipped showing the wrong thing; a hash cannot say a picture
+is right.
+
+It is still **not** one of the six below: it shows the app introducing itself, not the app in
+use, and a listing carried by onboarding alone is a listing that shows nothing being done. Two
+caveats remain untested rather than known: whether Meta accepts a simulator capture where the
+rule says "captured in the headset", and whether a near-square 0.935 aspect suits placements
+that expect 16:9.
 
 ## How to capture them without a headset in hand
 
