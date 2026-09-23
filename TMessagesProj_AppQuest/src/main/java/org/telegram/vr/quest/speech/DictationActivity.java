@@ -271,31 +271,15 @@ public class DictationActivity extends BaseFragment {
         }
         // Every cause gets its own sentence. There is no "something went wrong" on this screen,
         // because that sentence tells a person in a headset nothing they can act on.
-        switch (result.failure) {
-            case NOT_CONFIGURED:
-                status.setText(string(my.nicegram.vr.R.string.vr_dictation_not_configured));
-                break;
-            case NOTHING_HEARD:
-                status.setText(string(my.nicegram.vr.R.string.vr_dictation_empty));
-                break;
-            case NO_CONNECTION:
-                status.setText(string(my.nicegram.vr.R.string.vr_dictation_network));
-                break;
-            case NO_PERMISSION:
-                status.setText(string(my.nicegram.vr.R.string.vr_dictation_denied));
-                break;
-            case BAD_ADDRESS:
-                status.setText(string(my.nicegram.vr.R.string.vr_dictation_bad_address));
-                break;
-            case INSECURE_ADDRESS:
-                status.setText(string(my.nicegram.vr.R.string.vr_dictation_insecure));
-                break;
-            default:
-                status.setText(result.detail == null || result.detail.isEmpty()
-                        ? string(my.nicegram.vr.R.string.vr_dictation_service_error)
-                        : String.format(string(my.nicegram.vr.R.string.vr_dictation_service_said),
-                                result.detail));
-                break;
+        //
+        // The mapping itself lives in DictationMessages, shared with the composer button
+        // (plan.md P-12): two surfaces must say the same thing about the same failure, and a
+        // second copy of this switch would drift the first time a cause was added.
+        if (DictationMessages.hasServiceDetail(result)) {
+            status.setText(String.format(string(my.nicegram.vr.R.string.vr_dictation_service_said),
+                    result.detail));
+            return;
         }
+        status.setText(string(DictationMessages.forResult(result)));
     }
 }

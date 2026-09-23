@@ -18,8 +18,8 @@ or a string that lives in `TMessagesProj_AppQuest`.
 
 | Registry | Read from | What it decides | Inert as |
 |---|---|---|---|
-| `VrPolicy` | `NotificationsController.appendMessage:1374` | whether a message may interrupt anyone | returns every message untouched |
-| `VrEntryPoints` | `NotificationsSettingsActivity`, `LaunchActivity:6970`, `DialogsActivity` | which headset-owned screens and controls appear in shared UI, and which chat folder a session opens on | null rows, `Integer.MIN_VALUE` folder, no first-run fragment |
+| `VrPolicy` | `NotificationsController.appendMessage:1374`, `VoIPService.startRinging:4501` | whether a message may interrupt anyone, and whether a call may ring | returns every message untouched, rings every call |
+| `VrEntryPoints` | `NotificationsSettingsActivity`, `LaunchActivity:6970`, `DialogsActivity`, `ChatActivityEnterView` | which headset-owned screens and controls appear in shared UI, which chat folder a session opens on, and what sits in the composer | null rows, `Integer.MIN_VALUE` folder, no first-run fragment, no composer control |
 | `VrDisplay` | `AndroidUtilities.checkDisplaySize:2755` | the density multiplier, clamped to 0.5–4 | factor 1.0 |
 | `VrBrand` | `LocaleController.getStringInternal:1472` and two `formatString` paths | what this application calls itself, and its mark | one volatile read and a null check |
 

@@ -141,6 +141,13 @@ public class QuestApplicationLoader extends ApplicationLoader {
         // survives a restart; DialogsActivity translates it to a tab once, after the folders
         // have loaded, and never fights a tab the user taps afterwards.
         VrEntryPoints.installStartupFilter(() -> VrStartFolder.filterId(QuestApplicationLoader.this));
+        // Speak into the composer. Typing with a ray is the worst interaction in this product,
+        // and since A-41 removed the QR sign-in this is the answer that survives — as well as
+        // the one the original request asked for. See plan.md P-12.
+        VrEntryPoints.installComposerControl(
+                (context, account, composer) ->
+                        new org.telegram.vr.quest.speech.DictationButton(context, account, composer));
+
         // Counts this launch, once per process. The offer below is due on the third one, and
         // an activity recreated by a panel resize must not spend a session doing it.
         VrMobilePromo.countSession(this);

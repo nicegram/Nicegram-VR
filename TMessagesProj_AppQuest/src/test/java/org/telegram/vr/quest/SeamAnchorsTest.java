@@ -57,6 +57,8 @@ public class SeamAnchorsTest {
                 "VrEntryPoints");
         SEAM_CALLERS.put("TMessagesProj/src/main/java/org/telegram/ui/DialogsActivity.java",
                 "VrEntryPoints");
+        SEAM_CALLERS.put("TMessagesProj/src/main/java/org/telegram/ui/Components/ChatActivityEnterView.java",
+                "VrEntryPoints");
     }
 
     @Test

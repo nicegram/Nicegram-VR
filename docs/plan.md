@@ -466,6 +466,37 @@ the interface in an instrumentation test or a debug action. *Device for the seco
 
 ## P-12 · Dictation B — composer trigger, indicator, draft — `VRQ-009`
 
+> **BUILT, 23 September 2026.** `DictationButton` in the composer, through a new
+> `VrEntryPoints.Composer` seam. *Every behaviour below is written and none of it has been seen
+> on a headset* — this task's "done when" is a device measurement and remains owed.
+>
+> **Where it sits, and what that costs.** Inside `attachLayout` at index 0, the same way
+> `giftButton`, `suggestButton` and `botButton` do. It therefore fades out with them once the
+> field has text. Accepted rather than overlooked: the flow is empty field → dictate → send, and
+> on a failure the field is untouched so the button is still there. Appending to text already in
+> the field is the case this loses, and `Composer.insert` appends rather than replaces so the
+> behaviour is right the moment the button is reachable in that state.
+>
+> **It never sends.** The text is placed with the cursor at the end. A client that sent what it
+> thought it heard would be unusable the first time it was wrong, and in a headset the message is
+> gone before it can be read.
+>
+> **The first run goes to the screen.** A `View` receives no `onRequestPermissionsResult`, so a
+> button cannot own the permission dialogue, the disclosure of where audio is sent, and the
+> answer. Any tap with no microphone or no configured service opens `DictationActivity`, which
+> already does all three and names the recipient before the first recording. The button owns the
+> path people repeat; the screen owns the one they take once.
+>
+> **The indicator is a store requirement, not decoration** — a ring around the icon driven by the
+> live level, with a non-zero minimum so silence during a recording still looks like recording.
+>
+> **The seven-way error switch is now one copy**, `DictationMessages`, shared by the screen and
+> the button; six assertions, the load-bearing one being that no two failures resolve to the same
+> sentence — two causes with one sentence quietly undoes the point of having seven.
+>
+> **Not built:** the draft behaviour this task's title mentions, and the cancel during
+> recognition. Both are small and both want a device to design against.
+
 **Estimate:** four to six days. Depends on P-11.
 
 **Where.** `TMessagesProj/src/main/java/org/telegram/ui/Components/ChatActivityEnterView.java`

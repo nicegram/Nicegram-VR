@@ -2756,6 +2756,36 @@ public class ChatActivityEnterView extends FrameLayout implements
             attachLayout.setOrientation(LinearLayout.HORIZONTAL);
             attachLayout.setEnabled(false);
             attachLayout.setClipChildren(false);
+
+            // Nicegram VR seam (VrEntryPoints) — see docs/vr-layer.md#seams, plan.md P-12.
+            // Dictation lives in the headset module, so shared code can only offer it a place to
+            // stand and a way back into the field. Null on every other flavour.
+            //
+            // It goes INSIDE attachLayout, at index 0, the same way giftButton, suggestButton and
+            // botButton do below — which means it fades out with them once the field has text,
+            // and that was accepted rather than overlooked: the flow is empty field, dictate,
+            // send, and on a failure the field is untouched so the button is still there.
+            final View vrComposerControl = org.telegram.vr.VrEntryPoints.composerControl(
+                    context, currentAccount, new org.telegram.vr.VrEntryPoints.Composer() {
+                        @Override
+                        public void insert(CharSequence text) {
+                            if (text == null || text.length() == 0) {
+                                return;
+                            }
+                            final CharSequence had = getFieldText();
+                            setFieldText(had == null || had.length() == 0
+                                    ? text : had + " " + text, true);
+                        }
+
+                        @Override
+                        public CharSequence current() {
+                            return getFieldText();
+                        }
+                    });
+            if (vrComposerControl != null) {
+                attachLayout.addView(vrComposerControl, 0,
+                        LayoutHelper.createLinear(DEFAULT_HEIGHT, DEFAULT_HEIGHT));
+            }
             messageEditTextContainer.addView(attachLayout, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, DEFAULT_HEIGHT, Gravity.BOTTOM | Gravity.RIGHT, 0, 0, DEFAULT_HEIGHT, 0));
 
             if (chatMode != ChatActivity.MODE_WELCOME_MESSAGES) {

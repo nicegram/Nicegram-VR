@@ -104,6 +104,56 @@ public final class VrEntryPoints {
         }
     }
 
+    /**
+     * The composer's side of a dictation control: where the recognised words go.
+     *
+     * <p>Shared code implements this and hands it to the headset module, because the field is
+     * shared code's and the recogniser is the headset's. The text is placed, never sent — a
+     * client that sent what it thought it heard would be unusable the first time it was wrong.
+     */
+    public interface Composer {
+        /** Puts text in the field with the cursor at the end. Never sends. */
+        void insert(CharSequence text);
+
+        /** What is in the field now, or null. Lets a control append rather than replace. */
+        CharSequence current();
+    }
+
+    /**
+     * A control the headset build puts in the composer, beside the attach button.
+     *
+     * @return the view to insert, or null to insert nothing
+     */
+    public interface ComposerControl {
+        android.view.View create(android.content.Context context, int currentAccount,
+                                 Composer composer);
+    }
+
+    private static volatile ComposerControl composerControl;
+
+    public static void installComposerControl(ComposerControl control) {
+        composerControl = control;
+    }
+
+    /**
+     * Null on every flavour but the headset one, where the composer is otherwise reached only by
+     * pointing a ray at a virtual keyboard — the worst interaction in this product, and the one
+     * A-41 left without its planned answer when the QR sign-in turned out to be impossible.
+     */
+    public static android.view.View composerControl(android.content.Context context,
+                                                    int currentAccount, Composer composer) {
+        final ComposerControl control = composerControl;
+        if (control == null || context == null || composer == null) {
+            return null;
+        }
+        try {
+            return control.create(context, currentAccount, composer);
+        } catch (Throwable e) {
+            // A composer that will not open is worse than a composer with no dictation button.
+            return null;
+        }
+    }
+
     public static void installFirstRun(FirstRun run) {
         firstRun = run;
     }
