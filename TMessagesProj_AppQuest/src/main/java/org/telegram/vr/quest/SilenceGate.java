@@ -78,4 +78,20 @@ public final class SilenceGate implements VrPolicy.Gate {
     public void onSuppressed(int currentAccount, MessageObject message) {
         digest.add(currentAccount, message);
     }
+
+    /**
+     * The same question for a call, and the master switch is checked first for the same reason.
+     *
+     * <p>A suppressed call is not added to the digest here, and that is deliberate rather than
+     * an omission: Telegram delivers a missed call into the chat as a service message, which
+     * arrives through {@code appendMessage} moments later and is gated and remembered like any
+     * other message. Adding it twice would show it twice.
+     */
+    @Override
+    public boolean allowIncomingCall(int currentAccount, long callerId) {
+        if (!NotificationsMaster.isOn(org.telegram.messenger.ApplicationLoader.applicationContext)) {
+            return false;
+        }
+        return SilenceDecision.allowCall(callerId, profile(currentAccount));
+    }
 }

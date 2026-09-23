@@ -10,7 +10,7 @@ client, its source is open — see [NOTICE.md](NOTICE.md) for the provenance and
 > **Status: early.** It builds, installs and starts on a Quest 3, and there is a signed
 > pre-release to sideload — [v0.1.0-alpha.3](https://github.com/nicegram/Nicegram-VR/releases).
 > The package is 60.6 MB, 64-bit only, and requests 57 permissions, **none** of the 151 on
-> Meta's prohibited list. 70 unit tests across 16 classes run on every push.
+> Meta's prohibited list. 80 unit tests across 18 classes run on every push.
 >
 > **Someone signed in for the first time on 23 September**, and the first screen they reached
 > read `LOC_ERR:null` in every line — every headset string in the build was unresolvable (A-36).

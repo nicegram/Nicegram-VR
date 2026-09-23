@@ -47,6 +47,8 @@ public class SeamAnchorsTest {
                 "VrDisplay");
         SEAM_CALLERS.put("TMessagesProj/src/main/java/org/telegram/messenger/NotificationsController.java",
                 "VrPolicy");
+        SEAM_CALLERS.put("TMessagesProj/src/main/java/org/telegram/messenger/voip/VoIPService.java",
+                "VrPolicy");
         SEAM_CALLERS.put("TMessagesProj/src/main/java/org/telegram/messenger/LocaleController.java",
                 "VrBrand");
         SEAM_CALLERS.put("TMessagesProj/src/main/java/org/telegram/ui/LaunchActivity.java",

@@ -61,4 +61,23 @@ public final class SilenceDecision {
         }
         return false;
     }
+
+    /**
+     * May an incoming CALL from this person ring?
+     *
+     * <p>The same question as {@link #allow}, minus the two parts that cannot apply: a call
+     * carries no text, so the word rules have nothing to match, and it is never outgoing in the
+     * sense that matters here — a call the user placed does not ring at them.
+     *
+     * <p>A caller is checked against BOTH lists. `people` is the obvious one; `chats` is checked
+     * as well because a one-to-one conversation's dialog id IS the other person's user id, so
+     * someone who named a chat as an exception has named its only other participant, and being
+     * rung by the person whose chat you marked important is not a surprise.
+     */
+    public static boolean allowCall(long callerId, SilenceProfile profile) {
+        if (profile == null || profile.isSilentForEveryone()) {
+            return false;
+        }
+        return profile.people.contains(callerId) || profile.chats.contains(callerId);
+    }
 }

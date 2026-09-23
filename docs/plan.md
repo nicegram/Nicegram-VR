@@ -738,6 +738,34 @@ column. *Device.*
 
 ## P-20 · Round video messages are clipped in the portrait panel — reported 21 September
 
+> **DONE**, and **not for the reason this task proposed.** The fix is one clause in
+> `AndroidUtilities.checkDisplaySize`:
+> `if (roundMessageSize == 0 || org.telegram.vr.VrDisplay.windowed())`.
+>
+> **The cause was staleness, not scale.** Upstream computes the three sizes once, guarded by
+> `roundMessageSize == 0`, on the assumption that the first configuration a process sees is the
+> one it lives in. On Horizon OS the first call carries the DISPLAY's configuration and every
+> later one the PANEL's — measured in the client's own log:
+>
+> ```
+> density = 1.25 display size = 2064 2208   <- application context, the whole display
+> density = 1.25 display size = 525 900     <- the activity, the actual panel
+> ```
+>
+> A value frozen on the first line is **1238 px of video drawn into 525 px of panel**, which is
+> exactly what was reported.
+>
+> **The hypothesis below was wrong and is kept because it is instructive.** It proposed that the
+> three sizes are raw pixels while their surroundings are dp, so a larger interface step breaks
+> the relationship. Worked through, that predicts the circle becomes relatively *smaller* at a
+> larger step — not clipped. The task said its own arithmetic was the thing under suspicion; it
+> was right about that and wrong about which arithmetic.
+>
+> **Pinned** by `RoundVideoSizingTest`: the recompute clause must still be in upstream's method,
+> `windowed()` must stay false with nothing installed, and the three formulas must fit the
+> measured panel. *Still owed on a device: the other media the report suspected — photos,
+> stickers, GIFs, the media viewer — were never checked.*
+
 **Estimate:** one day, and most of it is looking at a headset.
 
 **What was reported.** Text messages read fine; a round video message ("кружок") is only
@@ -778,6 +806,22 @@ values are pinned in a test the way `VrDensityTest` pins the scale.
 ---
 
 ## P-21 · Notifications and calls on a platform with no push — reported 21 September
+
+> **Item 4 is DONE, 23 September 2026, and it turned out to be a critical defect rather than a
+> loose end (A-43).** Calls did not pass the silence gate at all, so the product's central
+> promise was false for the loudest thing the device does. `VoIPService.startRinging` now asks
+> `VrPolicy.allowsCall`; the rule is `SilenceDecision.allowCall`, six assertions in
+> `CallDecisionTest`.
+>
+> The question this task posed — "a silenced headset that still rings is a bug, and one that
+> misses a call is a different bug" — answered itself once the mechanism was read. A suppressed
+> call is **not** a missed one in the sense that matters: Telegram writes it into the chat as a
+> service message, which the message gate and the digest pick up. The information survives; only
+> the interruption does not.
+>
+> **Item 5 was already done** — the first-run screen says that nothing arrives while the app is
+> closed. **Items 1, 2 and 3 need a headset** and nobody has ever placed or received a call on
+> one.
 
 **Estimate:** three to five days, and it cannot be finished without deciding what "notification"
 means here.
@@ -968,7 +1012,11 @@ session. Q-03 and Q-04 are decisions and cost nothing but a reply.
 
 ## What this plan does not include, on purpose
 
-- Calls and video calls from the headset (no forward camera; a different product).
+- ~~Calls and video calls from the headset (no forward camera; a different product).~~
+  **Half wrong, corrected 23 September (A-43).** The camera argument settles *video* calls.
+  Voice calls are in the binary — `RECORD_AUDIO`, `MANAGE_OWN_CALLS` and the whole `voip/`
+  stack — and ring today, which is why they now pass the silence gate. Excluding a feature
+  from a plan does not remove it from the package.
 - The Meta Spatial SDK shell (stage 2): decided after P-09 has numbers, not before.
 - Speech synthesis, translation, or any AI beyond dictation.
 - Publishing to the store: P-16 prepares the manifest; the submission itself is a release

@@ -23,6 +23,12 @@ public final class VrPolicy {
 
         /** Called for every message the gate held back, so it can be offered as a digest later. */
         void onSuppressed(int currentAccount, MessageObject message);
+
+        /**
+         * @param callerId the user placing the call
+         * @return true when this call may ring on this device
+         */
+        boolean allowIncomingCall(int currentAccount, long callerId);
     }
 
     private static volatile Gate gate;
@@ -48,6 +54,35 @@ public final class VrPolicy {
      * A message held back is handed to {@link Gate#onSuppressed} so it can be offered as a
      * digest later — suppressed is not the same as dropped.
      */
+    /**
+     * May this incoming call ring on this device?
+     *
+     * <p>Calls were outside this gate until 23 September 2026, and that was a hole in the
+     * product's central promise rather than an omission of detail: a client that says "nothing
+     * arrives until you say it may" rang for anyone who dialled (A-43). They are asked the same
+     * question as messages now — the master switch first, then the named people and chats.
+     *
+     * <p><b>Nothing is lost by not ringing.</b> Telegram delivers a missed call into the chat as
+     * a service message, which reaches {@code appendMessage} and is gated and remembered like
+     * any other, so a suppressed call still appears in the digest. That is why the gate does not
+     * need a second suppression channel for calls.
+     *
+     * <p>Fails OPEN, in the same direction and for the same reason as {@link #allows}: a client
+     * that went silent because its filter threw is indistinguishable from one that is broken.
+     */
+    public static boolean allowsCall(int currentAccount, long callerId) {
+        final Gate g = gate;
+        if (g == null) {
+            return true;
+        }
+        try {
+            return g.allowIncomingCall(currentAccount, callerId);
+        } catch (Throwable e) {
+            FileLog.e(e);
+            return true;
+        }
+    }
+
     public static boolean allows(int currentAccount, MessageObject message) {
         final Gate g = gate;
         if (g == null || message == null) {

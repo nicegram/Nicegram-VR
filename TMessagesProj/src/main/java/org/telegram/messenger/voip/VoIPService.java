@@ -4509,6 +4509,18 @@ public class VoIPService extends Service implements SensorEventListener, AudioMa
 			FileLog.d("starting ringing for call " + privateCall.id);
 		}
 		dispatchStateChanged(STATE_WAITING_INCOMING);
+		// Nicegram VR seam (VrPolicy) — see docs/vr-layer.md#seams, finding A-43.
+		// The one place an incoming private call starts ringing: both branches below end in
+		// startRingtoneAndVibration, so gating here gates the ring and the notification together.
+		// The call itself is NOT declined — the state above still stands, the caller still hears
+		// ringing, and Telegram delivers the missed call into the chat as a service message,
+		// where the message gate and the digest pick it up. Inert on every other flavour.
+		if (!org.telegram.vr.VrPolicy.allowsCall(currentAccount, user != null ? user.id : 0)) {
+			if (BuildVars.LOGS_ENABLED) {
+				FileLog.d("Nicegram VR: incoming call not ringing, the display policy held it back");
+			}
+			return;
+		}
 		if (!notificationsDisabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			showIncomingNotification(ContactsController.formatName(user.first_name, user.last_name), user, privateCall.video, 0);
 			if (BuildVars.LOGS_ENABLED) {
