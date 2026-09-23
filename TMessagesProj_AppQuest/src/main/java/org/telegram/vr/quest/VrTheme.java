@@ -59,7 +59,7 @@ public final class VrTheme {
         if (prefs.getBoolean(KEY_APPLIED, false)) {
             return;
         }
-        if (applyDefaults()) {
+        if (applyDefaults(context)) {
             prefs.edit().putBoolean(KEY_APPLIED, true).apply();
         }
     }
@@ -116,7 +116,7 @@ public final class VrTheme {
      * @return true when the accent was actually applied. Also reachable from "reset to
      *         defaults" in the headset settings.
      */
-    public static boolean applyDefaults() {
+    public static boolean applyDefaults(Context context) {
         try {
             final Theme.ThemeInfo night = Theme.getTheme("Night");
             if (night == null || accentSlot() == null) {
@@ -144,6 +144,20 @@ public final class VrTheme {
             // Both are set once per install, as defaults rather than locks: a user who wants
             // the system to drive the theme can still say so in settings.
             Theme.applyTheme(night, true, false);
+
+            // The NIGHT SLOT, which is a different thing from the current theme and was the
+            // half A-24 lost. `applyTheme(..., nightTheme=false)` sets currentDayTheme and
+            // persists `theme`; it never touches currentNightTheme. That slot is only ever
+            // assigned when Theme loads `lastDarkTheme` from its config — which had already
+            // happened before this code runs, leaving it at upstream's "Dark Blue".
+            //
+            // So the day/night button worked exactly as designed and looked like a reset: to
+            // day gave Blue, back to night gave Dark Blue, and the brand accent was gone. Both
+            // the live slot and the preference it is read from next launch are set here.
+            Theme.setCurrentNightTheme(night);
+            context.getSharedPreferences("themeconfig", Context.MODE_PRIVATE)
+                    .edit().putString("lastDarkTheme", night.getKey()).apply();
+
             if (Theme.selectedAutoNightType != Theme.AUTO_NIGHT_TYPE_NONE) {
                 Theme.selectedAutoNightType = Theme.AUTO_NIGHT_TYPE_NONE;
                 Theme.saveAutoNightThemeConfig();

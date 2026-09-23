@@ -52,8 +52,23 @@ public class LanguagePackReachabilityTest {
     private static final Pattern CONTEXT_READ = Pattern.compile(
             "\\b(?:[A-Za-z_][A-Za-z0-9_]*+(?:\\(\\))?\\.)?getResources\\(\\)\\.getString\\("
             + "|\\b(?:context|mContext|activity|getContext\\(\\)|getParentActivity\\(\\)|this)"
-            + "\\.getString\\("
-            + "|LocaleController\\.(?:getString|formatString)\\(my\\.nicegram\\.vr\\.R\\.string");
+            + "\\.getString\\(");
+
+    /**
+     * {@code LocaleController.getString(my.nicegram.vr.R.string.X)} — the read that put
+     * {@code LOC_ERR:null} on screen, matched across LINE BREAKS.
+     *
+     * <p>The line-by-line version of this test passed a repository that still held two of them
+     * (A-37), because both were ternaries wrapped over three lines and the opening call and the
+     * resource sat on different lines. A guard that only sees one line at a time cannot see a
+     * Java expression, which spans as many as the formatter wants.
+     *
+     * <p>{@code [^;]} bounds the match to a single statement, so a legitimate
+     * {@code LocaleController.getString(R.string.Upstream)} earlier in a method cannot reach
+     * forward and accuse an unrelated {@code my.nicegram.vr} reference after the semicolon.
+     */
+    private static final Pattern LOCALE_READ = Pattern.compile(
+            "LocaleController\\.(?:getString|formatString)\\([^;]{0,300}?my\\.nicegram\\.vr\\.R\\.string");
 
     /**
      * The one file allowed to read strings through a Context, and the reason is in its own
@@ -70,13 +85,23 @@ public class LanguagePackReachabilityTest {
             if (EXEMPT.equals(file.getName()) || "VrStrings.java".equals(file.getName())) {
                 continue;  // VrStrings IS the correct path, and its javadoc quotes the wrong one
             }
-            final String[] lines =
-                    new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8).split("\n", -1);
+            final String body =
+                    new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
+            final String[] lines = body.split("\n", -1);
             for (int i = 0; i < lines.length; i++) {
                 final Matcher m = CONTEXT_READ.matcher(lines[i]);
                 if (m.find()) {
                     offenders.add(file.getName() + ":" + (i + 1) + "  " + lines[i].trim());
                 }
+            }
+            // The same text with every newline replaced by a space: indices are unchanged, so a
+            // match still reports the line it started on, and a call wrapped over three lines is
+            // now one string to the matcher.
+            final Matcher wrapped = LOCALE_READ.matcher(body.replace('\n', ' '));
+            while (wrapped.find()) {
+                final int line = countLines(body, wrapped.start());
+                offenders.add(file.getName() + ":" + line + "  "
+                        + wrapped.group().replaceAll("\\s+", " "));
             }
         }
         if (!offenders.isEmpty()) {
@@ -103,6 +128,16 @@ public class LanguagePackReachabilityTest {
         }
         assertTrue("no file reads a string through VrStrings at all, which means this "
                 + "test is now checking a module that no longer draws strings", sawALocaleControllerRead);
+    }
+
+    private static int countLines(String body, int offset) {
+        int line = 1;
+        for (int i = 0; i < offset && i < body.length(); i++) {
+            if (body.charAt(i) == '\n') {
+                line++;
+            }
+        }
+        return line;
     }
 
     /** Walks up from the working directory: Gradle runs from the module, an IDE may not. */

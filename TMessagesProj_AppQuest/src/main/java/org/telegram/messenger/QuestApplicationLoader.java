@@ -61,7 +61,7 @@ public class QuestApplicationLoader extends ApplicationLoader {
 
             @Override
             public CharSequence description(boolean on) {
-                return LocaleController.getString(on
+                return VrStrings.get(on
                         ? my.nicegram.vr.R.string.vr_master_on
                         : my.nicegram.vr.R.string.vr_master_off);
             }

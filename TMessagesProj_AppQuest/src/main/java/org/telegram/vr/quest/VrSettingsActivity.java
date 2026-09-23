@@ -275,7 +275,7 @@ public class VrSettingsActivity extends BaseFragment {
             VrDensity.setStep(context, VrDensity.STEP_BALANCED);
             VrPerformance.applyDefaults();
             VrLayout.applyDefaults();
-            VrTheme.applyDefaults();
+            VrTheme.applyDefaults(ApplicationLoader.applicationContext);
             rebuild();
             showRestartNote(context);
         });
@@ -409,7 +409,7 @@ public class VrSettingsActivity extends BaseFragment {
     }
 
     private static String layoutLabel() {
-        return LocaleController.getString(VrLayout.isSingleColumn()
+        return VrStrings.get(VrLayout.isSingleColumn()
                 ? my.nicegram.vr.R.string.vr_layout_single
                 : my.nicegram.vr.R.string.vr_layout_split);
     }
