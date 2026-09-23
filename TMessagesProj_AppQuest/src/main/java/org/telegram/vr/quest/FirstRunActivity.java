@@ -6,6 +6,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.telegram.messenger.AndroidUtilities;
@@ -57,10 +58,21 @@ public class FirstRunActivity extends BaseFragment {
         root.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
         fragmentView = root;
 
+        // Scrollable, and it has to be. At the largest interface step the panel is about
+        // 260x415 dp - VrDensity.STEP_SCALE tops out at 1.54 over a 500x800 px, 200 dpi panel -
+        // and four paragraphs plus a button row already come close to that in English. Russian
+        // runs longer, so the row that DISMISSES this screen was the first thing off the bottom,
+        // on the first screen of the product, with no way to scroll to it (A-40).
+        final ScrollView scroll = new ScrollView(context);
+        scroll.setFillViewport(true);
+        root.addView(scroll, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT));
+
         final LinearLayout column = new LinearLayout(context);
         column.setOrientation(LinearLayout.VERTICAL);
+        column.setGravity(Gravity.CENTER_VERTICAL);
         column.setPadding(AndroidUtilities.dp(24), AndroidUtilities.dp(24), AndroidUtilities.dp(24), AndroidUtilities.dp(24));
-        root.addView(column, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER_VERTICAL));
+        scroll.addView(column, new ScrollView.LayoutParams(
+                ScrollView.LayoutParams.MATCH_PARENT, ScrollView.LayoutParams.WRAP_CONTENT));
 
         column.addView(line(context, my.nicegram.vr.R.string.vr_intro_line1, true));
         column.addView(line(context, my.nicegram.vr.R.string.vr_intro_line2, false));
