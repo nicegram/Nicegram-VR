@@ -156,9 +156,11 @@
     <string name="vr_mobile_title">Nicegram on your phone</string>
     <string name="vr_mobile_lead">Take it with you.</string>
     <string name="vr_mobile_body">The headset comes off. Nicegram on your phone is the same account, the same chats \u2014 and it does receive messages while you are doing something else.</string>
-    <string name="vr_mobile_ios">iPhone</string>
-    <string name="vr_mobile_android">Android</string>
-    <string name="vr_mobile_open_ios">Open the App Store link</string>
-    <string name="vr_mobile_open_android">Open the Google Play link</string>
+    <string name="vr_mobile_send_saved">Send the links to Saved Messages</string>
+    <string name="vr_mobile_sent">Sent to Saved Messages.</string>
+    <string name="vr_mobile_send_failed">That did not send. The two buttons below open the stores here instead.</string>
+    <string name="vr_mobile_open_ios">Open the App Store page here</string>
+    <string name="vr_mobile_open_android">Open the Google Play page here</string>
+    <string name="vr_mobile_scan">Scannable only while this headset is casting to a phone or a screen \u2014 the panel itself is inside the headset.</string>
     <string name="vr_mobile_dismiss_hint">Shown once. Back closes it.</string>
 </resources>

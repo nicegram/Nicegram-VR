@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import argparse
 import pathlib
+import os
 import re
 import subprocess
 import sys
@@ -56,9 +57,35 @@ LINK_RE = re.compile(r"\[[^\]]*\]\(([^)#\s]+(?:\.md|\.py|\.html|\.xml|\.gradle))
 SEARCHABLE_SUFFIXES = (".java", ".gradle", ".xml", ".py", ".yml")
 
 
+# Directories never worth walking: version control, build output, and vendored trees. Pruned
+# DURING the walk rather than filtered after it — that is the whole difference between this
+# check taking a second and taking minutes.
+#
+# It used to be `ROOT.rglob(name)` with the filter applied to the result, once per basename.
+# That reads every file in the repository for every name a document mentions, and after a build
+# `TMessagesProj_AppQuest/build` alone holds tens of thousands of entries. The check ran in
+# seconds on a fresh checkout and hung for minutes on a working one, which is the version
+# anybody actually runs.
+PRUNE = {".git", "build", ".cxx", ".gradle", "node_modules", ".idea", "outputs"}
+
+_index: dict[str, list[pathlib.Path]] | None = None
+
+
+def _basename_index() -> dict[str, list[pathlib.Path]]:
+    """basename -> every path with it, built once, with the noisy trees pruned."""
+    global _index
+    if _index is None:
+        _index = {}
+        for dirpath, dirnames, filenames in os.walk(ROOT):
+            dirnames[:] = [d for d in dirnames if d not in PRUNE]
+            for name in filenames:
+                _index.setdefault(name, []).append(pathlib.Path(dirpath) / name)
+    return _index
+
+
 def find_by_name(name: str) -> pathlib.Path | None:
     """One file with that basename, or None if zero or many."""
-    hits = [p for p in ROOT.rglob(name) if ".git" not in p.parts and "build" not in p.parts]
+    hits = _basename_index().get(name, [])
     return hits[0] if len(hits) == 1 else None
 
 

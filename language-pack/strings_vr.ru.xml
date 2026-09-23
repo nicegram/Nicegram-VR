@@ -151,9 +151,11 @@
     <string name="vr_mobile_title">Nicegram на телефоне</string>
     <string name="vr_mobile_lead">Возьмите с собой.</string>
     <string name="vr_mobile_body">Шлем снимают. Nicegram на телефоне \u2014 тот же аккаунт и те же чаты, и он получает сообщения, пока вы заняты другим.</string>
-    <string name="vr_mobile_ios">iPhone</string>
-    <string name="vr_mobile_android">Android</string>
-    <string name="vr_mobile_open_ios">Открыть ссылку в App Store</string>
-    <string name="vr_mobile_open_android">Открыть ссылку в Google Play</string>
+    <string name="vr_mobile_send_saved">Отправить ссылки в «Избранное»</string>
+    <string name="vr_mobile_sent">Отправлено в «Избранное».</string>
+    <string name="vr_mobile_send_failed">Отправить не удалось. Две кнопки ниже откроют магазины прямо здесь.</string>
+    <string name="vr_mobile_open_ios">Открыть страницу в App Store здесь</string>
+    <string name="vr_mobile_open_android">Открыть страницу в Google Play здесь</string>
+    <string name="vr_mobile_scan">Считать можно, только когда шлем транслируется на телефон или экран \u2014 сама панель находится внутри шлема.</string>
     <string name="vr_mobile_dismiss_hint">Показывается один раз. «Назад» закрывает.</string>
 </resources>

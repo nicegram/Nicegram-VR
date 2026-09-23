@@ -234,11 +234,29 @@ These are not code, and each can stall a launch on its own.
    technical one.** It should be asked of Meta directly, in writing, before Stage 2 is paid
    for. Everything else in this plan is work; this is the only item that could make the work
    moot.
-3. **Data Use Checkup** — required before submission if platform features are used; without a
+3. **VRQ-002 — whether the phone-app offer counts as an advertisement.** The third-launch
+   screen (P-30) links to this developer's own free app on the App Store and Google Play.
+   Two clauses in Meta's app policies bear on it, and neither settles it:
+
+   - *2.1.1* — "Apps hosted on the platform may not run ads unless expressly agreed by you and
+     Meta Platforms Technologies in writing", and *2.1.4* gives "the ad is promoting the
+     download of another app" as an example of ad content. Read broadly, a screen promoting a
+     download is an ad.
+   - *3.1* "Store within a store" is about enabling access to other apps **on the headset**,
+     and *3.1.2* is about **purchase**; this screen does neither, and Nicegram Mobile is free.
+
+   Self-promotion of the publisher's own app is common and is not what clause 2.1 was written
+   for, but the wording does not carve it out, so this is a **question for Meta in the same
+   letter as VRQ-001**, not a judgement to make here. If the answer is unfavourable the screen
+   comes out in one line — `VrEntryPoints.installFirstRun` in `QuestApplicationLoader.java:149`
+   — and nothing else in the build depends on it. Read 23 September 2026 from
+   `developers.meta.com/horizon/llmstxt/policy/app-policies.md`, which carries its own date.
+
+4. **Data Use Checkup** — required before submission if platform features are used; without a
    current one, platform features stay limited to test users.
-4. **Age rating questionnaire**, and **GRAC** separately if South Korea is in scope — it binds
+5. **Age rating questionnaire**, and **GRAC** separately if South Korea is in scope — it binds
    even for test channels there.
-5. **Privacy policy URL live** — `nicegram.me/privacy-policy` answers 200 today.
+6. **Privacy policy URL live** — `nicegram.me/privacy-policy` answers 200 today.
 
 ### Stage 5 — Listing and submission *(~1 week, then ≥2 weeks of review)*
 
