@@ -18,15 +18,19 @@ is how development happens meanwhile.
 - [x] `VrPolicy` hook, inert on every other flavour
 - [x] Silence profile, gate and digest
 - [x] Density scale and the hit-target floor
-- [x] APK assembles: 119 MB, arm64-v8a only, application class QuestApplicationLoader
+- [x] APK assembles: 134.9 MB debug / **60.6 MB signed release**, arm64-v8a only, application
+      class QuestApplicationLoader (measured 23 September 2026; the 119 MB in this line was the
+      debug APK of 19 September and had been stale for four days)
 - [x] Exceptions screen, reachable from Notifications, with the phone sentence on it
 - [ ] First run on a physical Quest 3 and 3S
 
 ## Next
 
-- [ ] **Sign-in by code shown on the panel.** The headset displays, the phone scans; the headset
-      camera is not used. Upstream has the scanning side only, but the TL constructors are in
-      the schema already.
+- [ ] ~~**Sign-in by code shown on the panel.** The headset displays, the phone scans.~~
+      **Dropped as written (A-41).** The panel is inside the headset, so no phone camera can
+      reach it. Dictation on the phone-number field answers the same pain for a fraction of the
+      work; a Bluetooth keyboard already works. The TL constructors stay listed in `plan.md`
+      P-10 as a reference.
 - [ ] **Exceptions UI, second pass** — the screen exists and edits the profile; still to do is
       separating people from chats in the list, and letting the gate know to drop its cached
       profile when the screen writes one.

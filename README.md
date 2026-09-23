@@ -12,13 +12,16 @@ client, its source is open — see [NOTICE.md](NOTICE.md) for the provenance and
 > The package is 60.6 MB, 64-bit only, and requests 57 permissions, **none** of the 151 on
 > Meta's prohibited list. 68 unit tests across 15 classes run on every push.
 >
-> **Nothing behind sign-in has been exercised**, which is most of what this client is for:
-> no frame-rate reading in a real chat, no dictation against a real service, no measurement of
-> how fast anyone types. Nothing has been submitted to the Horizon Store, and one policy
-> question about third-party clients is open before anything can be.
+> **Someone signed in for the first time on 23 September**, and the first screen they reached
+> read `LOC_ERR:null` in every line — every headset string in the build was unresolvable (A-36).
+> That is what four days of unexercised screens cost, and most of what this client is for is
+> still unexercised: no frame-rate reading in a real chat, no dictation against a real service,
+> no measurement of how fast anyone types. Nothing has been submitted to the Horizon Store, and
+> **two** policy questions are open before anything can be — a third-party client of another
+> messenger (VRQ-001), and whether the phone-app offer counts as an advertisement (VRQ-002).
 >
 > The readings are in [running-on-a-headset.md](docs/running-on-a-headset.md); the
-> [audit](docs/audit-2026-09-19.md) lists every finding A-01…A-33 with what proved it, and the
+> [audit](docs/audit-2026-09-19.md) lists every finding A-01…A-41 with what proved it, and the
 > [plan](docs/plan.md) says what is left. When something is not finished, this file says so
 > rather than implying otherwise.
 

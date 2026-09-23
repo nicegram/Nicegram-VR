@@ -336,6 +336,20 @@ list, and dictation end to end against a configured service.
 
 ## P-10 · Sign in by a code shown on the panel — `VRQ-004`
 
+> **NOT STARTED, and not as written (A-41, 23 September 2026).** The flow below is "the headset
+> displays, the phone scans", and **the panel is inside the headset** — there is nothing for a
+> phone camera to point at, and the person wearing it cannot see the panel and their phone at
+> once. Telegram's QR login is always the new device rendering a token while an already
+> authorised device scans it, so there is no variant in which the headset scans, and the token
+> is a long base64 blob, so there is none in which it is typed.
+>
+> The pain is real and has cheaper answers: a Bluetooth keyboard works on Quest (Meta's
+> keyboard-overlay page says so), dictation already exists in this build (P-11, P-12) and can be
+> pointed at the phone-number field, and casting makes the QR work for whoever uses it.
+>
+> Everything below is kept because it is accurate about the API and costs nothing to leave
+> written down. It is a reference, not a plan.
+
 **Fixes:** typing a phone number with a ray. **Estimate:** five to eight days.
 
 **Where.**
