@@ -7,7 +7,7 @@ from extract_prohibited import extract
 
 class ReleaseTest(unittest.TestCase):
     def args(self):
-        return dict(badging="package: name='my.nicegram.vr' versionCode='7089049' versionName='0.1.0 (Telegram 12.10.3)'\napplication-label:'Nicegram VR'\nsdkVersion:'29'\ntargetSdkVersion:'36'\nuses-permission: name='android.permission.RECORD_AUDIO'",
+        return dict(badging="package: name='my.nicegram.vr' versionCode='7089049' versionName='0.1.0 (Telegram 12.10.3)'\napplication-label:'Nicegram VR'\nminSdkVersion:'29'\ntargetSdkVersion:'34'\nuses-permission: name='android.permission.RECORD_AUDIO'",
           manifest='''E: manifest
   A: android:installLocation(0x010102b7)=0
   E: application
@@ -32,6 +32,14 @@ class ReleaseTest(unittest.TestCase):
             with self.subTest(field=field):
                 args=self.args();args[field]=value
                 with self.assertRaises(ValueError): validate(**args)
+    def test_target_must_fit_the_new_app_requirement(self):
+        args=self.args();args['badging']=args['badging'].replace("targetSdkVersion:'34'", "targetSdkVersion:'36'")
+        with self.assertRaises(ValueError): validate(**args)
+
+    def test_recents_on_another_activity_does_not_count(self):
+        args=self.args();args['manifest']=args['manifest'].replace('org.telegram.ui.LaunchActivity','org.telegram.ui.OtherActivity')
+        with self.assertRaises(ValueError): validate(**args)
+
     def test_prohibited_fails(self):
         args=self.args();args['badging']+="\nuses-permission: name='android.permission.READ_CONTACTS'"
         with self.assertRaises(ValueError): validate(**args)

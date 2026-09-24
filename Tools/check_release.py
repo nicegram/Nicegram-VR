@@ -77,9 +77,10 @@ def validate(badging, manifest, signature, members, size, prohibited, tag, expec
     require(prohibited, 'no prohibited-permission evidence')
     bad = sorted(p for p in permissions if p.removeprefix('android.permission.') in prohibited)
     require(not bad, f'prohibited permissions: {bad}')
-    sdk = dict(re.findall(r"^(sdkVersion|targetSdkVersion):'(\d+)'",badging,re.M))
-    require(29 <= int(sdk.get('sdkVersion',0)) <= 34, 'min SDK outside 2D release range')
-    require(32 <= int(sdk.get('targetSdkVersion',0)) <= 36, 'target SDK outside 2D release range')
+    sdk = dict(re.findall(r"^(sdkVersion|minSdkVersion|targetSdkVersion):'(\d+)'",badging,re.M))
+    sdk['minSdkVersion'] = sdk.pop('sdkVersion',sdk.get('minSdkVersion','0'))
+    require(29 <= int(sdk.get('minSdkVersion',0)) <= 34, 'min SDK outside 2D release range')
+    require(int(sdk.get('targetSdkVersion',0)) == 34, 'target SDK must be 34 for this new Store app')
     return dict(package=name,version_code=int(code),version_name=version,tag=tag,
                 bytes=size,abis=abis,signer_sha256=certs[0],signature_v2=True,
                 permissions=permissions,prohibited_list_count=len(prohibited),
