@@ -150,8 +150,8 @@ jobs:
             | Permissions | ${{ steps.checks.outputs.perms }}, **none prohibited by Meta** |
             | Signature | scheme v2, the project's own key |
 
-            **Nothing arrives while the app is closed.** Meta Quest has no push-notification
-            service; messages and calls reach you while it is running.
+            **This build has no push delivery.** Messages and calls can reach it while it
+            is running; it cannot wake for new messages while closed.
 
       - name: Remove restored signing key
         if: always()

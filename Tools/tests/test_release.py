@@ -46,6 +46,13 @@ class ReleaseTest(unittest.TestCase):
     def test_constants_outside_the_table_are_not_policy(self):
         html='<script>FAKE_PERMISSION</script><table><tr><td><code>READ_CONTACTS</code></td><td><code>INSTALL_PACKAGES</code></td><td><code>CALL_PHONE</code></td></tr></table>'
         self.assertEqual(['CALL_PHONE','INSTALL_PACKAGES','READ_CONTACTS'],extract(html))
+    def test_single_word_permissions_are_not_dropped(self):
+        html='<table>'+''.join('<tr><td><code>'+name+'</code></td></tr>' for name in ['READ_CONTACTS','INSTALL_PACKAGES','CALL_PHONE','DUMP','REBOOT','DIAGNOSTIC'])+'</table>'
+        parsed=extract(html)
+        self.assertEqual(6,len(parsed))
+        args=self.args();args['prohibited']=parsed;args['badging']+="\nuses-permission: name='android.permission.REBOOT'"
+        with self.assertRaises(ValueError): validate(**args)
+
     def test_missing_policy_fails(self):
         with self.assertRaises(ValueError): extract('<html>READ_CONTACTS INSTALL_PACKAGES CALL_PHONE</html>')
 

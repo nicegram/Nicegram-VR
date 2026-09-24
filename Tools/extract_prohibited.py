@@ -26,7 +26,7 @@ class PermissionTable(HTMLParser):
 
     def handle_data(self, text):
         value = text.strip()
-        if self.table > 0 and self.code > 0 and re.fullmatch(r'[A-Z][A-Z0-9]+(?:_[A-Z0-9]+)+', value):
+        if self.table > 0 and self.code > 0 and re.fullmatch(r'[A-Z][A-Z0-9_]*', value):
             self.names.add(value)
 
 
