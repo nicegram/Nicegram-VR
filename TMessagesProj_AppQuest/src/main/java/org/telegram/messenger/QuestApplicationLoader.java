@@ -111,8 +111,9 @@ public class QuestApplicationLoader extends ApplicationLoader {
 
             @Override
             public CharSequence value() {
-                final org.telegram.vr.quest.Digest digest = QuestRuntime.digest();
-                final int chats = digest == null ? 0 : digest.chatCount();
+                final int account = org.telegram.messenger.UserConfig.selectedAccount;
+                final org.telegram.vr.quest.Digest digest = QuestRuntime.digest(account);
+                final int chats = digest == null ? 0 : digest.chatCount(account);
                 return chats == 0 ? null : VrStrings.format(my.nicegram.vr.R.string.vr_digest_row_value, chats);
             }
 

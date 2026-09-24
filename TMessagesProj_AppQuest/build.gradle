@@ -70,6 +70,14 @@ tasks.configureEach { task ->
                     "environment or local.properties."
                 )
             }
+            def suppliedKey = file(questSecret('NICEGRAM_VR_KEYSTORE'))
+            def developmentKey = rootProject.file('TMessagesProj/config/release.keystore')
+            if (!suppliedKey.isFile()) {
+                throw new GradleException("The configured release keystore does not exist.")
+            }
+            if (java.util.Arrays.equals(suppliedKey.bytes, developmentKey.bytes)) {
+                throw new GradleException("The public development keystore must not sign a release.")
+            }
         }
     }
     if (task.name.startsWith('compile') && task.name.contains('JavaWithJavac')) {

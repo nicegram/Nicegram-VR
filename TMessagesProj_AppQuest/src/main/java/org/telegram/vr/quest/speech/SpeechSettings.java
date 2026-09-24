@@ -98,7 +98,17 @@ public final class SpeechSettings {
         return "localhost".equals(bare)
                 || "::1".equals(bare)
                 || "0:0:0:0:0:0:0:1".equals(bare)
-                || bare.startsWith("127.");
+                || ipv4Loopback(bare);
+    }
+
+    private static boolean ipv4Loopback(String host) {
+        String[] parts = host.split("\\.", -1);
+        if (parts.length != 4 || !"127".equals(parts[0])) return false;
+        for (String part : parts) {
+            if (!part.matches("[0-9]{1,3}")) return false;
+            if (Integer.parseInt(part) > 255) return false;
+        }
+        return true;
     }
 
     public void setEndpoint(String value) {

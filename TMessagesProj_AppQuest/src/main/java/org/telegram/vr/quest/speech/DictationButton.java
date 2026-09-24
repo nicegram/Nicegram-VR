@@ -62,6 +62,7 @@ public class DictationButton extends ImageView {
 
     private float level;
     private boolean recognising;
+    private volatile int generation;
 
     public DictationButton(Context context, int currentAccount, VrEntryPoints.Composer composer) {
         super(context);
@@ -106,10 +107,26 @@ public class DictationButton extends ImageView {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        if (recorder.isRecording()) {
-            level = 0f;
-            Utilities.globalQueue.postRunnable(recorder::cancel);
-        }
+        cancelPending();
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasWindowFocus) {
+        super.onWindowFocusChanged(hasWindowFocus);
+        if (!hasWindowFocus) cancelPending();
+    }
+
+    private void cancelPending() {
+        final int leaving = ++generation;
+        recognising = true;
+        recorder.requestCancel();
+        level = 0f;
+        Utilities.globalQueue.postRunnable(() -> {
+            recorder.cancel();
+            AndroidUtilities.runOnUIThread(() -> {
+                if (generation == leaving) recognising = false;
+            });
+        });
     }
 
     @Override
@@ -157,10 +174,12 @@ public class DictationButton extends ImageView {
     }
 
     private void start() {
+        final int recordingGeneration = ++generation;
         final boolean started = recorder.start(new VoiceRecorder.Listener() {
             @Override
             public void onLevel(float value) {
                 AndroidUtilities.runOnUIThread(() -> {
+                    if (generation != recordingGeneration) return;
                     level = value;
                     invalidate();
                 });
@@ -168,7 +187,9 @@ public class DictationButton extends ImageView {
 
             @Override
             public void onLimitReached() {
-                AndroidUtilities.runOnUIThread(DictationButton.this::stopAndRecognise);
+                AndroidUtilities.runOnUIThread(() -> {
+                    if (generation == recordingGeneration) stopAndRecognise();
+                });
             }
         });
         if (!started) {
@@ -180,26 +201,30 @@ public class DictationButton extends ImageView {
     }
 
     private void stopAndRecognise() {
-        if (!recorder.isRecording()) {
-            return;
-        }
-        final byte[] audio = recorder.stop();
-        level = 0f;
-        invalidate();
-        if (audio.length == 0) {
-            say(my.nicegram.vr.R.string.vr_dictation_empty);
-            return;
-        }
+        if (recognising || !recorder.isRecording()) return;
         recognising = true;
+        final int request = generation;
         say(my.nicegram.vr.R.string.vr_dictation_recognizing);
         final SpeechToText service = new HttpSpeechToText(settings);
         final String language = settings.language();
         Utilities.globalQueue.postRunnable(() -> {
-            final SpeechToText.Result result = service.recognize(
-                    audio, VoiceRecorder.MIME_TYPE, VoiceRecorder.SAMPLE_RATE, language);
+            final byte[] audio = recorder.stop();
+            // Check on the UI thread after stopping: a hidden/cancelled view sends no audio.
             AndroidUtilities.runOnUIThread(() -> {
-                recognising = false;
-                deliver(result);
+                if (generation != request) return;
+                level = 0f;
+                invalidate();
+                Utilities.globalQueue.postRunnable(() -> {
+                    // A cancellation before this queued job starts must also prevent upload.
+                    if (generation != request) return;
+                    final SpeechToText.Result result = service.recognize(
+                            audio, VoiceRecorder.MIME_TYPE, VoiceRecorder.SAMPLE_RATE, language);
+                    AndroidUtilities.runOnUIThread(() -> {
+                        if (generation != request) return;
+                        recognising = false;
+                        deliver(result);
+                    });
+                });
             });
         });
     }

@@ -29,12 +29,13 @@ public final class SilenceGate implements VrPolicy.Gate {
         QuestRuntime.setGate(this);
     }
 
-    public Digest digest() {
+    public synchronized Digest digest(int account) {
+        digest.ensureAccount(account, org.telegram.messenger.UserConfig.getInstance(account).getClientUserId());
         return digest;
     }
 
     /** Drops the cached profile so the next decision re-reads it. */
-    public void invalidate() {
+    public synchronized void invalidate() {
         cachedAccount = -1;
         cachedGeneration = -1;
         cachedProfile = null;
@@ -45,7 +46,7 @@ public final class SilenceGate implements VrPolicy.Gate {
      * written, so an exception added in settings takes effect on the next message rather than
      * on the next process start. Nobody has to remember to call invalidate().
      */
-    private SilenceProfile profile(int account) {
+    private synchronized SilenceProfile profile(int account) {
         final int generation = SilenceStore.generation();
         if (cachedAccount != account || cachedProfile == null || cachedGeneration != generation) {
             cachedProfile = store.load(account);
@@ -76,7 +77,7 @@ public final class SilenceGate implements VrPolicy.Gate {
 
     @Override
     public void onSuppressed(int currentAccount, MessageObject message) {
-        digest.add(currentAccount, message);
+        digest(currentAccount).add(currentAccount, message);
     }
 
     /**

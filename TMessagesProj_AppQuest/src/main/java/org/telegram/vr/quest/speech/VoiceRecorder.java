@@ -35,105 +35,129 @@ public final class VoiceRecorder {
         void onLimitReached();
     }
 
-    private volatile boolean recording;
-    private Thread thread;
-    private ByteArrayOutputStream buffer;
+    interface Input {
+        void start();
+        int read(byte[] bytes);
+        void stop();
+        void release();
+    }
+    interface Factory { Input open(); }
 
-    public boolean isRecording() {
-        return recording;
+    private final Factory factory;
+    private final int maxBytes;
+    private Capture active;
+    private int stopping;
+
+    private static final class Capture {
+        final Input input;
+        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        volatile boolean running = true;
+        Thread thread;
+        Capture(Input input) { this.input = input; }
     }
 
-    /** Requires {@link Manifest.permission#RECORD_AUDIO}; the caller checks it and says why. */
-    public synchronized boolean start(Listener listener) {
-        if (recording) {
-            return true;
-        }
-        final int minBuffer = AudioRecord.getMinBufferSize(SAMPLE_RATE,
+    public VoiceRecorder() {
+        this(VoiceRecorder::openMicrophone, SAMPLE_RATE * 2 * MAX_SECONDS);
+    }
+
+    VoiceRecorder(Factory factory, int maxBytes) {
+        this.factory = factory;
+        this.maxBytes = maxBytes;
+    }
+
+    private static Input openMicrophone() {
+        int min = AudioRecord.getMinBufferSize(SAMPLE_RATE,
                 AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
-        if (minBuffer <= 0) {
-            return false;
-        }
-        final AudioRecord record;
-        try {
-            record = new AudioRecord(SOURCE, SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO,
-                    AudioFormat.ENCODING_PCM_16BIT, minBuffer * 4);
-        } catch (Throwable e) {
-            return false;
-        }
+        if (min <= 0) throw new IllegalStateException("Microphone unavailable");
+        final AudioRecord record = new AudioRecord(SOURCE, SAMPLE_RATE,
+                AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, min * 4);
         if (record.getState() != AudioRecord.STATE_INITIALIZED) {
             record.release();
+            throw new IllegalStateException("Microphone unavailable");
+        }
+        return new Input() {
+            public void start() { record.startRecording(); }
+            public int read(byte[] bytes) { return record.read(bytes, 0, bytes.length); }
+            public void stop() { record.stop(); }
+            public void release() { record.release(); }
+        };
+    }
+
+    /** True until captured audio is consumed, including automatic completion awaiting the UI. */
+    public synchronized boolean isRecording() { return active != null; }
+
+    /** Requires RECORD_AUDIO. A second start cannot replace an unconsumed capture. */
+    public synchronized boolean start(Listener listener) {
+        if (active != null || stopping != 0) return false;
+        Input input = null;
+        try {
+            input = factory.open();
+            input.start();
+        } catch (Throwable error) {
+            if (input != null) input.release();
             return false;
         }
-        buffer = new ByteArrayOutputStream();
-        recording = true;
-        thread = new Thread(() -> {
-            final byte[] chunk = new byte[minBuffer];
-            final int maxBytes = SAMPLE_RATE * 2 * MAX_SECONDS;
+        final Capture capture = new Capture(input);
+        active = capture;
+        capture.thread = new Thread(() -> {
+            boolean automatic = false;
             try {
-                record.startRecording();
-                while (recording) {
-                    final int read = record.read(chunk, 0, chunk.length);
-                    if (read <= 0) {
-                        continue;
+                byte[] chunk = new byte[3200];
+                while (capture.running) {
+                    int read = capture.input.read(chunk);
+                    if (!capture.running) break;
+                    // AudioRecord error values must terminate, not spin forever holding the mic.
+                    if (read <= 0) { automatic = true; break; }
+                    synchronized (capture) {
+                        int remaining = maxBytes - capture.buffer.size();
+                        capture.buffer.write(chunk, 0, Math.min(read, remaining));
                     }
-                    synchronized (VoiceRecorder.this) {
-                        if (buffer != null) {
-                            buffer.write(chunk, 0, read);
-                        }
-                    }
-                    if (listener != null) {
-                        listener.onLevel(level(chunk, read));
-                    }
-                    if (buffer != null && buffer.size() >= maxBytes) {
-                        recording = false;
-                        if (listener != null) {
-                            listener.onLimitReached();
-                        }
-                    }
+                    if (listener != null) listener.onLevel(level(chunk, read));
+                    if (capture.buffer.size() >= maxBytes) { automatic = true; break; }
                 }
-            } catch (Throwable ignored) {
-                // A recorder that dies mid-phrase yields whatever it captured; the caller sees
-                // a short recording rather than a crash.
+            } catch (Throwable error) {
+                automatic = true;
             } finally {
-                try {
-                    record.stop();
-                } catch (Throwable ignored) {
-                }
-                record.release();
+                capture.running = false;
+                try { capture.input.stop(); } catch (Throwable ignored) { }
+                capture.input.release();
+                // Keep active until stop() consumes the audio. Previously clearing 'recording'
+                // here made both UI callbacks return before recognition, losing the whole phrase.
+                if (automatic && listener != null) listener.onLimitReached();
             }
         }, "vr-dictation");
-        thread.start();
+        capture.thread.start();
         return true;
     }
 
-    /**
-     * @return what was captured, never null; empty when nothing was.
-     *
-     * <p><b>Blocks for up to two seconds</b> joining the capture thread, so do not call it on
-     * the main thread from a path that runs during a screen transition — see
-     * {@code DictationButton.onDetachedFromWindow}, which posts it to a background queue for
-     * exactly that reason.
-     */
-    public synchronized byte[] stop() {
-        recording = false;
-        final Thread t = thread;
-        thread = null;
-        if (t != null) {
-            try {
-                t.join(2000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+    /** Stops a blocking read and joins without holding the monitor needed by the worker. */
+    public byte[] stop() {
+        final Capture capture;
+        synchronized (this) {
+            capture = active;
+            if (capture == null) return new byte[0];
+            active = null;
+            stopping++;
+            capture.running = false;
         }
-        final byte[] out = buffer == null ? new byte[0] : buffer.toByteArray();
-        buffer = null;
-        return out;
+        try {
+            try { capture.input.stop(); } catch (Throwable ignored) { }
+            if (capture.thread != Thread.currentThread()) {
+                try { capture.thread.join(2000); }
+                catch (InterruptedException error) { Thread.currentThread().interrupt(); }
+            }
+            synchronized (capture) { return capture.buffer.toByteArray(); }
+        } finally {
+            synchronized (this) { stopping--; }
+        }
     }
 
-    /** Discards the capture; used when the user cancels, so nothing is sent anywhere. */
-    public synchronized void cancel() {
-        stop();
+    /** Stop signal is immediate; cleanup may run on the caller's background queue. */
+    public synchronized void requestCancel() {
+        if (active != null) active.running = false;
     }
+
+    public void cancel() { stop(); }
 
     /** Root mean square over 16-bit samples, normalised. Pure, so the meter can be tested. */
     static float level(byte[] pcm, int length) {

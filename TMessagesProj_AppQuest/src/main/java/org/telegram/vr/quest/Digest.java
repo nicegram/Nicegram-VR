@@ -41,27 +41,51 @@ public final class Digest {
         }
     }
 
-    private final LinkedHashMap<Long, Entry> entries = new LinkedHashMap<>();
-    private long since = System.currentTimeMillis();
+    private static final class Account {
+        final long owner;
+        final LinkedHashMap<Long, Entry> entries = new LinkedHashMap<>();
+        final LinkedHashMap<String, Boolean> seen = new LinkedHashMap<>();
+        long since = System.currentTimeMillis();
+        Account(long owner) { this.owner = owner; }
+    }
+
+    private final Map<Integer, Account> accounts = new java.util.HashMap<>();
+
+    /** Account slots are reused after logout; never show the previous owner's previews. */
+    public synchronized void ensureAccount(int account, long owner) {
+        Account old = accounts.get(account);
+        if (old == null || old.owner != owner) {
+            accounts.put(account, new Account(owner));
+        }
+    }
+
+    private Account account(int account) {
+        return accounts.computeIfAbsent(account, ignored -> new Account(0));
+    }
 
     public synchronized void add(int currentAccount, MessageObject message) {
-        if (message == null) {
-            return;
-        }
-        final long dialogId = message.getDialogId();
-        Entry entry = entries.remove(dialogId);
-        if (entry == null) {
-            entry = new Entry(dialogId);
-        }
+        if (message == null) return;
+        add(currentAccount, message.getDialogId(), message.getId(), message.messageText,
+                message.messageOwner == null ? 0 : message.messageOwner.date);
+    }
+
+    // Primitive input lets the same storage path be exercised without Android MessageObject.
+    synchronized void add(int currentAccount, long dialogId, int messageId,
+                          CharSequence text, int date) {
+        Account state = account(currentAccount);
+        String key = dialogId + ":" + messageId;
+        if (state.seen.put(key, Boolean.TRUE) != null) return;
+        while (state.seen.size() > 10000) state.seen.remove(state.seen.keySet().iterator().next());
+        Entry entry = state.entries.remove(dialogId);
+        if (entry == null) entry = new Entry(dialogId);
         entry.count++;
-        entry.lastText = preview(message.messageText);
-        if (message.messageOwner != null) {
-            entry.lastDate = message.messageOwner.date;
+        if (date >= entry.lastDate) {
+            entry.lastText = preview(text);
+            entry.lastDate = date;
         }
-        // Re-inserted so iteration order is most-recent-last; the screen reverses it.
-        entries.put(dialogId, entry);
-        while (entries.size() > MAX_DIALOGS) {
-            entries.remove(entries.keySet().iterator().next());
+        state.entries.put(dialogId, entry);
+        while (state.entries.size() > MAX_DIALOGS) {
+            state.entries.remove(state.entries.keySet().iterator().next());
         }
     }
 
@@ -73,31 +97,38 @@ public final class Digest {
         return s.length() <= PREVIEW_CHARS ? s : s.substring(0, PREVIEW_CHARS);
     }
 
-    /** Most recent first. */
-    public synchronized List<Entry> snapshot() {
-        final ArrayList<Entry> out = new ArrayList<>(entries.values());
+    /** Most recent first; copies cannot be changed by the notification queue after this read. */
+    public synchronized List<Entry> snapshot(int currentAccount) {
+        ArrayList<Entry> out = new ArrayList<>();
+        for (Entry original : account(currentAccount).entries.values()) {
+            Entry copy = new Entry(original.dialogId);
+            copy.count = original.count;
+            copy.lastText = original.lastText;
+            copy.lastDate = original.lastDate;
+            out.add(copy);
+        }
         Collections.reverse(out);
         return Collections.unmodifiableList(out);
     }
 
-    public synchronized int chatCount() {
-        return entries.size();
+    public synchronized int chatCount(int currentAccount) {
+        return account(currentAccount).entries.size();
     }
 
-    public synchronized int messageCount() {
+    public synchronized int messageCount(int currentAccount) {
         int total = 0;
-        for (Map.Entry<Long, Entry> e : entries.entrySet()) {
-            total += e.getValue().count;
-        }
+        for (Entry entry : account(currentAccount).entries.values()) total += entry.count;
         return total;
     }
 
-    public synchronized long since() {
-        return since;
+    public synchronized long since(int currentAccount) {
+        return account(currentAccount).since;
     }
 
-    public synchronized void clear() {
-        entries.clear();
-        since = System.currentTimeMillis();
+    public synchronized void clear(int currentAccount) {
+        Account state = account(currentAccount);
+        state.entries.clear();
+        // Keep recent IDs: reconnect must not resurrect a digest the user cleared.
+        state.since = System.currentTimeMillis();
     }
 }

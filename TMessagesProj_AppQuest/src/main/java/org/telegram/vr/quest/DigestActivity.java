@@ -111,10 +111,10 @@ public class DigestActivity extends BaseFragment implements NotificationCenter.N
 
     private void rebuild() {
         rows.clear();
-        final Digest digest = QuestRuntime.digest();
+        final Digest digest = QuestRuntime.digest(currentAccount);
         final Context context = ApplicationLoader.applicationContext;
         if (digest != null) {
-            rows.addAll(digest.snapshot());
+            rows.addAll(digest.snapshot(currentAccount));
             final ArrayList<Long> ids = new ArrayList<>();
             for (Digest.Entry e : rows) {
                 ids.add(e.dialogId);
@@ -134,7 +134,7 @@ public class DigestActivity extends BaseFragment implements NotificationCenter.N
             // lives in our resources, and borrowing upstream's formatter would tie the screen
             // to a key we do not own.
             final CharSequence clock = android.text.format.DateFormat.getTimeFormat(context)
-                    .format(new java.util.Date(digest == null ? System.currentTimeMillis() : digest.since()));
+                    .format(new java.util.Date(digest == null ? System.currentTimeMillis() : digest.since(currentAccount)));
             infoText = String.format(VrStrings.get(my.nicegram.vr.R.string.vr_digest_since), clock);
         }
         if (adapter != null) {
@@ -144,9 +144,9 @@ public class DigestActivity extends BaseFragment implements NotificationCenter.N
 
     /** Clears the period and returns; the caller sees the empty state next time. */
     public void markAllSeen() {
-        final Digest digest = QuestRuntime.digest();
+        final Digest digest = QuestRuntime.digest(currentAccount);
         if (digest != null) {
-            digest.clear();
+            digest.clear(currentAccount);
         }
         rebuild();
     }

@@ -64,6 +64,14 @@ public class SpeechSettingsTest {
     }
 
     @Test
+    public void aHostnameStartingWith127IsNotLoopback() {
+        assertEquals(SpeechSettings.EndpointProblem.INSECURE,
+                SpeechSettings.endpointProblem("http://127.speech.example.com/asr"));
+        assertEquals(SpeechSettings.EndpointProblem.INSECURE,
+                SpeechSettings.endpointProblem("http://127.0.0.1.example.com/asr"));
+    }
+
+    @Test
     public void somethingThatIsNotAnAddressSaysSo() {
         // Each of these used to reach the network layer and come back as NO_CONNECTION, which
         // sends a person to look at their Wi-Fi over a typo.

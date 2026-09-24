@@ -32,3 +32,6 @@ TMessagesProj/jni/ffmpeg/build_android
 *.key
 .env
 .env.*
+
+# Python release validation caches
+__pycache__/
