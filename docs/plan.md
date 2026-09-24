@@ -1,5 +1,11 @@
 # Plan — remaining work, decomposed
 
+> **Release-review update, 24 September 2026:** the operator requested a signed review build.
+> Current fixes, exact artifact and publication steps: [release review](release-review-2026-09-24.md).
+> This supersedes the historical claim below that all remaining work waits on a device:
+> new recorder, digest, endpoint-validation and release-validation defects were reproduced.
+> The signed candidate is preparation for review, not authorization to publish a public tag.
+
 > **Status, 19 September 2026, later the same day.** Done and pushed: P-01 … P-08, **P-11**
 > (dictation's provider layer and its own screen) and P-17. P-15 has its seam and not its
 > wiring. The headset build now also starts in **one column** and carries the Nicegram name and

@@ -1,5 +1,13 @@
 # Horizon Store readiness — audit and the road to release
 
+> **Current release work: 24 September 2026.** Use [the release review](release-review-2026-09-24.md)
+> for current status, artifact and checklist. The sections below preserve earlier measurements.
+> This run found that the previous claim about LaunchActivity excluding recents was wrong:
+> the old APK had no such attribute on that activity. It is now explicit in the Quest manifest.
+> The old parser's 151 count included constants outside the permission table. The live table
+> contains 117 entries in this run; the new parser validates the table and fails when unavailable.
+> Device support is now explicitly Quest 3/3S, matching the intended product scope.
+
 **Measured 21 September 2026** against the built package, with requirements read from
 Meta's own documentation the same day rather than from memory. Every number below is a
 command's output; every requirement carries where it came from.

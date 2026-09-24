@@ -55,8 +55,12 @@ indistinguishable from a client that is simply broken.
 
 ## Digest
 
-Suppressed messages are counted per dialog with a period start, so what the user sees on coming
+Suppressed messages are counted per account and dialog with a period start, so what the user sees on coming
 back is "three chats since 14:20" rather than thirty banners delivered late.
+
+A bounded recent-message ID cache prevents reconnect replays from increasing the count.
+Changing the signed-in user in an account slot clears the previous user's previews.
+Snapshots are copies; clearing one account leaves the other accounts untouched.
 
 It lives in memory deliberately. After a restart the period begins at launch and anything
 genuinely missed arrives through ordinary history sync — there is no second, staler copy of the
@@ -64,17 +68,15 @@ truth to keep consistent.
 
 ## Density and targets
 
-The panel is 1440x900 dp at 1.3 m covering 52 degrees. That makes it 1.268 m wide, so one dp is
-0.881 mm, or 2.33 arc-minutes. Upstream's type is calibrated for a screen at half a metre; at
-1.3 m it subtends roughly half of what sustained reading needs. The whole scale is therefore
-multiplied once, by 1.54, which turns 13 dp body text into 20 dp — about 47 arc-minutes.
+The original design assumed a 1440×900 dp landscape panel. Device measurements contradicted
+that assumption; it is not the current layout. The manifest requests a portrait 420×720 dp
+panel with a 360×480 dp minimum; Horizon OS and the wearer control its actual size.
 
-Three density steps scale text and rows: 0.85, 1.0, 1.2. They do **not** scale the hit-target
-floor. Ray jitter is 0.5–1.0 degrees and is a property of the hand, not of a preference, so the
-minimum target stays 64 dp (56.4 mm, 2.49 degrees) at every step. `VrDensity.minTargetPx()` is
-what enforces it. This is the only setting in the client that is deliberately clamped, and the
-reason is worth repeating: choosing the compact step trades legibility for how much fits, which
-is the user's to trade; a smaller target is a trade nobody asked for.
+`VrDensity.factorForStep` uses four multipliers on system density: 0.85, 1.0, 1.25 and 1.54.
+The default is 1.0. `VrDensityTest` checks the scale; runtime readings belong in
+[running-on-a-headset.md](running-on-a-headset.md). The 64 dp floor applies where headset
+controls request it, not automatically to all inherited Telegram controls. The composer's
+fixed layout and full input comfort still need device review.
 
 ## No push
 

@@ -66,8 +66,8 @@ somewhere that survives the machine, and do not put it in the repository.
 
 ## What "production" does not mean yet
 
-A production `api_id` and a real signing key make the build genuine. They do not make it
-finished. At the time of writing nothing in this client has been run on a headset, so the frame
-rate, the recognition accuracy and the input speed are unmeasured, and dictation is not
-implemented. See [the roadmap](roadmap.md) for what is actually missing, and
-[running on a headset](running-on-a-headset.md) for the order to check it in.
+A production application identity and signing key establish package identity, not device
+readiness. Earlier revisions have launched on Quest 3; dictation is implemented in both
+its own screen and the composer. This run still owes headset checks of the exact candidate.
+Use [the release review](release-review-2026-09-24.md) for the current artifact and gates,
+and [the device agenda](device-session.md) for runtime acceptance.

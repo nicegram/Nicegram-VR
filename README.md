@@ -7,32 +7,13 @@ built as a 2D Horizon OS application. It is a fork of
 [Telegram for Android](https://github.com/DrKLO/Telegram) and, like every other Nicegram
 client, its source is open — see [NOTICE.md](NOTICE.md) for the provenance and the licence.
 
-> **Status: early.** It builds, installs and starts on a Quest 3.
->
-> **The published pre-release is not the build to install.**
-> [v0.1.0-alpha.3](https://github.com/nicegram/Nicegram-VR/releases) predates the fix for A-36,
-> so every screen this fork adds reads `LOC_ERR:null` — the first-run screen, the silence rules,
-> the digest. Nineteen commits have landed since, including a call that rang regardless of those
-> rules. Both release pages say so at the top now; **build from `main`**, or wait for a
-> pre-release that an operator decides to cut (`docs/plan.md` Q-09).
-> The package is 60.6 MB, 64-bit only, and requests 57 permissions, **none** of the 151 on
-> Meta's prohibited list. 86 unit tests across 19 classes run on every push.
->
-> **Someone signed in for the first time on 23 September**, and the first screen they reached
-> read `LOC_ERR:null` in every line — every headset string in the build was unresolvable (A-36).
-> That is what four days of unexercised screens cost, and most of what this client is for is
-> still unexercised: no frame-rate reading in a real chat, no dictation against a real service,
-> no measurement of how fast anyone types. Nothing has been submitted to the Horizon Store, and
-> **two** policy questions are open before anything can be — a third-party client of another
-> messenger (VRQ-001), and whether the phone-app offer counts as an advertisement (VRQ-002).
->
-> One device session would answer most of what is still open — the agenda is
-> [device-session.md](docs/device-session.md).
->
-> The readings are in [running-on-a-headset.md](docs/running-on-a-headset.md); the
-> [audit](docs/audit-2026-09-19.md) lists every finding A-01…A-41 with what proved it, and the
-> [plan](docs/plan.md) says what is left. When something is not finished, this file says so
-> rather than implying otherwise.
+> **Release candidate review, 24 September 2026.** The signed candidate, checks and
+> remaining publication steps are tracked in [the release review](docs/release-review-2026-09-24.md).
+> Published alpha.3 predates important fixes; do not use it for this review.
+> The current JVM suite has 97 tests across 21 classes. Automated tests do not establish
+> headset readiness: this run has no connected Quest, and calls, dictation quality and
+> sustained performance still require the [device session](docs/device-session.md).
+> Nothing was submitted to Horizon Store in this run.
 
 ## Team and contact
 
@@ -57,16 +38,14 @@ problem. Everything in this fork follows from it:
   a word. An empty list means silence for everyone, and that is what a fresh install is.
 - **You answer by speaking.** Typing with a ray on a virtual keyboard is the worst part of any
   headset app. Dictation fills the input field; you check the text and press send.
-- **You can hit things.** Every interactive target is at least 64 dp, which is 2.5 degrees at
-  the panel's default distance, against a ray that jitters by about one. Nothing is reachable
-  only by a long press.
+- **You can hit things.** Headset settings use enlarged controls and selectable interface sizes. Some
+  inherited Telegram controls remain smaller; the headset action bar is still planned.
 
 ## What it does not promise
 
-Horizon OS has no Google Play services, so there is **no push**. Messages arrive while the
+This build excludes Firebase and provides **no push transport**. Messages arrive while the
 client is running. A sleeping headset delivers nothing in real time, and what accumulated is
-shown on the next launch. The app says this on its first screen; it is a property of the
-platform, not a bug to be reported.
+shown on the next launch. The app explains this limitation on its first screen.
 
 ## Build
 
@@ -77,7 +56,7 @@ git clone --recurse-submodules https://github.com/nicegram/Nicegram-VR.git
 cd Nicegram-VR
 cp local.properties.example local.properties
 # fill in TELEGRAM_APP_ID and TELEGRAM_APP_HASH — https://core.telegram.org/api/obtaining_api_id
-./gradlew :TMessagesProj_AppQuest:assembleQuestDebug
+./gradlew -PquestAbiOnly :TMessagesProj_AppQuest:assembleQuestDebug
 adb install -r TMessagesProj_AppQuest/build/outputs/apk/quest/debug/nicegram-vr.apk
 ```
 
@@ -96,12 +75,12 @@ keystore in this repository: [production setup](docs/production-setup.md).
 |---|---|
 | `TMessagesProj/` | upstream Telegram library, kept as close to upstream as possible |
 | `TMessagesProj_AppQuest/` | the headset build: everything of ours that can live apart, lives here |
-| `TMessagesProj/src/main/java/org/telegram/vr/VrPolicy.java` | the single hook inside shared code, inert on every other flavour |
+| `TMessagesProj/src/main/java/org/telegram/vr/` | shared registries for notification policy, display, branding and UI entry points |
 | `TMessagesProj_App*/` | upstream's other application flavours, untouched |
 
 Our edits to shared Telegram code are deliberately few, each marked with a `Nicegram VR:`
-comment saying why. There is currently one behavioural hook, at the point where notifications
-enter the client.
+comment saying why. The registries and their callers are documented in [the VR layer](docs/vr-layer.md).
+Messages, calls, display sizing, branding and composer entry points now have separate hooks.
 
 ## Contributing
 

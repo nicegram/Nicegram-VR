@@ -1,12 +1,8 @@
-# Meta Horizon Store listing — Nicegram VR
+# Meta Horizon Store listing: Nicegram VR
 
-Source of truth for the submission form. Every field below is written to the limits Meta's
-listing form enforces; where a limit is not published, the shorter of our own registry rules
-applies (headline ≤ 40 characters, explanation line ≤ 120).
-
-Voice: the brand pack's `operator-brief` — calm, concise, **no marketing claims**. That rules
-out "the best", "seamless", "revolutionary", and any superlative a reviewer could ask us to
-prove. Content review judges completeness and value; it does not reward adjectives.
+Prepared fields for the submission form; not yet submitted. Check the live Dashboard's
+limits when entering them. Voice and supported claims are recorded in
+[the brand pack](../docs/brand/README.md). Local tagline budget: 40 characters.
 
 ---
 
@@ -19,9 +15,9 @@ Nicegram VR
 ## Short description / tagline
 
 ```
-Telegram in your headset. Quiet by default.
+Telegram on Quest. Quiet by default.
 ```
-*43 characters.*
+*36 characters (computed with Python len).*
 
 ## Long description
 
@@ -40,8 +36,7 @@ either.
 
 QUIET BY DEFAULT
 
-Notifications are off when you start. Nothing reaches you until you decide it
-should. Turn them on from the chat list header, and your own exceptions decide
+Notifications are off when you start. Messages still sync while the app runs. Notifications appear only when you allow them. Turn them on from the chat list header, and your own exceptions decide
 what may interrupt: a named person, a named chat, a named word. Everything else
 waits in a digest you read when you choose to.
 
@@ -50,9 +45,10 @@ Silencing the headset does not silence the phone in your pocket.
 
 ANSWER BY VOICE
 
-Dictation turns speech into text you read before it is sent. Nothing is sent
-without you seeing it first. The recognition service is yours to configure —
-nothing is built in, and no recording leaves the headset until you press Speak.
+Dictation turns speech into text you can edit. Review the text and press Send
+to post it to the chat. The recognition service is yours to configure —
+no recognition provider is built in. Start dictation to record, then stop to send
+the audio to that service. The recording also stops at the time limit.
 
 BUILT FOR A PANEL
 
@@ -67,8 +63,8 @@ read what runs on your device, build it yourself, and check that the two match.
 
 WHAT IT DOES NOT DO
 
-Meta Quest has no push-notification service. Nothing arrives while this app is
-closed — messages and calls reach you while it is running, and not before.
+This build has no push delivery. Messages and calls can reach it while it is
+running; it cannot wake for new messages while closed.
 ```
 
 ## Category
@@ -94,45 +90,29 @@ Controllers and hand tracking (ray pointing). No gamepad requirement.
 
 ## Play mode
 
-Seated / standing — a 2D panel app, so `VRC.Quest.Tracking.1` does not apply.
+Seated / standing. As a 2D panel app, `VRC.Quest.Tracking.1` does not apply.
 
 ## Languages
 
 English at launch. Russian and the rest follow the language pack (plan item P-18); the
-listing must not claim a language the app does not yet serve — `VRC.Quest.Functional.13`
+listing must not claim a language the app does not yet serve. `VRC.Quest.Functional.13`
 requires defaulting to the user's language and falling back to English.
 
 ## Privacy policy URL
 
-```
-https://nicegram.me/privacy-policy
-```
-*Verified 200 on 2026-09-21 and again on 2026-09-23.*
+https://nicegram.github.io/Nicegram-VR/privacy.html
 
 ## Terms of use URL
 
-```
-https://nicegram.me/terms-of-use
-```
-*Verified 200 on 2026-09-21 and again on 2026-09-23; titled "Nicegram Terms Of Use".*
+https://nicegram.github.io/Nicegram-VR/terms.html
 
 ## Website
 
-```
-https://nicegram.github.io/Nicegram-VR/privacy.html
-```
+https://github.com/nicegram/Nicegram-VR
 
-## Terms of use URL
-
-```
-https://nicegram.github.io/Nicegram-VR/terms.html
-```
-
-Both are this application's own, not the company's phone-client pages, because this app asks for
-a microphone, sends a recording to a service the user names, and keeps a notification profile
-that deliberately never reaches the Telegram account — none of which the phone policy covers.
-They are served by GitHub Pages from the `gh-pages` branch of this repository, so their history
-is public and a change to either is a commit. Both answer 200 (checked 22 September).
+Privacy and terms are specific to this client and its optional dictation service.
+Both URLs returned HTTP 200 with `curl -fLsS` on 24 September 2026.
+The older phone-client URLs and duplicate terms field were removed from this form.
 
 ## Support contact
 

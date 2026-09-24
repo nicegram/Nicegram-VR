@@ -1,0 +1,262 @@
+{
+  "source_commit": "14935de99c0edc3620d6754a69a5ca553dbb0aa5",
+  "unit_tests": 97,
+  "classes": 21,
+  "failures": 0,
+  "errors": 0,
+  "suites": [
+    {
+      "name": "org.telegram.vr.quest.BrandAssetsHaveContentTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "time": "0.048"
+    },
+    {
+      "name": "org.telegram.vr.quest.BrandSeamCoverageTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "time": "0.034"
+    },
+    {
+      "name": "org.telegram.vr.quest.BrandSubstitutionTest",
+      "tests": "9",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "time": "0.052"
+    },
+    {
+      "name": "org.telegram.vr.quest.CallDecisionTest",
+      "tests": "6",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "time": "0.002"
+    },
+    {
+      "name": "org.telegram.vr.quest.DigestTest",
+      "tests": "7",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "time": "0.003"
+    },
+    {
+      "name": "org.telegram.vr.quest.LanguagePackParityTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "time": "0.016"
+    },
+    {
+      "name": "org.telegram.vr.quest.LanguagePackReachabilityTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "time": "0.071"
+    },
+    {
+      "name": "org.telegram.vr.quest.RoundVideoSizingTest",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "time": "0.012"
+    },
+    {
+      "name": "org.telegram.vr.quest.ScrollableScreensTest",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "time": "0.003"
+    },
+    {
+      "name": "org.telegram.vr.quest.SeamAnchorsTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "time": "0.04"
+    },
+    {
+      "name": "org.telegram.vr.quest.SilenceDecisionTest",
+      "tests": "10",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "time": "0.002"
+    },
+    {
+      "name": "org.telegram.vr.quest.SilenceStoreGenerationTest",
+      "tests": "1",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "time": "0.002"
+    },
+    {
+      "name": "org.telegram.vr.quest.StartFolderIdentityTest",
+      "tests": "3",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "time": "0.029"
+    },
+    {
+      "name": "org.telegram.vr.quest.VrDensityTest",
+      "tests": "9",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "time": "0.004"
+    },
+    {
+      "name": "org.telegram.vr.quest.VrMobilePromoTest",
+      "tests": "5",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "time": "0.004"
+    },
+    {
+      "name": "org.telegram.vr.quest.speech.DictationMessagesTest",
+      "tests": "6",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "time": "0.002"
+    },
+    {
+      "name": "org.telegram.vr.quest.speech.HttpSpeechToTextTest",
+      "tests": "2",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "time": "0.039"
+    },
+    {
+      "name": "org.telegram.vr.quest.speech.SpeechResponseTest",
+      "tests": "7",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "time": "0.002"
+    },
+    {
+      "name": "org.telegram.vr.quest.speech.SpeechSettingsTest",
+      "tests": "8",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "time": "0.004"
+    },
+    {
+      "name": "org.telegram.vr.quest.speech.VoiceRecorderLevelTest",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "time": "0.001"
+    },
+    {
+      "name": "org.telegram.vr.quest.speech.VoiceRecorderLifecycleTest",
+      "tests": "4",
+      "skipped": "0",
+      "failures": "0",
+      "errors": "0",
+      "time": "0.005"
+    }
+  ],
+  "submodules": [
+    {
+      "commit": "022d60202e446ad1287b9fb68e687c8a0760788b",
+      "path": "TMessagesProj/jni/td",
+      "state": " "
+    },
+    {
+      "commit": "2b44a3701a4788e1ef866ddc7f143060a3d196c9",
+      "path": "TMessagesProj/jni/third_party/boringssl",
+      "state": " "
+    },
+    {
+      "commit": "54706fc6bc0cdecab7e9593974a4039cc038fca7",
+      "path": "TMessagesProj/jni/third_party/dav1d",
+      "state": " "
+    },
+    {
+      "commit": "45f1910444f34b02621f9f0426ea1a538a613c41",
+      "path": "TMessagesProj/jni/third_party/ffmpeg",
+      "state": " "
+    },
+    {
+      "commit": "1024874c5919305883187e2953de8fcb4c3d7fa6",
+      "path": "TMessagesProj/jni/third_party/libvpx",
+      "state": " "
+    },
+    {
+      "commit": "28ce69c2744a6aafdb58564e7b884aec3f66be5f",
+      "path": "TMessagesProj/jni/third_party/libyuv",
+      "state": " "
+    },
+    {
+      "commit": "652bdb7719f30b52b08e506645a7322ff1b2cc6f",
+      "path": "TMessagesProj/jni/third_party/openh264",
+      "state": " "
+    },
+    {
+      "commit": "be05b13e98b048f0b5a0f5fa8ce514d56db5f822",
+      "path": "TMessagesProj/jni/third_party/xiph/ogg",
+      "state": " "
+    },
+    {
+      "commit": "22244de5a79bd1d6d623c32e72bf1954b56235be",
+      "path": "TMessagesProj/jni/third_party/xiph/opus",
+      "state": " "
+    },
+    {
+      "commit": "a55c164e9891a9326188b7d4d216ec9a88373739",
+      "path": "TMessagesProj/jni/third_party/xiph/opusfile",
+      "state": " "
+    },
+    {
+      "commit": "31f1b542f88e7b4be9a01e749920d857535fc715",
+      "path": "TMessagesProj/jni/tlottie",
+      "state": " "
+    },
+    {
+      "commit": "919e50b2f6f64b04b712cdb13d558ff9ecf9c8ed",
+      "path": "TMessagesProj/lib/jlatexmath",
+      "state": " "
+    },
+    {
+      "commit": "c822f1f33d30591fdbbf3919662be258f7cfbfc6",
+      "path": "TMessagesProj_Modules/media",
+      "state": " "
+    }
+  ],
+  "baseline_tests": 86,
+  "baseline_classes": 19,
+  "python_release_tests": 8,
+  "regression_evidence": {
+    "mutation_run_exit": 1,
+    "mutation_failures": [
+      "DigestTest.accountsWithTheSameChatStaySeparate",
+      "VoiceRecorderLifecycleTest.limitKeepsAudioAvailableForTheUiCallbackExactlyOnce",
+      "VoiceRecorderLifecycleTest.stopDoesNotJoinWhileHoldingTheRecorderMonitor"
+    ],
+    "original_code_failure": "SpeechSettingsTest.aHostnameStartingWith127IsNotLoopback",
+    "single_word_permission_failure": "ReleaseTest.test_single_word_permissions_are_not_dropped"
+  },
+  "device": "NOT-RUN; adb devices list empty",
+  "build_exit": 0,
+  "build_command": "./gradlew --no-daemon -PquestAbiOnly :TMessagesProj_AppQuest:assembleQuestStandalone :TMessagesProj_AppQuest:testQuestDebugUnitTest",
+  "validation_commit": "7d2a16823af230c715d18c444872a6a533b185d9",
+  "final_build_unit_task": "UP-TO-DATE; the same 97-test Java suite passed before the packaging-only target SDK change"
+}
