@@ -19,7 +19,7 @@ finding or task that will be closed, or corrected, by the answer.*
 
 | | |
 |---|---|
-| Build | `./gradlew -PquestAbiOnly :TMessagesProj_AppQuest:assembleQuestDebug` — the flag matters, see A-42 |
+| Build | Use the signed APK and SHA-256 from [the release review](release-review-2026-09-24.md); do not substitute a debug build |
 | **Do not use the published pre-release** | `v0.1.0-alpha.3` predates the `LOC_ERR` fix and every screen this fork adds is unreadable in it (A-36, Q-09) |
 | A second device | Signed into the same Telegram account. Three checks below cannot be done from the headset alone |
 | Someone to message you | And to call you. Two checks need an incoming call from a person who is, and is not, on your exceptions list |
@@ -104,6 +104,22 @@ Do this **last**, with the silence rules already set up by section 3, so the fra
 in use rather than a client just installed.
 
 ---
+
+## Added regression checks, 24 September 2026
+
+- Dictate until the 60-second limit: recognition starts once and the draft is not sent.
+- Stop manually: the interface stays responsive; microphone indicator clears.
+- Leave the chat, switch apps or sleep during capture/recognition: recording stops and no
+  late result is inserted into the abandoned composer. An already submitted request cannot
+  be unsent; its late result must be ignored.
+- With two test accounts containing the same chat, confirm separate digests and counts;
+  clearing one does not clear the other. Reconnect does not double-count recent messages.
+- Sign out and reuse the account slot: the previous account's preview must not appear.
+- Deny microphone permission and simulate a service timeout/redirect: recover without losing
+  the draft. No transcript is sent automatically.
+- Install over the previous **release-signed** build and confirm account/settings retention.
+  Do not uninstall a debug-signed installation to solve an update-signature mismatch without
+  first arranging the user's account/session backup and explicit data-removal approval.
 
 ## What to do with the answers
 

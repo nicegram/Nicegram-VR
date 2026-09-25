@@ -28,7 +28,9 @@ jobs:
       # compiler and this costs a second. It is the offline half of the check; the URL half
       # needs a network and would go red over a blip, so it stays opt-in.
       - name: Check that the documentation still describes the repository
-        run: python3 Tools/check_docs.py
+        run: |
+          python3 -m unittest discover -s Tools/tests -v
+          python3 Tools/check_docs.py
 
       - name: Check out the pinned submodules, shallow
         run: git submodule update --init --recursive --depth 1 --jobs 4

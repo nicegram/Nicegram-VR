@@ -70,6 +70,14 @@ tasks.configureEach { task ->
                     "environment or local.properties."
                 )
             }
+            def suppliedKey = file(questSecret('NICEGRAM_VR_KEYSTORE'))
+            def developmentKey = rootProject.file('TMessagesProj/config/release.keystore')
+            if (!suppliedKey.isFile()) {
+                throw new GradleException("The configured release keystore does not exist.")
+            }
+            if (java.util.Arrays.equals(suppliedKey.bytes, developmentKey.bytes)) {
+                throw new GradleException("The public development keystore must not sign a release.")
+            }
         }
     }
     if (task.name.startsWith('compile') && task.name.contains('JavaWithJavac')) {
@@ -212,7 +220,9 @@ android {
     defaultConfig {
         applicationId "my.nicegram.vr"
         minSdkVersion 29
-        targetSdkVersion 36
+        // Meta's release policy names target 34 for newly created Store apps.
+        // compileSdk remains 36 for upstream APIs; the 2D range also includes 34.
+        targetSdkVersion 34
         // Nicegram VR's version, not Telegram's.
         //
         // versionCode must INCREASE with every store upload, and upstream's APP_VERSION_CODE

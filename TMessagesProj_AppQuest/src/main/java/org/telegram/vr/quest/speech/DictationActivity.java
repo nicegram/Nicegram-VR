@@ -47,6 +47,7 @@ public class DictationActivity extends BaseFragment {
     private TextView recordButton;
     private View levelBar;
     private boolean recognising;
+    private volatile int generation;
 
     @Override
     public boolean onFragmentCreate() {
@@ -56,14 +57,31 @@ public class DictationActivity extends BaseFragment {
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        cancelPending();
+    }
+
+    @Override
     public void onFragmentDestroy() {
-        if (recorder != null && recorder.isRecording()) {
-            // Off the main thread: cancel joins the capture thread for up to two seconds, and
-            // this runs while a fragment is being torn down. See VoiceRecorder.stop.
-            final VoiceRecorder leaving = recorder;
-            org.telegram.messenger.Utilities.globalQueue.postRunnable(leaving::cancel);
-        }
+        cancelPending();
         super.onFragmentDestroy();
+    }
+
+    private void cancelPending() {
+        final int leaving = ++generation;
+        recognising = true;
+        if (recorder == null) return;
+        recorder.requestCancel();
+        Utilities.globalQueue.postRunnable(() -> {
+            recorder.cancel();
+            AndroidUtilities.runOnUIThread(() -> {
+                if (generation == leaving) {
+                    recognising = false;
+                    if (recordButton != null) idle();
+                }
+            });
+        });
     }
 
     @Override
@@ -208,16 +226,21 @@ public class DictationActivity extends BaseFragment {
     }
 
     private void start() {
+        final int recordingGeneration = ++generation;
         transcript.setText("");
         final boolean started = recorder.start(new VoiceRecorder.Listener() {
             @Override
             public void onLevel(float level) {
-                AndroidUtilities.runOnUIThread(() -> showLevel(level));
+                AndroidUtilities.runOnUIThread(() -> {
+                    if (generation == recordingGeneration) showLevel(level);
+                });
             }
 
             @Override
             public void onLimitReached() {
-                AndroidUtilities.runOnUIThread(DictationActivity.this::stopAndRecognise);
+                AndroidUtilities.runOnUIThread(() -> {
+                    if (generation == recordingGeneration) stopAndRecognise();
+                });
             }
         });
         if (!started) {
@@ -242,26 +265,30 @@ public class DictationActivity extends BaseFragment {
     }
 
     private void stopAndRecognise() {
-        if (!recorder.isRecording()) {
-            return;
-        }
-        final byte[] audio = recorder.stop();
-        levelBar.setVisibility(View.INVISIBLE);
-        recordButton.setText(string(my.nicegram.vr.R.string.vr_dictation_start));
-        if (audio.length == 0) {
-            status.setText(string(my.nicegram.vr.R.string.vr_dictation_empty));
-            return;
-        }
+        if (recognising || !recorder.isRecording()) return;
         recognising = true;
+        final int request = generation;
         status.setText(string(my.nicegram.vr.R.string.vr_dictation_recognizing));
         final SpeechToText service = new HttpSpeechToText(settings);
         final String language = settings.language();
         Utilities.globalQueue.postRunnable(() -> {
-            final SpeechToText.Result result = service.recognize(
-                    audio, VoiceRecorder.MIME_TYPE, VoiceRecorder.SAMPLE_RATE, language);
+            final byte[] audio = recorder.stop();
+            // Check on the UI thread after stopping: a hidden/cancelled view sends no audio.
             AndroidUtilities.runOnUIThread(() -> {
-                recognising = false;
-                show(result);
+                if (generation != request) return;
+                levelBar.setVisibility(View.INVISIBLE);
+                recordButton.setText(string(my.nicegram.vr.R.string.vr_dictation_start));
+                Utilities.globalQueue.postRunnable(() -> {
+                    // A cancellation before this queued job starts must also prevent upload.
+                    if (generation != request) return;
+                    final SpeechToText.Result result = service.recognize(
+                            audio, VoiceRecorder.MIME_TYPE, VoiceRecorder.SAMPLE_RATE, language);
+                    AndroidUtilities.runOnUIThread(() -> {
+                        if (generation != request) return;
+                        recognising = false;
+                        show(result);
+                    });
+                });
             });
         });
     }

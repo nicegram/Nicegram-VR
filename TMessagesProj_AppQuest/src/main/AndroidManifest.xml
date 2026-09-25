@@ -101,11 +101,12 @@
              it the store has nothing to match against. -->
         <meta-data
             android:name="com.oculus.supportedDevices"
-            android:value="quest2|questpro|quest3|quest3s" />
+            android:value="quest3|quest3s" />
 
         <activity
             android:name="org.telegram.ui.LaunchActivity"
             android:screenOrientation="portrait"
+            android:excludeFromRecents="true"
             android:resizeableActivity="true"
             android:exported="true"
             tools:replace="android:screenOrientation">

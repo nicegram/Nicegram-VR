@@ -20,21 +20,29 @@ public final class HttpSpeechToText implements SpeechToText {
     /** Longer than connect on purpose: recognition takes as long as the phrase did. */
     private static final int READ_TIMEOUT_MS = 30_000;
 
-    private final SpeechSettings settings;
+    private final String endpoint;
+    private final String token;
+    private final String defaultLanguage;
 
     public HttpSpeechToText(SpeechSettings settings) {
-        this.settings = settings;
+        this(settings.endpoint(), settings.token(), settings.language());
+    }
+
+    HttpSpeechToText(String endpoint, String token, String language) {
+        this.endpoint = endpoint;
+        this.token = token;
+        this.defaultLanguage = language;
     }
 
     @Override
     public Result recognize(byte[] audio, String mimeType, int sampleRate, String language) {
-        if (!settings.isConfigured()) {
+        if (endpoint.isEmpty()) {
             return Result.failed(Failure.NOT_CONFIGURED);
         }
         // Before the audio exists on any wire. A bad address used to surface as NO_CONNECTION,
         // which tells a person to check their Wi-Fi over a typo; a plain-http address used to
         // be sent, taking a recording of their voice and their token with it.
-        switch (SpeechSettings.endpointProblem(settings.endpoint())) {
+        switch (SpeechSettings.endpointProblem(endpoint)) {
             case NOT_A_URL:
                 return Result.failed(Failure.BAD_ADDRESS);
             case INSECURE:
@@ -47,20 +55,22 @@ public final class HttpSpeechToText implements SpeechToText {
         }
         HttpURLConnection connection = null;
         try {
-            final String lang = language != null && !language.isEmpty() ? language : settings.language();
-            final StringBuilder url = new StringBuilder(settings.endpoint());
-            url.append(settings.endpoint().contains("?") ? '&' : '?')
+            final String lang = language != null && !language.isEmpty() ? language : defaultLanguage;
+            final StringBuilder url = new StringBuilder(endpoint);
+            url.append(endpoint.contains("?") ? '&' : '?')
                     .append("sampleRate=").append(sampleRate);
             if (!lang.isEmpty()) {
                 url.append("&language=").append(java.net.URLEncoder.encode(lang, "UTF-8"));
             }
             connection = (HttpURLConnection) new URL(url.toString()).openConnection();
             connection.setRequestMethod("POST");
+            // The user approved this endpoint, not a redirected recipient.
+            connection.setInstanceFollowRedirects(false);
             connection.setConnectTimeout(CONNECT_TIMEOUT_MS);
             connection.setReadTimeout(READ_TIMEOUT_MS);
             connection.setDoOutput(true);
             connection.setRequestProperty("Content-Type", mimeType);
-            final String token = settings.token();
+            final String token = this.token;
             if (!token.isEmpty()) {
                 // A header, never the query string: a URL reaches logs, proxies and process
                 // listings; a header does not.
@@ -70,6 +80,7 @@ public final class HttpSpeechToText implements SpeechToText {
                 out.write(audio);
             }
             final int status = connection.getResponseCode();
+            if (status >= 300 && status < 400) return Result.failed(Failure.SERVICE_ERROR);
             final InputStream stream = status >= 400 ? connection.getErrorStream() : connection.getInputStream();
             final String body = read(stream);
             if (status >= 400) {

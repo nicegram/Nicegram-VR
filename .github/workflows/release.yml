@@ -23,6 +23,9 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      RELEASE_TAG: ${{ github.event.inputs.tag || github.ref_name }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,10 +33,29 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.inputs.tag || github.ref }}
 
+      - name: Verify the requested tag is the checked-out revision
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$(git rev-parse "refs/tags/$RELEASE_TAG^{commit}")"
+
+      - name: Check documentation and release validation regressions
+        run: |
+          python3 -m unittest discover -s Tools/tests -v
+          python3 Tools/check_docs.py
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
+
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: ''
+
+      - name: Install the pinned Android toolchain
+        run: sdkmanager --install "ndk;27.2.12479018" "cmake;3.22.1" "platforms;android-36" "build-tools;36.0.0"
+
+      - uses: gradle/actions/setup-gradle@v4
 
       # The keystore arrives base64-encoded in a secret and is written straight to a
       # file outside the workspace. It is never echoed, never logged, and never lands
@@ -63,83 +85,45 @@ jobs:
         run: |
           set -eo pipefail
           export NICEGRAM_VR_KEYSTORE="$RUNNER_TEMP/release.jks"
-          ./gradlew -PquestAbiOnly :TMessagesProj_AppQuest:assembleQuestStandalone --no-daemon
+          ./gradlew -PquestAbiOnly :TMessagesProj_AppQuest:testQuestDebugUnitTest :TMessagesProj_AppQuest:assembleQuestStandalone --no-daemon
 
       - name: Check the package before anyone downloads it
         id: checks
         run: |
-          set -eo pipefail
-          APK=$(find TMessagesProj_AppQuest/build/outputs/apk/quest/standalone -name '*.apk' | head -1)
-          AAPT=$(ls -d "$ANDROID_HOME"/build-tools/*/aapt2 | tail -1)
-          APKSIGNER=$(ls -d "$ANDROID_HOME"/build-tools/*/apksigner | tail -1)
-
-          # Meta's prohibited list, fetched live. A hardcoded copy goes stale silently,
-          # and a stale copy is a failed upload nobody predicted.
-          curl -sL --max-time 60 -A 'Mozilla/5.0' \
+          set -euo pipefail
+          apk=TMessagesProj_AppQuest/build/outputs/apk/quest/standalone/nicegram-vr.apk
+          curl -fLsS --retry 2 --max-time 60 \
             https://developers.meta.com/horizon/resources/permissions-prohibited/ \
-            -o /tmp/prohibited.html || true
-
-          "$AAPT" dump badging "$APK" | grep '^uses-permission' \
-            | sed "s/.*name='//;s/'.*//" | sed 's/^android\.permission\.//' | sort -u > /tmp/ours.txt
-
-          # A missing or broken extractor FAILS the release rather than warning past it. In
-          # v0.1.0-alpha.1 the script was not committed at all - `Tools/` on a case-insensitive
-          # macOS filesystem answered to `tools/`, so it ran locally and did not exist on the
-          # runner - and `|| true` turned that into a warning nobody read. The release shipped
-          # with its headline check silently skipped. Only an unreachable page is tolerated.
-          if [ ! -s /tmp/prohibited.html ]; then
-            echo "::warning::Meta's prohibited list could not be fetched; the permission check did not run."
-          else
-            python3 Tools/extract_prohibited.py /tmp/prohibited.html > /tmp/prohibited.txt
-            if [ ! -s /tmp/prohibited.txt ]; then
-              echo "::error::Meta's page was fetched but no permission names came out of it."
-              echo "::error::The page shape has changed; Tools/extract_prohibited.py needs updating."
-              exit 1
-            fi
-            BAD=$(comm -12 /tmp/ours.txt /tmp/prohibited.txt || true)
-            if [ -n "$BAD" ]; then
-              echo "::error::This build requests permissions Meta prohibits, and would fail store upload:"
-              echo "$BAD" | sed 's/^/::error::  /'
-              exit 1
-            fi
-            echo "prohibited permissions: 0 of $(wc -l < /tmp/prohibited.txt | tr -d ' ') on Meta's live list"
-          fi
-
-          # The tag and the package must agree about what version this is. They are set in two
-          # different places — a git tag, and NICEGRAM_VR_VERSION in gradle.properties — so
-          # nothing but a check keeps them together, and a release page saying 0.2.0 over a
-          # package saying 0.1.0 is a support thread nobody can close.
-          VNAME=$("$AAPT" dump badging "$APK" | sed -n "s/.*versionName='\([^']*\)'.*/\1/p")
-          VCODE=$("$AAPT" dump badging "$APK" | sed -n "s/.*versionCode='\([^']*\)'.*/\1/p")
-          echo "versionName: $VNAME   versionCode: $VCODE"
-          TAG_VERSION=$(echo "${GITHUB_REF_NAME#v}" | sed 's/-.*//')
-          case "$VNAME" in
-            "$TAG_VERSION"*) ;;
-            *) echo "::error::the tag says $TAG_VERSION and the package says '$VNAME'."
-               echo "::error::Set NICEGRAM_VR_VERSION in gradle.properties to match the tag."
-               exit 1 ;;
-          esac
-
-          SIZE=$(stat -c%s "$APK")
-          # Decimal MB, because that is what the release page beside these notes displays.
-          # Dividing by 1024 gives MiB and labelling it "MB" made the notes contradict the page
-          # they are attached to — 57 against GitHub's 60.6, for one identical file.
-          echo "size=$(awk -v b="$SIZE" 'BEGIN{printf "%.1f", b/1000000}') MB" >> "$GITHUB_OUTPUT"
-          echo "vname=$VNAME" >> "$GITHUB_OUTPUT"
-          echo "vcode=$VCODE" >> "$GITHUB_OUTPUT"
-          echo "perms=$(wc -l < /tmp/ours.txt | tr -d ' ')" >> "$GITHUB_OUTPUT"
-          echo "abis=$(unzip -l "$APK" | grep -o 'lib/[a-z0-9-]*' | sort -u | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
-          "$APKSIGNER" verify --print-certs "$APK" | grep -i 'certificate DN' || true
-          cp "$APK" "nicegram-vr-${GITHUB_REF_NAME}.apk"
+            -o "$RUNNER_TEMP/prohibited.html"
+          python3 Tools/check_release.py "$apk" \
+            --build-tools "$ANDROID_HOME/build-tools/36.0.0" \
+            --prohibited-html "$RUNNER_TEMP/prohibited.html" --tag "$RELEASE_TAG" \
+            --expected-cert-sha256 7481f8cddfa604bb228c691a344585c7451c7f493c565f82f8926ebcaa60497b \
+            --previous-code 7089039 --output release-receipt.json
+          python3 - <<'PY'
+          import json, os
+          r=json.load(open('release-receipt.json'))
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:
+              for key,value in {'size':f"{r['bytes']/1000000:.1f} MB",'vname':r['version_name'],
+                                'vcode':r['version_code'],'perms':len(r['permissions']),
+                                'abis':','.join(r['abis'])}.items():
+                  print(f'{key}={value}',file=out)
+          PY
+          cp "$apk" "nicegram-vr-$RELEASE_TAG.apk"
+          shasum -a 256 "nicegram-vr-$RELEASE_TAG.apk" > SHA256SUMS
 
       - uses: softprops/action-gh-release@v2
         with:
-          files: nicegram-vr-*.apk
+          tag_name: ${{ env.RELEASE_TAG }}
+          files: |
+            nicegram-vr-*.apk
+            release-receipt.json
+            SHA256SUMS
           generate_release_notes: true
           # A tag carrying a pre-release suffix publishes as one. The distinction is not
           # cosmetic: until a build has run on real hardware it should not sit at the top of
           # the page looking like the recommended download.
-          prerelease: ${{ contains(github.ref_name, '-') }}
+          prerelease: ${{ contains(env.RELEASE_TAG, '-') }}
           body: |
             **Nicegram VR** - an unofficial, open-source Telegram client for Meta Quest 3 and 3S.
 
@@ -166,5 +150,9 @@ jobs:
             | Permissions | ${{ steps.checks.outputs.perms }}, **none prohibited by Meta** |
             | Signature | scheme v2, the project's own key |
 
-            **Nothing arrives while the app is closed.** Meta Quest has no push-notification
-            service; messages and calls reach you while it is running.
+            **This build has no push delivery.** Messages and calls can reach it while it
+            is running; it cannot wake for new messages while closed.
+
+      - name: Remove restored signing key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release.jks"

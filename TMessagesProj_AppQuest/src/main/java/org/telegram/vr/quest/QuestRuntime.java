@@ -23,8 +23,8 @@ public final class QuestRuntime {
         return gate;
     }
 
-    public static Digest digest() {
+    public static Digest digest(int account) {
         final SilenceGate g = gate;
-        return g == null ? null : g.digest();
+        return g == null ? null : g.digest(account);
     }
 }

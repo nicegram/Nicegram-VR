@@ -91,9 +91,9 @@ what follows from it:
 ## Staying close to upstream
 
 Changes to shared Telegram code are kept small, marked with a `Nicegram VR:` comment saying
-why, and preferred as a hook over an edit. There is currently exactly one such hook, in
-`NotificationsController.processNewMessages`, and it is inert on every other flavour. Everything
-else lives in `TMessagesProj_AppQuest`.
+why, and preferred as a hook over an edit. Shared registries now cover notification/call
+policy, display density, branding and UI entry points. Their callers and the Quest-specific
+implementation are described in [the VR layer](docs/vr-layer.md).
 
 To take a newer upstream:
 
@@ -109,3 +109,11 @@ git merge upstream/master --allow-unrelated-histories   # once; ordinary merges 
 - The change runs on a physical Quest 3 or 3S, and the pull request says which.
 - If it touches notifications, it also says that notification settings on a second device with
   the same account were checked and did not change.
+
+## Hosted checks
+
+Full Quest CI runs nightly at 23:00 Europe/Warsaw on the default branch; pushes and PRs
+use local focused validation. See [CI batching](docs/CI-BATCHING.md) for manual candidate
+checks, artifact retention and the distinction between an absent check and a passing one.
+A workflow/documentation-only change does not need a fresh headset build; runtime changes
+still need the device evidence described above.

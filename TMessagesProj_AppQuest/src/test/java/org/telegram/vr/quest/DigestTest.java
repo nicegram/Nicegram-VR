@@ -66,4 +66,43 @@ public class DigestTest {
     public void nullTextDoesNotThrow() {
         assertEquals("", Digest.preview(null));
     }
+
+    @Test public void accountsWithTheSameChatStaySeparate() {
+        Digest d = new Digest();
+        d.add(0, 77, 1, "account zero", 10);
+        d.add(1, 77, 1, "account one", 11);
+        assertEquals("account zero", d.snapshot(0).get(0).lastText);
+        assertEquals("account one", d.snapshot(1).get(0).lastText);
+        d.clear(0);
+        assertEquals(0, d.chatCount(0));
+        assertEquals(1, d.messageCount(1));
+    }
+
+    @Test public void reconnectDoesNotCountTheSameMessageTwice() {
+        Digest d = new Digest();
+        d.add(0, 77, 1, "one", 10);
+        d.add(0, 77, 1, "one", 10);
+        assertEquals(1, d.messageCount(0));
+        d.clear(0);
+        d.add(0, 77, 1, "one", 10);
+        assertEquals(0, d.chatCount(0));
+    }
+
+    @Test public void reusedAccountSlotDropsPreviousOwnersMessages() {
+        Digest d = new Digest();
+        d.ensureAccount(0, 100);
+        d.add(0, 77, 1, "private", 10);
+        d.ensureAccount(0, 101);
+        assertEquals(0, d.chatCount(0));
+    }
+
+    @Test public void snapshotsStayStableAndOlderMessagesDoNotReplacePreview() {
+        Digest d = new Digest();
+        d.add(0, 77, 2, "new", 20);
+        java.util.List<Digest.Entry> before = d.snapshot(0);
+        d.add(0, 77, 1, "old", 10);
+        assertEquals(1, before.get(0).count);
+        assertEquals(2, d.messageCount(0));
+        assertEquals("new", d.snapshot(0).get(0).lastText);
+    }
 }
