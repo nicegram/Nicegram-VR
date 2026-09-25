@@ -1,5 +1,12 @@
 # The VR room — specification and implementation plan
 
+> **25 September 2026: historical proposal, not an implementation contract.**
+> Read [the corrected scope and next task](vr-room-scope-20260925.md) first.
+> The assumptions below about universal call keys, authorization, infrastructure size,
+> estimates and already-working phone interoperability have not been validated.
+> Room identity must be separate from Telegram call identity; the expanded design also
+> covers direct calls, chats without calls, conferences and a public directory.
+
 **Status:** specification, 22 September 2026. Nothing is implemented. Every claim about the
 existing code carries the file and line it was read from; every claim about the platform carries
 where it came from and when.
