@@ -1,9 +1,10 @@
 name: build
 
+# Full checks run on the daily integration snapshot, not each agent push/PR.
 on:
-  push:
-    branches: [main]
-  pull_request:
+  schedule:
+    - cron: '0 23 * * *'
+      timezone: Europe/Warsaw
   workflow_dispatch:
 
 concurrency:
@@ -110,3 +111,4 @@ jobs:
           name: nicegram-vr-quest-debug
           path: TMessagesProj_AppQuest/build/outputs/apk/quest/debug/nicegram-vr.apk
           if-no-files-found: error
+          retention-days: 7
