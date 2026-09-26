@@ -1,0 +1,21 @@
+{
+  "app_id": "b3c7c427-9c33-4edc-89be-ad08a6feb2ea",
+  "deployment_id": "a3f2786f-31fe-48a4-b95c-e005adf8840b",
+  "phase": "ACTIVE",
+  "service_source_commit": "12878bcb2a33d2873bbac356eea3f61c5a28f31a",
+  "origin": "https://nicegram-vr-room-beta-dshuv.ondigitalocean.app",
+  "region": "fra",
+  "instance_count": 1,
+  "instance_size_slug": "basic-xxs",
+  "internal_credential_storage": "DO SECRET, RUN_TIME; reused from authorized AI agents integration",
+  "smoke": {
+    "checked_at": "2026-09-26T11:14:56.992Z",
+    "origin": "https://nicegram-vr-room-beta-dshuv.ondigitalocean.app",
+    "health": "PASS",
+    "unauthenticated_creation": "DENIED",
+    "unknown_nicegram_account": "DENIED",
+    "existing_nicegram_account": "ACCEPTED_FOR_BOT_CONFIRMATION",
+    "unconfirmed_identity": "DENIED",
+    "confirmed_identity_and_two_device_call": "NOT_RUN"
+  }
+}

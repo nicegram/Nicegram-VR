@@ -1,7 +1,11 @@
 # Room alpha implementation — 26 September 2026
 
-**Mandatory Nicegram authentication is implemented; live backend integration and headset
-acceptance remain unverified.** The owner explicitly rejected postponing identity verification.
+**Current: alpha.3 and its DigitalOcean backend are ready for the first device session.**
+See [the live beta receipt and installation checklist](release/2026-09-26-room-live-beta.md).
+Live existing-account checks and rejection paths passed; bot confirmation and headset
+acceptance still require user interaction.
+
+**Historical alpha.2 snapshot below — superseded for deployment/configuration by alpha.3.** The owner explicitly rejected postponing identity verification.
 The earlier invite-only prototype at `93939f65` is superseded. Do not distribute its APK.
 This is a narrow implementation of [the full architecture](vr-room-architecture-20260926.md),
 not completion of A00–A22 or a Store-ready candidate.

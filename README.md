@@ -16,8 +16,9 @@ client, its source is open — see [NOTICE.md](NOTICE.md) for the provenance and
 > Nothing was submitted to Horizon Store in this run.
 
 > **Room alpha, 26 September 2026.** The group menu opens a room with mandatory Nicegram account verification,
-> a spatial presence panel and Telegram group-call controls. Live identity configuration
-> and the two-headset session are still pending. Missing configuration denies access. See
+> a spatial presence panel and Telegram group-call controls. The alpha.3 backend is live on
+> DigitalOcean, with the existing AI agents account check and a pinned gateway. The two-headset
+> session is pending. See [the install checklist](docs/release/2026-09-26-room-live-beta.md) and
 > [the implementation and test handoff](docs/vr-room-mvp-20260926.md) before testing.
 > Requires Android 14 / Horizon OS 69 or newer on Quest 3/3S.
 
