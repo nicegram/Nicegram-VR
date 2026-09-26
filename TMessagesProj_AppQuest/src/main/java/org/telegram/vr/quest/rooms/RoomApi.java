@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 
 /** Capability credentials stay in memory. Never logs URLs, bodies or tokens. */
 public final class RoomApi {
+    public static final String GATEWAY = "https://nicegram-vr-room-beta-dshuv.ondigitalocean.app";
     public static String endpoint(String value) throws Exception {
         URI uri = new URI(value.trim());
         if (!"https".equals(uri.getScheme()) || uri.getHost() == null || uri.getUserInfo() != null

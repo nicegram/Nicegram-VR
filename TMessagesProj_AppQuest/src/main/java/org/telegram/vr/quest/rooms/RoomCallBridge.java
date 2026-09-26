@@ -76,7 +76,7 @@ public final class RoomCallBridge implements NotificationCenter.NotificationCent
                 || (full.groupcall_default_join_as != null && full.groupcall_default_join_as.user_id != room.userId)
                 || (known != null && (known.isScheduled() || known.call.rtmp_stream)));
         RoomCallPolicy.Action action = RoomCallPolicy.decide(member, VoIPService.getSharedInstance() != null,
-                full.call != null, chat != null && ChatObject.canManageCalls(chat), nativeOnly, known != null);
+                full.call != null, chat != null && ChatObject.canManageCalls(chat), nativeOnly, known != null && full.call != null && known.call.id == full.call.id);
         switch (action) {
             case NOT_MEMBER: status = R.string.vr_room_wrong_chat; return;
             case OTHER_CALL: status = R.string.vr_room_other_call; return;

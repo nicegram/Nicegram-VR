@@ -23,10 +23,11 @@ public class RoomContractsTest {
     }
     @Test public void authLinkCannotSendTheUserToAnotherHostOrAccount() throws Exception {
         String session = "a".repeat(64);
-        assertEquals("https://t.me/TestBot?start=" + session, RoomAuthProtocol.loginUrl("https://t.me/TestBot?start=" + session));
-        for (String invalid : new String[]{"https://evil.example/TestBot?start=" + session,
-                "https://t.me/TestBot?start=short", "https://t.me/TestBot?start=" + session + "&redirect=evil",
-                "https://t.me.evil.example/TestBot?start=" + session}) {
+        assertEquals("https://t.me/nicegram_auth_bot?start=" + session, RoomAuthProtocol.loginUrl("https://t.me/nicegram_auth_bot?start=" + session));
+        for (String invalid : new String[]{"https://evil.example/nicegram_auth_bot?start=" + session,
+                "https://t.me/UntrustedBot?start=" + session,
+                "https://t.me/nicegram_auth_bot?start=short", "https://t.me/nicegram_auth_bot?start=" + session + "&redirect=evil",
+                "https://t.me.evil.example/nicegram_auth_bot?start=" + session}) {
             try { RoomAuthProtocol.loginUrl(invalid); fail("accepted unsafe auth link"); } catch (Exception expected) {}
         }
         assertTrue(RoomAuthProtocol.sameAccount(123L, "123"));

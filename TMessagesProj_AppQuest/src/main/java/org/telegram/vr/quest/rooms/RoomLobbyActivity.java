@@ -25,7 +25,7 @@ import my.nicegram.vr.R;
 /** The invitation is explicitly entered in the selected Telegram group, never auto-sent. */
 public final class RoomLobbyActivity extends BaseFragment {
     private final long chatId;
-    private EditText endpoint, invite;
+    private EditText invite;
     private String identityToken, challengeToken, authEndpoint;
     private long authUserId;
     private Button authStart, authComplete;
@@ -46,7 +46,6 @@ public final class RoomLobbyActivity extends BaseFragment {
         int pad = AndroidUtilities.dp(20); body.setPadding(pad, pad, pad, pad); scroll.addView(body);
         TextView notice = new TextView(context); notice.setText(text(R.string.vr_room_notice) + "\n\n" + text(R.string.vr_room_limit));
         notice.setTextSize(18); notice.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText)); body.addView(notice);
-        endpoint = input(body, R.string.vr_room_endpoint, false);
         authStart = button(body, R.string.vr_room_auth_start, () -> authenticate(false));
         authComplete = button(body, R.string.vr_room_auth_complete, () -> authenticate(true));
         create = button(body, R.string.vr_room_create, () -> connect(true));
@@ -87,7 +86,6 @@ public final class RoomLobbyActivity extends BaseFragment {
         boolean has = ownSession() != null;
         create.setEnabled(!busy && !has && identityToken != null); join.setEnabled(!busy && !has && identityToken != null);
         authStart.setEnabled(!busy && !has); authComplete.setEnabled(!busy && !has && challengeToken != null);
-        endpoint.setEnabled(!busy && !has && identityToken == null);
         copy.setVisibility(has ? View.VISIBLE : View.GONE); enter.setVisibility(has ? View.VISIBLE : View.GONE);
     }
     private void connect(boolean creating) {
@@ -134,8 +132,7 @@ public final class RoomLobbyActivity extends BaseFragment {
         if (userId == 0) return;
         final String base;
         try {
-            base = completing ? authEndpoint : RoomApi.endpoint(endpoint.getText().toString().trim().isEmpty()
-                    ? RoomApi.invitation(invite.getText().toString())[0] : endpoint.getText().toString());
+            base = completing ? authEndpoint : RoomApi.GATEWAY;
             if (base == null || (completing && (challengeToken == null || authUserId != userId))) throw new Exception();
         } catch (Exception error) { status.setText(text(R.string.vr_room_auth_required)); return; }
         final String challenge = challengeToken;
@@ -155,7 +152,7 @@ public final class RoomLobbyActivity extends BaseFragment {
                 busy = false;
                 if (disposed || UserConfig.getInstance(currentAccount).getClientUserId() != userId) return;
                 if (code == null && ready != null) {
-                    authEndpoint = base; authUserId = userId; endpoint.setText(base);
+                    authEndpoint = base; authUserId = userId;
                     if (completing) { identityToken = ready.optString("identityToken"); challengeToken = null; status.setText(text(R.string.vr_room_auth_verified)); }
                     else {
                         challengeToken = ready.optString("challengeToken"); status.setText(text(R.string.vr_room_auth_confirm));
