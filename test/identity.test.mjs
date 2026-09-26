@@ -39,11 +39,11 @@ test('missing production configuration has no invite-only fallback', async () =>
   await assert.rejects(auth.start('1'), /NICEGRAM_NOT_CONFIGURED/);
   await assert.rejects(auth.verify('forged'), /NICEGRAM_AUTH_REQUIRED/);
 });
-test('production adapter uses scoped Internal header only server-to-server and strips general tokens', async () => {
+test('production adapter uses Internal header only server-to-server and strips general tokens', async () => {
   const seen = [];
-  const provider = nicegramProvider({ NICEGRAM_API_ORIGIN: 'https://nicegram.example', NICEGRAM_AUTH_BOT: 'ExampleBot', NICEGRAM_INTERNAL_TOKEN: 's'.repeat(43) }, async (url, options) => {
+  const provider = nicegramProvider({ NICEGRAM_API_BASE_URL: 'https://nicegram.example', NICEGRAM_AUTH_BOT: 'ExampleBot', NICEGRAM_INTERNAL_TOKEN: 's'.repeat(43) }, async (url, options) => {
     seen.push({ url, options });
-    let data = url.includes('/internal/') ? { telegramId: 1 } : url.endsWith('/session') ? { sessionId: 'a'.repeat(64) } : { user: { id: 5, telegramId: 1, first_name: 'Alice', telegramAuthToken: 'must-not-escape' } };
+    let data = url.includes('/info-internal-full/') ? { nicegramReg: '2020-01-01 00:00:00' } : url.endsWith('/session') ? { sessionId: 'a'.repeat(64) } : { user: { id: 5, telegramId: 1, first_name: 'Alice', telegramAuthToken: 'must-not-escape' } };
     return new Response(JSON.stringify({ data }), { status: 200 });
   });
   await provider.account('1'); const start = await provider.start('1'); const user = await provider.complete(start.sessionId);
@@ -60,4 +60,24 @@ test('confirmed one-use auth survives a temporary second Internal lookup outage'
   await assert.rejects(auth.complete(challenge.challengeToken), /NICEGRAM_UNAVAILABLE/);
   const user = await auth.complete(challenge.challengeToken);
   assert.equal(user.telegramId, '1'); assert.equal(exchanges, 1);
+});
+const config = { NICEGRAM_API_BASE_URL: 'https://nicegram.example/api/', NICEGRAM_AUTH_BOT: 'ExampleBot', NICEGRAM_INTERNAL_TOKEN: 's'.repeat(43) };
+test('AI bot API prefix and registration distinguish existing Nicegram accounts from HTTP 200 unknown IDs', async () => {
+  let registered = true;
+  const provider = nicegramProvider(config, async (url, options) => {
+    assert.equal(url, 'https://nicegram.example/api/v7/user/info-internal-full/1');
+    assert.equal(options.headers['x-internal-request'], config.NICEGRAM_INTERNAL_TOKEN);
+    return new Response(JSON.stringify({ status: 200, data: { nicegramReg: registered ? '2020-01-01 00:00:00' : null, regdate: '2019-01', gems: 0, hasPremiumPlus: false } }));
+  });
+  await provider.account('1'); registered = false;
+  await assert.rejects(provider.account('1'), /NICEGRAM_ACCOUNT_REQUIRED/);
+  await assert.rejects(provider.account('../other'), /INVALID_ACCOUNT/);
+});
+test('API location, forbidden key, malformed and oversized responses fail closed', async () => {
+  for (const location of ['http://nicegram.example/api/', 'https://u:p@nicegram.example/api/', 'https://nicegram.example/api/?key=x', 'https://nicegram.example/other']) {
+    assert.equal(nicegramProvider({ ...config, NICEGRAM_API_BASE_URL: location }).ready, false);
+  }
+  for (const response of [new Response('{}', { status: 403 }), new Response('<html>'), new Response('x'.repeat(262145)), new Response(JSON.stringify({ status: 403, data: { nicegramReg: '2020-01-01' } }))]) {
+    await assert.rejects(nicegramProvider(config, async () => response).account('1'), /NICEGRAM_UNAVAILABLE/);
+  }
 });

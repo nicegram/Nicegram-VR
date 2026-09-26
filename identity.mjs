@@ -6,20 +6,20 @@ export class AuthFailure extends Error { constructor(status, code) { super(code)
 
 /** The only production provider. No user assertion or lookup alone proves identity. */
 export function nicegramProvider(env = process.env, fetcher = fetch) {
-  let origin;
+  let base;
   try {
-    const url = new URL(env.NICEGRAM_API_ORIGIN);
-    if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash || url.pathname !== '/') throw new Error();
-    origin = url.origin;
-  } catch { origin = null; }
+    const url = new URL(env.NICEGRAM_API_BASE_URL);
+    if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash || !/^\/(api\/?)?$/.test(url.pathname)) throw new Error();
+    base = url.origin + url.pathname.replace(/\/$/, '');
+  } catch { base = null; }
   const bot = env.NICEGRAM_AUTH_BOT;
   const internal = env.NICEGRAM_INTERNAL_TOKEN;
-  const ready = Boolean(origin && /^[A-Za-z0-9_]{2,29}bot$/i.test(bot || '') && internal?.length >= 32 && !internal.startsWith('REPLACE_'));
+  const ready = Boolean(base && /^[A-Za-z0-9_]{2,29}bot$/i.test(bot || '') && internal?.length >= 32 && !internal.startsWith('REPLACE_'));
   async function request(path, body, isInternal = false) {
     if (!ready) throw new AuthFailure(503, 'NICEGRAM_NOT_CONFIGURED');
     let response;
     try {
-      response = await fetcher(origin + path, { method: body ? 'POST' : 'GET', redirect: 'error',
+      response = await fetcher(base + path, { method: body ? 'POST' : 'GET', redirect: 'error',
         signal: AbortSignal.timeout(8000), headers: { Accept: 'application/json', 'Content-Type': 'application/json',
           ...(isInternal ? { 'x-internal-request': internal } : { 'X-agent': 'nicegram-vr', 'X-language': 'en' }) },
         ...(body ? { body: JSON.stringify(body) } : {}) });
@@ -28,15 +28,26 @@ export function nicegramProvider(env = process.env, fetcher = fetch) {
     if (response.status === 406) throw new AuthFailure(401, 'AUTH_EXPIRED');
     if (response.status === 404 && isInternal) throw new AuthFailure(403, 'NICEGRAM_ACCOUNT_REQUIRED');
     if (!response.ok) throw new AuthFailure(503, 'NICEGRAM_UNAVAILABLE');
-    const raw = await response.text();
-    if (raw.length > 262144) throw new AuthFailure(503, 'NICEGRAM_UNAVAILABLE');
-    try { return JSON.parse(raw).data; } catch { throw new AuthFailure(503, 'NICEGRAM_UNAVAILABLE'); }
+    // Bound the stream before buffering it, including an aborted/invalid upstream response.
+    try {
+      let size = 0; const chunks = [];
+      for await (const chunk of response.body) {
+        size += chunk.length;
+        if (size > 262144) throw new Error('response too large');
+        chunks.push(chunk);
+      }
+      const envelope = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+      if (envelope.status !== undefined && envelope.status !== 200) throw new Error('upstream error');
+      return envelope.data;
+    } catch { throw new AuthFailure(503, 'NICEGRAM_UNAVAILABLE'); }
   }
   return {
     ready,
     async account(id) {
-      const data = await request(`/internal/users/${id}`, null, true);
-      if (!data || String(data.telegramId) !== id) throw new AuthFailure(403, 'NICEGRAM_ACCOUNT_REQUIRED');
+      if (!validId(id)) throw new AuthFailure(400, 'INVALID_ACCOUNT');
+      // Same deployed contract/key as nicegram-ai-agents. HTTP 200 also covers unknown IDs.
+      const data = await request(`/v7/user/info-internal-full/${id}`, null, true);
+      if (!data || typeof data.nicegramReg !== 'string' || !data.nicegramReg.trim()) throw new AuthFailure(403, 'NICEGRAM_ACCOUNT_REQUIRED');
     },
     async start(id) {
       const data = await request('/v7/telegram/session', { telegramId: Number(id), source: 'nicegram_default' });
