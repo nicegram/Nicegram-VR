@@ -173,9 +173,8 @@
 
     <!-- Closed room test: SCN-038. -->
     <string name="vr_room_title">VR room · closed test</string>
-    <string name="vr_room_notice">Invite-only test: names are not verified Nicegram accounts. Voice is shared with everyone in the Telegram call.</string>
+    <string name="vr_room_notice">Nicegram account required. Voice is shared with everyone in the Telegram call.</string>
     <string name="vr_room_endpoint">Room service HTTPS address</string>
-    <string name="vr_room_key">Private creation key</string>
     <string name="vr_room_invite">Room invitation</string>
     <string name="vr_room_create">Create room</string>
     <string name="vr_room_join">Join room</string>
@@ -197,11 +196,18 @@
     <string name="vr_room_mic_off">Turn microphone off</string>
     <string name="vr_room_listener">Microphone unavailable: wait for the call host to allow speaking.</string>
     <string name="vr_room_exit">Leave room and call</string>
-    <string name="vr_room_error">Could not connect. Check the service address, key or invitation and try again.</string>
+    <string name="vr_room_error">Could not connect. Check the service address or invitation and try again.</string>
     <string name="vr_room_wrong_chat">Open the group this invitation belongs to, then join again.</string>
     <string name="vr_room_expired">This room or session has expired. Ask for a new invitation.</string>
     <string name="vr_room_full">The test room is full. Try again when someone leaves.</string>
     <string name="vr_room_mic_permission">Allow microphone access, then press the call button again.</string>
     <string name="vr_room_account">Return to the account that opened this room.</string>
     <string name="vr_room_limit">Test room: up to 8 people for 2 hours. A service restart ends the room.</string>
+    <string name="vr_room_auth_start">Verify Nicegram account</string>
+    <string name="vr_room_auth_complete">Check confirmation</string>
+    <string name="vr_room_auth_required">Verify the same Nicegram account for this room service, then try again.</string>
+    <string name="vr_room_auth_confirm">Press Start in the Nicegram auth bot, return here and check confirmation.</string>
+    <string name="vr_room_auth_verified">Nicegram account verified. You can create or join a room.</string>
+    <string name="vr_room_auth_unavailable">Nicegram verification is unavailable. Room access stays closed. Try again later.</string>
+    <string name="vr_room_auth_account_missing">A Nicegram account is required. Sign in to Nicegram first, then try again.</string>
 </resources>

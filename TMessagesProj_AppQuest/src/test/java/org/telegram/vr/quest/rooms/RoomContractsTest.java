@@ -21,6 +21,17 @@ public class RoomContractsTest {
             try { RoomApi.endpoint(invalid); fail("accepted invalid endpoint"); } catch (Exception expected) {}
         }
     }
+    @Test public void authLinkCannotSendTheUserToAnotherHostOrAccount() throws Exception {
+        String session = "a".repeat(64);
+        assertEquals("https://t.me/TestBot?start=" + session, RoomAuthProtocol.loginUrl("https://t.me/TestBot?start=" + session));
+        for (String invalid : new String[]{"https://evil.example/TestBot?start=" + session,
+                "https://t.me/TestBot?start=short", "https://t.me/TestBot?start=" + session + "&redirect=evil",
+                "https://t.me.evil.example/TestBot?start=" + session}) {
+            try { RoomAuthProtocol.loginUrl(invalid); fail("accepted unsafe auth link"); } catch (Exception expected) {}
+        }
+        assertTrue(RoomAuthProtocol.sameAccount(123L, "123"));
+        assertFalse(RoomAuthProtocol.sameAccount(123L, "456"));
+    }
     @Test public void ordinaryMemberCanJoinButCannotCreate() {
         assertEquals(RoomCallPolicy.Action.JOIN, RoomCallPolicy.decide(true, false, true, false, false, true));
         assertEquals(RoomCallPolicy.Action.ADMIN_REQUIRED, RoomCallPolicy.decide(true, false, false, false, false, true));

@@ -25,7 +25,10 @@ import my.nicegram.vr.R;
 /** The invitation is explicitly entered in the selected Telegram group, never auto-sent. */
 public final class RoomLobbyActivity extends BaseFragment {
     private final long chatId;
-    private EditText endpoint, creationKey, invite;
+    private EditText endpoint, invite;
+    private String identityToken, challengeToken, authEndpoint;
+    private long authUserId;
+    private Button authStart, authComplete;
     private TextView status;
     private Button create, join, enter, copy;
     private boolean disposed, busy, launched;
@@ -44,7 +47,8 @@ public final class RoomLobbyActivity extends BaseFragment {
         TextView notice = new TextView(context); notice.setText(text(R.string.vr_room_notice) + "\n\n" + text(R.string.vr_room_limit));
         notice.setTextSize(18); notice.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteBlackText)); body.addView(notice);
         endpoint = input(body, R.string.vr_room_endpoint, false);
-        creationKey = input(body, R.string.vr_room_key, true);
+        authStart = button(body, R.string.vr_room_auth_start, () -> authenticate(false));
+        authComplete = button(body, R.string.vr_room_auth_complete, () -> authenticate(true));
         create = button(body, R.string.vr_room_create, () -> connect(true));
         invite = input(body, R.string.vr_room_invite, true);
         join = button(body, R.string.vr_room_join, () -> connect(false));
@@ -81,19 +85,22 @@ public final class RoomLobbyActivity extends BaseFragment {
     private void updateButtons() {
         if (create == null) return;
         boolean has = ownSession() != null;
-        create.setEnabled(!busy && !has); join.setEnabled(!busy && !has);
+        create.setEnabled(!busy && !has && identityToken != null); join.setEnabled(!busy && !has && identityToken != null);
+        authStart.setEnabled(!busy && !has); authComplete.setEnabled(!busy && !has && challengeToken != null);
+        endpoint.setEnabled(!busy && !has && identityToken == null);
         copy.setVisibility(has ? View.VISIBLE : View.GONE); enter.setVisibility(has ? View.VISIBLE : View.GONE);
     }
     private void connect(boolean creating) {
         if (busy) return;
+        if (identityToken == null || UserConfig.getInstance(currentAccount).getClientUserId() != authUserId) { status.setText(text(R.string.vr_room_auth_required)); return; }
         if (RoomSession.active != null || !UserConfig.getInstance(currentAccount).isClientActivated()) { status.setText(text(R.string.vr_room_account)); return; }
         org.telegram.tgnet.TLRPC.Chat chat = getMessagesController().getChat(chatId);
         if (chat == null || ChatObject.isNotInChat(chat)) { status.setText(text(R.string.vr_room_wrong_chat)); return; }
         final String chatKey = (ChatObject.isChannel(chat) ? "channel:" : "chat:") + chatId;
         final long userId = UserConfig.getInstance(currentAccount).getClientUserId();
         final String name = UserObject.getFirstName(UserConfig.getInstance(currentAccount).getCurrentUser());
-        final String service = endpoint.getText().toString(), key = creationKey.getText().toString(), invitation = invite.getText().toString();
-        creationKey.setText(""); busy = true; status.setText(text(R.string.vr_room_wait)); updateButtons();
+        final String service = authEndpoint, key = identityToken, invitation = invite.getText().toString();
+        busy = true; status.setText(text(R.string.vr_room_wait)); updateButtons();
         new Thread(() -> {
             RoomSession session = null; String failure = null;
             try {
@@ -104,7 +111,8 @@ public final class RoomLobbyActivity extends BaseFragment {
                     base = RoomApi.endpoint(service); result = RoomApi.post(base, "/v1/rooms", key, body); inviteToken = result.getString("inviteToken");
                 } else {
                     String[] parsed = RoomApi.invitation(invitation); base = parsed[0]; inviteToken = parsed[2];
-                    result = RoomApi.post(base, "/v1/rooms/" + parsed[1] + "/join", "", body.put("inviteToken", inviteToken));
+                    if (!base.equals(authEndpoint)) throw new Exception("AUTH_ENDPOINT_MISMATCH");
+                    result = RoomApi.post(base, "/v1/rooms/" + parsed[1] + "/join", key, body.put("inviteToken", inviteToken));
                 }
                 if (!chatKey.equals(result.getString("chatKey"))) throw new Exception("WRONG_CHAT");
                 session = new RoomSession(currentAccount, chatId, base, result, inviteToken);
@@ -114,10 +122,54 @@ public final class RoomLobbyActivity extends BaseFragment {
                 busy = false;
                 if (disposed || UserConfig.getInstance(currentAccount).getClientUserId() != userId || RoomSession.active != null) { if (ready != null) ready.close(); return; }
                 if (ready != null) { RoomSession.active = ready; ready.start(); invite.setText(""); status.setText(text(R.string.vr_room_connected)); }
-                else { int message = "WRONG_CHAT".equals(code) ? R.string.vr_room_wrong_chat : "ROOM_FULL".equals(code) ? R.string.vr_room_full : "ROOM_EXPIRED".equals(code) || "SESSION_EXPIRED".equals(code) ? R.string.vr_room_expired : R.string.vr_room_error; status.setText(text(message)); }
+                else { if ("NICEGRAM_AUTH_REQUIRED".equals(code)) identityToken = null;
+                    int message = "NICEGRAM_AUTH_REQUIRED".equals(code) || "AUTH_ENDPOINT_MISMATCH".equals(code) ? R.string.vr_room_auth_required : "WRONG_CHAT".equals(code) ? R.string.vr_room_wrong_chat : "ROOM_FULL".equals(code) ? R.string.vr_room_full : "ROOM_EXPIRED".equals(code) || "SESSION_EXPIRED".equals(code) ? R.string.vr_room_expired : R.string.vr_room_error; status.setText(text(message)); }
                 updateButtons();
             });
         }, "vr-room-connect").start();
+    }
+    private void authenticate(boolean completing) {
+        if (busy || RoomSession.active != null) return;
+        final long userId = UserConfig.getInstance(currentAccount).getClientUserId();
+        if (userId == 0) return;
+        final String base;
+        try {
+            base = completing ? authEndpoint : RoomApi.endpoint(endpoint.getText().toString().trim().isEmpty()
+                    ? RoomApi.invitation(invite.getText().toString())[0] : endpoint.getText().toString());
+            if (base == null || (completing && (challengeToken == null || authUserId != userId))) throw new Exception();
+        } catch (Exception error) { status.setText(text(R.string.vr_room_auth_required)); return; }
+        final String challenge = challengeToken;
+        busy = true; identityToken = null; status.setText(text(R.string.vr_room_wait)); updateButtons();
+        new Thread(() -> {
+            JSONObject result = null; String failure = null;
+            try {
+                result = RoomApi.post(base, completing ? "/v1/auth/complete" : "/v1/auth/start", completing ? challenge : "",
+                        completing ? new JSONObject() : new JSONObject().put("telegramId", Long.toString(userId)));
+                if (!RoomAuthProtocol.sameAccount(userId, result.getString("telegramId"))) throw new Exception("ACCOUNT_MISMATCH");
+                String credential = result.getString(completing ? "identityToken" : "challengeToken");
+                if (!credential.matches("[A-Za-z0-9_-]{43}")) throw new Exception("INVALID_AUTH");
+                if (!completing) RoomAuthProtocol.loginUrl(result.getString("loginUrl"));
+            } catch (Exception error) { failure = error.getMessage(); }
+            JSONObject ready = result; String code = failure;
+            AndroidUtilities.runOnUIThread(() -> {
+                busy = false;
+                if (disposed || UserConfig.getInstance(currentAccount).getClientUserId() != userId) return;
+                if (code == null && ready != null) {
+                    authEndpoint = base; authUserId = userId; endpoint.setText(base);
+                    if (completing) { identityToken = ready.optString("identityToken"); challengeToken = null; status.setText(text(R.string.vr_room_auth_verified)); }
+                    else {
+                        challengeToken = ready.optString("challengeToken"); status.setText(text(R.string.vr_room_auth_confirm));
+                        org.telegram.messenger.browser.Browser.openUrl(getParentActivity(), ready.optString("loginUrl"));
+                    }
+                } else {
+                    int message = "NICEGRAM_CONFIRM_REQUIRED".equals(code) ? R.string.vr_room_auth_confirm
+                            : "NICEGRAM_NOT_CONFIGURED".equals(code) || "NICEGRAM_UNAVAILABLE".equals(code) ? R.string.vr_room_auth_unavailable
+                            : "NICEGRAM_ACCOUNT_REQUIRED".equals(code) ? R.string.vr_room_auth_account_missing : R.string.vr_room_auth_required;
+                    status.setText(text(message));
+                }
+                updateButtons();
+            });
+        }, "vr-nicegram-auth").start();
     }
     @Override public void onResume() { super.onResume(); updateButtons(); }
     @Override public void onFragmentDestroy() {

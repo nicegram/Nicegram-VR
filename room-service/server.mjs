@@ -1,4 +1,5 @@
 import http from 'node:http';
+import { NicegramIdentity } from './identity.mjs';
 import { randomBytes, createHash, timingSafeEqual } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
 
@@ -9,12 +10,12 @@ const validToken = value => typeof value === 'string' && /^[\w-]{43}$/.test(valu
 class Failure extends Error { constructor(status, code) { super(code); this.status = status; } }
 
 // Deliberately bounded, ephemeral closed-beta presence. It carries NO Telegram session,
-// verified identity, messages or media. Restarting the service ends all rooms.
-export function createRoomServer({ createKey, now = Date.now, ttl = 7200000, lease = 30000, maxRooms = 100, capacity = 8 } = {}) {
-  if (typeof createKey !== 'string' || createKey.length < 32) throw new Error('ROOM_CREATE_KEY must contain at least 32 characters');
+// Telegram authorization key, messages or media. Restarting the service ends all rooms.
+export function createRoomServer({ identity = new NicegramIdentity(), now = Date.now, ttl = 7200000, lease = 30000, maxRooms = 100, capacity = 8 } = {}) {
   const rooms = new Map();
   const rates = new Map();
   const sweep = () => {
+    identity.sweep();
     for (const [id, room] of rooms) {
       if (now() >= room.expiresAt) { rooms.delete(id); continue; }
       for (const [id, member] of room.members) if (now() - member.seen >= lease) room.members.delete(id);
@@ -23,24 +24,26 @@ export function createRoomServer({ createKey, now = Date.now, ttl = 7200000, lea
   };
   const snapshot = room => ({ roomId: room.id, chatKey: room.chatKey, expiresAt: room.expiresAt,
     participants: [...room.members].map(([id, member]) => ({ id, name: member.name })) });
-  const join = (room, name) => {
+  const join = (room, principal, identityToken) => {
+    const name = principal.name;
+    if ([...room.members.values()].some(m => m.telegramId === principal.telegramId)) throw new Failure(409, 'ALREADY_JOINED');
     if (room.members.size >= capacity) throw new Failure(409, 'ROOM_FULL');
     if (typeof name !== 'string' || !name.trim() || name.length > 60 || /[\x00-\x1f\x7f]/.test(name)) throw new Failure(400, 'INVALID_NAME');
     const sessionId = token(), sessionToken = token();
-    room.members.set(sessionId, { name: name.trim(), secret: digest(sessionToken), seen: now() });
+    room.members.set(sessionId, { name: name.trim(), telegramId: principal.telegramId, identityToken, secret: digest(sessionToken), seen: now() });
     return { ...snapshot(room), sessionId, sessionToken };
   };
   const server = http.createServer(async (req, res) => {
     const send = (status, data) => { if (res.destroyed) return; res.writeHead(status, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' }); res.end(JSON.stringify(data)); };
     try {
-      if (req.method === 'GET' && req.url === '/healthz') return send(200, { status: 'ok', mode: 'closed-beta', identity: 'invite-only' });
+      if (req.method === 'GET' && req.url === '/healthz') return send(200, { status: 'ok', mode: 'closed-beta', identity: 'nicegram-required', ready: identity.ready });
       if (req.method !== 'POST') throw new Failure(404, 'NOT_FOUND');
       sweep();
       // Never trust client-controlled X-Forwarded-For. App Platform may share an egress IP;
       // this coarse limit protects memory and is deliberately generous for eight testers.
       const ip = req.socket.remoteAddress || 'unknown';
       let rate = rates.get(ip);
-      if (!rate) { if (rates.size >= 10000) throw new Failure(429, 'RATE_LIMITED'); rates.set(ip, rate = { start: now(), count: 0 }); }
+      if (!rate) { if (rates.size >= 10000) throw new Failure(429, 'RATE_LIMITED'); rates.set(ip, rate = { start: now(), count: 0, authCount: 0 }); }
       if (++rate.count > 1200) throw new Failure(429, 'RATE_LIMITED');
       if (!req.headers['content-type']?.startsWith('application/json')) throw new Failure(415, 'JSON_REQUIRED');
       let size = 0, chunks = [];
@@ -48,12 +51,21 @@ export function createRoomServer({ createKey, now = Date.now, ttl = 7200000, lea
       let body;
       try { body = JSON.parse(Buffer.concat(chunks).toString('utf8')); } catch { throw new Failure(400, 'INVALID_JSON'); }
       if (!body || typeof body !== 'object' || Array.isArray(body)) throw new Failure(400, 'INVALID_JSON');
+      const credential = req.headers.authorization?.replace(/^Bearer /, '') || '';
+      if (req.url === '/v1/auth/start') {
+        if (++rate.authCount > 20) throw new Failure(429, 'RATE_LIMITED');
+        return send(200, await identity.start(body.telegramId));
+      }
+      if (req.url === '/v1/auth/complete') {
+        if (++rate.authCount > 20) throw new Failure(429, 'RATE_LIMITED');
+        return send(200, await identity.complete(credential));
+      }
       if (req.url === '/v1/rooms') {
-        if (!equal(req.headers.authorization, `Bearer ${createKey}`)) throw new Failure(401, 'UNAUTHORIZED');
+        const principal = await identity.verify(credential);
         if (!/^(chat|channel):[1-9][0-9]{0,18}$/.test(body.chatKey)) throw new Failure(400, 'INVALID_CHAT');
         if (rooms.size >= maxRooms) throw new Failure(429, 'ROOM_LIMIT');
         const room = { id: token(), invite: token(), chatKey: body.chatKey, expiresAt: now() + ttl, members: new Map() };
-        const result = join(room, body.name);
+        const result = join(room, principal, credential);
         rooms.set(room.id, room);
         return send(201, { ...result, inviteToken: room.invite });
       }
@@ -62,14 +74,16 @@ export function createRoomServer({ createKey, now = Date.now, ttl = 7200000, lea
       const room = rooms.get(match[1]);
       if (!room) throw new Failure(404, 'ROOM_EXPIRED');
       if (match[2] === 'join') {
+        const principal = await identity.verify(credential);
         if (!validToken(body.inviteToken) || !equal(body.inviteToken, room.invite)) throw new Failure(401, 'UNAUTHORIZED');
         if (body.chatKey !== room.chatKey) throw new Failure(409, 'WRONG_CHAT');
-        return send(200, join(room, body.name));
+        return send(200, join(room, principal, credential));
       }
       const member = room.members.get(body.sessionId);
       const bearer = req.headers.authorization?.replace(/^Bearer /, '');
       if (!member || !validToken(bearer) || !timingSafeEqual(digest(bearer), member.secret)) throw new Failure(401, 'SESSION_EXPIRED');
-      if (match[2] === 'leave') room.members.delete(body.sessionId); else member.seen = now();
+      if (match[2] === 'leave') room.members.delete(body.sessionId);
+      else { await identity.verify(member.identityToken); member.seen = now(); }
       send(200, snapshot(room));
     } catch (error) { send(error.status || 500, { error: error.status ? error.message : 'INTERNAL_ERROR' }); }
   }).on('connection', socket => { socket.setTimeout(10000, () => socket.destroy()); });
@@ -79,7 +93,7 @@ export function createRoomServer({ createKey, now = Date.now, ttl = 7200000, lea
   return server;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const server = createRoomServer({ createKey: process.env.ROOM_CREATE_KEY });
+  const server = createRoomServer();
   server.requestTimeout = 10000;
   server.headersTimeout = 10000;
   server.listen(Number(process.env.PORT || 8080), '0.0.0.0');
