@@ -75,6 +75,8 @@
          that repository calls `ic_launcher_default`: Nicegram's own default icon, a white
          monogram on a black background (`ic_launcher_default_background` is `#000000`). The
          name is kept unchanged so the files trace back byte for byte. -->
+    <uses-feature android:name="android.hardware.vr.headtracking" android:required="true" />
+    <uses-feature android:glEsVersion="0x00030001" android:required="true" />
     <application
         android:name="org.telegram.messenger.QuestApplicationLoader"
         android:label="@string/vr_app_name"
@@ -84,6 +86,19 @@
         android:hardwareAccelerated="true"
         android:largeHeap="true"
         tools:replace="android:name,android:label,android:icon,android:roundIcon,android:theme">
+
+        <uses-native-library android:name="libossdk.oculus.so" android:required="true" />
+        <meta-data android:name="com.oculus.vr.focusaware" android:value="true" />
+        <activity android:name="org.telegram.vr.quest.rooms.RoomSpatialActivity"
+            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
+            android:launchMode="singleTask" android:exported="false"
+            android:configChanges="screenSize|screenLayout|orientation|keyboardHidden|keyboard|navigation|uiMode">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.oculus.intent.category.VR" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <!-- Portrait, and this line used to say landscape.
 

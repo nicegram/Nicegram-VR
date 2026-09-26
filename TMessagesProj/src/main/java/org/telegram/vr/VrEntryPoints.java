@@ -33,6 +33,14 @@ public final class VrEntryPoints {
         BaseFragment takeIfDue(int currentAccount);
     }
 
+    public interface RoomEntry {
+        CharSequence title();
+        BaseFragment create(int account, long chatId);
+    }
+    private static volatile RoomEntry roomEntry;
+    public static void installRoomEntry(RoomEntry entry) { roomEntry = entry; }
+    public static RoomEntry roomEntry() { return roomEntry; }
+
     private static volatile SettingsRow silenceRow;
     private static volatile SettingsRow digestRow;
     private static volatile SettingsRow headsetRow;

@@ -3972,6 +3972,8 @@ public class ChatActivity extends BaseFragment implements
                     if (!getMessagesController().getTranslateController().toggleTranslatingDialog(getDialogId(), true)) {
                         updateTopPanel(true);
                     }
+                } else if (id == 20260926 && currentChat != null && org.telegram.vr.VrEntryPoints.roomEntry() != null) {
+                    presentFragment(org.telegram.vr.VrEntryPoints.roomEntry().create(currentAccount, currentChat.id));
                 } else if (id == call || id == video_call) {
                     if (currentUser != null && getParentActivity() != null) {
                         VoIPHelper.startCall(currentUser, id == video_call, userInfo != null && userInfo.video_calls_available, getParentActivity(), getMessagesController().getUserFull(currentUser.id), getAccountInstance());
@@ -4315,6 +4317,10 @@ public class ChatActivity extends BaseFragment implements
             });
             otherIcon.addView(headerItem.getIconView());
             headerItem.setContentDescription(LocaleController.getString(R.string.AccDescrMoreOptions));
+            if (currentChat != null && (!ChatObject.isChannel(currentChat) || currentChat.megagroup)
+                    && !ChatObject.isNotInChat(currentChat) && org.telegram.vr.VrEntryPoints.roomEntry() != null) {
+                headerItem.lazilyAddSubItem(20260926, R.drawable.msg_calls, org.telegram.vr.VrEntryPoints.roomEntry().title());
+            }
 
             if (currentUser != null && currentUser.self && chatMode != MODE_SAVED) {
                 savedChatsItem = headerItem.lazilyAddSubItem(view_as_topics, R.drawable.msg_topics, LocaleController.getString(R.string.SavedViewAsChats));

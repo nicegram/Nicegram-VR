@@ -161,4 +161,38 @@
     <string name="vr_mobile_open_android">Открыть страницу в Google Play здесь</string>
     <string name="vr_mobile_scan">Считать можно, только когда шлем транслируется на телефон или экран \u2014 сама панель находится внутри шлема.</string>
     <string name="vr_mobile_dismiss_hint">Показывается один раз. «Назад» закрывает.</string>
+
+    <!-- Closed room test: SCN-038. -->
+    <string name="vr_room_title">VR-комната · закрытый тест</string>
+    <string name="vr_room_notice">Тест по приглашению: имена не проверены через Nicegram. Голос слышат все участники звонка Telegram.</string>
+    <string name="vr_room_endpoint">HTTPS-адрес сервиса комнат</string>
+    <string name="vr_room_key">Закрытый ключ создания</string>
+    <string name="vr_room_invite">Приглашение в комнату</string>
+    <string name="vr_room_create">Создать комнату</string>
+    <string name="vr_room_join">Подключиться к комнате</string>
+    <string name="vr_room_enter">Войти в VR-комнату</string>
+    <string name="vr_room_copy">Скопировать приглашение</string>
+    <string name="vr_room_copied">Приглашение скопировано. Передайте его только участникам теста.</string>
+    <string name="vr_room_wait">Подключаемся…</string>
+    <string name="vr_room_connected">Комната подключена</string>
+    <string name="vr_room_disconnected">Связь с комнатой потеряна. Микрофон выключен. Выйдите и подключитесь снова.</string>
+    <string name="vr_room_call">Создать или подключить звонок Telegram</string>
+    <string name="vr_room_call_wait">Проверяем звонок и права в Telegram…</string>
+    <string name="vr_room_call_connecting">Подключаем звонок Telegram…</string>
+    <string name="vr_room_call_ready">Звонок Telegram подключён</string>
+    <string name="vr_room_call_error">Звонок недоступен. Проверьте сеть и повторите попытку.</string>
+    <string name="vr_room_permissions">Звонок должен начать администратор. Попросите его и повторите попытку.</string>
+    <string name="vr_room_native">Откройте звонок на обычном экране Telegram: этот способ подключения пока не поддерживается в комнате.</string>
+    <string name="vr_room_other_call">Уже идёт другой звонок. Завершите его перед подключением.</string>
+    <string name="vr_room_mic_on">Включить микрофон</string>
+    <string name="vr_room_mic_off">Выключить микрофон</string>
+    <string name="vr_room_listener">Микрофон недоступен: дождитесь разрешения ведущего говорить.</string>
+    <string name="vr_room_exit">Выйти из комнаты и звонка</string>
+    <string name="vr_room_error">Не удалось подключиться. Проверьте адрес сервиса, ключ или приглашение и повторите попытку.</string>
+    <string name="vr_room_wrong_chat">Откройте группу, для которой создано приглашение, и подключитесь снова.</string>
+    <string name="vr_room_expired">Комната или сеанс завершены. Попросите новое приглашение.</string>
+    <string name="vr_room_full">Тестовая комната заполнена. Подключитесь, когда кто-нибудь выйдет.</string>
+    <string name="vr_room_mic_permission">Разрешите доступ к микрофону и снова нажмите кнопку звонка.</string>
+    <string name="vr_room_account">Вернитесь в аккаунт, из которого открыта комната.</string>
+    <string name="vr_room_limit">Тестовая комната: до 8 человек, на 2 часа. Перезапуск сервиса завершает комнату.</string>
 </resources>

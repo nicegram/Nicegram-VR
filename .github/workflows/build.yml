@@ -31,6 +31,11 @@ jobs:
         run: |
           python3 -m unittest discover -s Tools/tests -v
           python3 Tools/check_docs.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Room service contracts
+        run: node --test room-service/test/*.test.mjs
 
       - name: Check out the pinned submodules, shallow
         run: git submodule update --init --recursive --depth 1 --jobs 4

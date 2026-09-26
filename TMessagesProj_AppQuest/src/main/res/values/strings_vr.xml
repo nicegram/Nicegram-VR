@@ -170,4 +170,38 @@
     <string name="vr_mobile_open_android">Open the Google Play page here</string>
     <string name="vr_mobile_scan">Scannable only while this headset is casting to a phone or a screen \u2014 the panel itself is inside the headset.</string>
     <string name="vr_mobile_dismiss_hint">Shown once. Back closes it.</string>
+
+    <!-- Closed room test: SCN-038. -->
+    <string name="vr_room_title">VR room · closed test</string>
+    <string name="vr_room_notice">Invite-only test: names are not verified Nicegram accounts. Voice is shared with everyone in the Telegram call.</string>
+    <string name="vr_room_endpoint">Room service HTTPS address</string>
+    <string name="vr_room_key">Private creation key</string>
+    <string name="vr_room_invite">Room invitation</string>
+    <string name="vr_room_create">Create room</string>
+    <string name="vr_room_join">Join room</string>
+    <string name="vr_room_enter">Enter VR room</string>
+    <string name="vr_room_copy">Copy invitation</string>
+    <string name="vr_room_copied">Invitation copied. Share it only with your test group.</string>
+    <string name="vr_room_wait">Connecting…</string>
+    <string name="vr_room_connected">Room connected</string>
+    <string name="vr_room_disconnected">Room connection lost. Microphone muted. Leave and join again.</string>
+    <string name="vr_room_call">Create or join Telegram call</string>
+    <string name="vr_room_call_wait">Checking Telegram call and permissions…</string>
+    <string name="vr_room_call_connecting">Telegram call connecting…</string>
+    <string name="vr_room_call_ready">Telegram call connected</string>
+    <string name="vr_room_call_error">Call unavailable. Check your connection and try again.</string>
+    <string name="vr_room_permissions">An administrator must start the call. Ask them, then try again.</string>
+    <string name="vr_room_native">Open this call in the regular Telegram screen: its join mode is not supported in this test.</string>
+    <string name="vr_room_other_call">Another call is active. End it yourself before joining this one.</string>
+    <string name="vr_room_mic_on">Turn microphone on</string>
+    <string name="vr_room_mic_off">Turn microphone off</string>
+    <string name="vr_room_listener">Microphone unavailable: wait for the call host to allow speaking.</string>
+    <string name="vr_room_exit">Leave room and call</string>
+    <string name="vr_room_error">Could not connect. Check the service address, key or invitation and try again.</string>
+    <string name="vr_room_wrong_chat">Open the group this invitation belongs to, then join again.</string>
+    <string name="vr_room_expired">This room or session has expired. Ask for a new invitation.</string>
+    <string name="vr_room_full">The test room is full. Try again when someone leaves.</string>
+    <string name="vr_room_mic_permission">Allow microphone access, then press the call button again.</string>
+    <string name="vr_room_account">Return to the account that opened this room.</string>
+    <string name="vr_room_limit">Test room: up to 8 people for 2 hours. A service restart ends the room.</string>
 </resources>

@@ -700,7 +700,7 @@ compiled, merged and then dropped — measured on the 19 September debug APK, wh
 no code change can supply.
 
 **Do.** Load the entry names of `language-pack/strings_vr.ru.xml` into the Nicegram language
-pack. That file is the whole deliverable and it is ready: **115 keys**, one per key of
+pack. That file is the whole deliverable and it is ready: **147 keys**, one per key of
 `values/strings_vr.xml`, 47 carried over unchanged from `fc887365^` and the rest written since
 against the brand pack's voice. Its README says why it is not a `values-ru/` folder.
 

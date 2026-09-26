@@ -37,6 +37,12 @@ public class QuestApplicationLoader extends ApplicationLoader {
         // one SparseArray. It needs no Context and nothing from the loader's own start-up.
         VrBrandNames.install(this);
         super.onCreate();
+        VrEntryPoints.installRoomEntry(new VrEntryPoints.RoomEntry() {
+            public CharSequence title() { return VrStrings.get(my.nicegram.vr.R.string.vr_room_title); }
+            public org.telegram.ui.ActionBar.BaseFragment create(int account, long chatId) {
+                return new org.telegram.vr.quest.rooms.RoomLobbyActivity(account, chatId);
+            }
+        });
         // Not applied here: checkDisplaySize reassigns density before the first screen and
         // would erase it. Installed instead, and read where the assignment happens.
         VrDisplay.install(() -> VrDensity.factor(this));

@@ -8,6 +8,7 @@
 //     largest saving in native build time for a contributor;
 //   * the build fails, loudly and by name, when the two API keys are missing.
 apply plugin: 'com.android.application'
+apply plugin: 'org.jetbrains.kotlin.android'
 apply plugin: 'org.telegram.build-app-plugin'
 
 repositories {
@@ -26,6 +27,9 @@ configurations.all {
 
 dependencies {
     implementation project(':TMessagesProj')
+    implementation 'com.meta.spatial:meta-spatial-sdk:0.14.0'
+    implementation 'com.meta.spatial:meta-spatial-sdk-toolkit:0.14.0'
+    implementation 'com.meta.spatial:meta-spatial-sdk-vr:0.14.0'
     implementation 'androidx.fragment:fragment:1.8.9'
     implementation 'androidx.core:core:1.16.0'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
@@ -143,10 +147,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
         coreLibraryDesugaringEnabled true
     }
+
+    kotlinOptions { jvmTarget = "17" }
 
     androidResources {
         noCompress += "pack"
@@ -219,7 +225,7 @@ android {
 
     defaultConfig {
         applicationId "my.nicegram.vr"
-        minSdkVersion 29
+        minSdkVersion 34
         // Meta's release policy names target 34 for newly created Store apps.
         // compileSdk remains 36 for upstream APIs; the 2D range also includes 34.
         targetSdkVersion 34

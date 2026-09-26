@@ -9,8 +9,8 @@ says what it changed.
 
 ## Licence
 
-GPL-2.0, inherited and retained. See [LICENSE](LICENSE). This applies to the whole work,
-including the parts we added.
+GPL-2.0, inherited and retained. See [LICENSE](LICENSE). This applies to the source inherited from Telegram and the source we added. Third-party
+SDK binaries retain their own licenses; this statement does not relicense them.
 
 ## Name
 
@@ -42,3 +42,19 @@ much as to the name.
 The build pulls thirteen submodules pinned to the exact revisions upstream pinned: FFmpeg,
 BoringSSL, libvpx, dav1d, openh264, libyuv, Opus, Ogg, opusfile, tlottie, jlatexmath, TDLib and
 a media3 fork. Each carries its own licence; none were modified by us.
+
+## Experimental spatial dependency
+
+The room-alpha branch links Meta Spatial SDK 0.14.0 (`meta-spatial-sdk`, toolkit, VR and
+transitive artifacts). Their Maven POMs name the
+[Meta Platform Technologies SDK License Agreement](https://developers.meta.com/horizon/licenses/oculussdk/).
+Copyright © Meta Platform Technologies, LLC and its affiliates. All rights reserved.
+These dependencies are fetched by Gradle; no SDK binaries or sample assets are committed.
+
+The agreement includes an open-source licensing restriction in section 1.2.8. Compatibility
+with this GPL client has NOT been established. This is a concrete distribution gate for the
+experimental combined APK: do not upload it to a public release or Store as a licensed final
+product until that compatibility is resolved. A GPL-compatible renderer/IPC separation or
+appropriate permission must be assessed before distribution; source publication alone does
+not resolve binary licensing. Read 2026-09-26; this is a recorded dependency issue, not a legal
+conclusion about an approved exception.

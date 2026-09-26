@@ -35,3 +35,6 @@ TMessagesProj/jni/ffmpeg/build_android
 
 # Python release validation caches
 __pycache__/
+
+# Kotlin incremental compiler state
+.kotlin/

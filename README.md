@@ -3,17 +3,23 @@
 A Telegram client you can actually use inside a headset.
 
 Nicegram VR is an open-source, unofficial Telegram client for **Meta Quest 3 and Quest 3S**,
-built as a 2D Horizon OS application. It is a fork of
+built as a hybrid Horizon OS application: a 2D messenger and an experimental immersive room. It is a fork of
 [Telegram for Android](https://github.com/DrKLO/Telegram) and, like every other Nicegram
 client, its source is open — see [NOTICE.md](NOTICE.md) for the provenance and the licence.
 
 > **Release candidate review, 24 September 2026.** The signed candidate, checks and
 > remaining publication steps are tracked in [the release review](docs/release-review-2026-09-24.md).
 > Published alpha.3 predates important fixes; do not use it for this review.
-> The current JVM suite has 97 tests across 21 classes. Automated tests do not establish
+> The current JVM suite has 102 tests across 22 classes. Automated tests do not establish
 > headset readiness: this run has no connected Quest, and calls, dictation quality and
 > sustained performance still require the [device session](docs/device-session.md).
 > Nothing was submitted to Horizon Store in this run.
+
+> **Room alpha, 26 September 2026.** The group menu now opens an invite-only room with
+> a spatial presence panel and Telegram group-call controls. This closed-test slice does not
+> verify Nicegram identity and has not passed a two-headset session. See
+> [the implementation and test handoff](docs/vr-room-mvp-20260926.md) before testing.
+> Requires Android 14 / Horizon OS 69 or newer on Quest 3/3S.
 
 ## Team and contact
 

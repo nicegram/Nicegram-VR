@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent" android:background="#161B24" android:fillViewport="true">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="28dp">
+        <TextView android:id="@+id/room_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#E8ECF3" android:textSize="28sp" />
+        <TextView android:id="@+id/room_notice" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:textColor="#E8ECF3" android:textSize="20sp" />
+        <TextView android:id="@+id/room_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:textColor="#E8ECF3" android:textSize="22sp" android:accessibilityLiveRegion="polite" />
+        <TextView android:id="@+id/room_people" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:textColor="#E8ECF3" android:textSize="24sp" />
+        <TextView android:id="@+id/room_call_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:textColor="#E8ECF3" android:textSize="22sp" android:accessibilityLiveRegion="polite" />
+        <Button android:id="@+id/room_call" android:layout_width="match_parent" android:layout_height="72dp" android:textSize="22sp" android:textAllCaps="false" />
+        <Button android:id="@+id/room_mic" android:layout_width="match_parent" android:layout_height="72dp" android:textSize="22sp" android:textAllCaps="false" />
+        <Button android:id="@+id/room_exit" android:layout_width="match_parent" android:layout_height="72dp" android:textSize="22sp" android:textAllCaps="false" />
+    </LinearLayout>
+</ScrollView>
