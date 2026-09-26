@@ -7,8 +7,9 @@ proposal was rejected by the owner; there is no configuration switch to restore 
 ## Required identity flow
 
 1. `POST /v1/auth/start` receives a claimed Telegram ID. This is not trusted identity.
-2. The server checks the existing Nicegram account through `GET /internal/users/{telegramId}`
-   using `x-internal-request` with only `internal.users.show`. A missing account is denied before
+2. The server checks the existing Nicegram account through `GET /api/v7/user/info-internal-full/{telegramId}`
+   using the AI agents server credential in `x-internal-request`. Only a non-empty
+   `data.nicegramReg` proves account existence: unknown IDs also return HTTP 200. Deny before
    invoking bot auth, because Nicegram bot auth can otherwise create an account.
 3. Server calls `POST /v7/telegram/session`. Client explicitly opens the returned Nicegram
    auth-bot link and the user presses Start. Nicegram verifies the bot sender against the session.
@@ -35,9 +36,11 @@ A separate VR entitlement has not been specified or implemented in the existing 
 
 All three settings are mandatory for identity admission:
 
-- `NICEGRAM_API_ORIGIN`: verified HTTPS origin of the Nicegram API, without a path.
+- `NICEGRAM_API_BASE_URL`: verified HTTPS base, including `/api` for `https://nicegram.cloud/api/`.
 - `NICEGRAM_AUTH_BOT`: verified production/staging auth-bot username (no `@`).
-- `NICEGRAM_INTERNAL_TOKEN`: secret service token scoped to `internal.users.show`.
+- `NICEGRAM_INTERNAL_TOKEN`: reused AI agents server credential, stored as a DO SECRET.
+  The deployed credential does not authorize the newer `/internal/users` route; there is no
+  automatic fallback or claim that this legacy credential is restricted to one ability.
 
 When missing, `/healthz` reports `identity: nicegram-required, ready: false`; auth returns 503.
 No default user, creation key, shared password or invitation can bypass this state.
@@ -51,8 +54,8 @@ No existing Nicegram production app or droplet is modified.
 
 An initial staging app `d29765d3-4338-489f-bda1-cddd249c6222` began cloning the earlier prototype
 at `93939f653b10f9a23f8166e0cb506ef861c4e3bc`; it was deleted after the owner rejected
-invite-only admission. No user data or room sessions were created on it. Runtime credentials
-and live authentication remain unavailable; do not label a deployment ready.
+invite-only admission. No user data or room sessions were created on it. That deployment is historical. The follow-up reuses the existing AI agents integration;
+see the native live-beta plan and release receipt for the new deployment.
 
 App Platform recursively clones the native repository submodules. The staging spec therefore uses the bounded `codex/vr-room-service-20260926` branch,
 exported from `room-service/` with `git subtree split`. The native build receipt pins both
@@ -74,11 +77,18 @@ doctl --context nicegram apps spec validate room-service/app-spec.yaml --schema-
 ```
 
 Tests inject fake providers locally to test trust boundaries; production always uses the
-Nicegram HTTPS adapter. Eleven tests cover authentication, replay, wrong identity, unavailable
+Nicegram HTTPS adapter. Thirteen tests cover authentication, replay, wrong identity, unavailable
 Internal API, credential scoping, confirmed one-use session retry, two-client presence,
-capacity and expiry. These tests do not prove deployment or live Nicegram credentials.
+capacity and expiry. These tests do not prove device acceptance. A separate live probe on 26 September accepted
+an existing account, denied an unknown account and refused an unconfirmed bot session; no
+user payload or credential is recorded. The beta has no balance/Premium access threshold.
 
 Source contract inspected at nicegram-api `3a904792d296e11aeaa109f693b31e3566e54033`:
 `routes/api/v7.php`, `routes/api/internal.php`, `AuthService::getAuthToken`,
 `AuthBot/StartCommand`, `UserInternalService::show`, `ResponseFormat` and V6 `UserResponse`.
 No Nicegram API source or deployment was changed by this adapter.
+
+Integration source: `ssheleg/nicegram-ai-agents` at `4d5123b511a4e5ba307922b28c564bc4cd12cb1b`,
+`src/nicegram_api.py:20-28`; `src/user_controller.py:180-187` uses the same response for
+Premium checks. The VR admission rule uses registration, not the AI product subscription rule.
+Auth bot: [Nicegram Authenticate Bot](https://t.me/nicegram_auth_bot), verified 26 September.
