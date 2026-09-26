@@ -81,3 +81,11 @@ test('API location, forbidden key, malformed and oversized responses fail closed
     await assert.rejects(nicegramProvider(config, async () => response).account('1'), /NICEGRAM_UNAVAILABLE/);
   }
 });
+
+test('identity that expires while refreshing its account cannot authorize a request', async () => {
+  let now = 100000, refreshing = false;
+  const auth = new NicegramIdentity(fake({ account: async () => { if (refreshing) now += 7200000; } }), () => now);
+  const challenge = await auth.start('1'), user = await auth.complete(challenge.challengeToken);
+  refreshing = true; now += 60001;
+  await assert.rejects(auth.verify(user.identityToken), /NICEGRAM_AUTH_REQUIRED/);
+});

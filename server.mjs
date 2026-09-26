@@ -75,6 +75,8 @@ export function createRoomServer({ identity = new NicegramIdentity(), now = Date
       if (!room) throw new Failure(404, 'ROOM_EXPIRED');
       if (match[2] === 'join') {
         const principal = await identity.verify(credential);
+        sweep();
+        if (rooms.get(room.id) !== room) throw new Failure(404, 'ROOM_EXPIRED');
         if (!validToken(body.inviteToken) || !equal(body.inviteToken, room.invite)) throw new Failure(401, 'UNAUTHORIZED');
         if (body.chatKey !== room.chatKey) throw new Failure(409, 'WRONG_CHAT');
         return send(200, join(room, principal, credential));
@@ -83,7 +85,13 @@ export function createRoomServer({ identity = new NicegramIdentity(), now = Date
       const bearer = req.headers.authorization?.replace(/^Bearer /, '');
       if (!member || !validToken(bearer) || !timingSafeEqual(digest(bearer), member.secret)) throw new Failure(401, 'SESSION_EXPIRED');
       if (match[2] === 'leave') room.members.delete(body.sessionId);
-      else { await identity.verify(member.identityToken); member.seen = now(); }
+      else {
+        await identity.verify(member.identityToken);
+        sweep();
+        if (rooms.get(room.id) !== room) throw new Failure(404, 'ROOM_EXPIRED');
+        if (room.members.get(body.sessionId) !== member) throw new Failure(401, 'SESSION_EXPIRED');
+        member.seen = now();
+      }
       send(200, snapshot(room));
     } catch (error) { send(error.status || 500, { error: error.status ? error.message : 'INTERNAL_ERROR' }); }
   }).on('connection', socket => { socket.setTimeout(10000, () => socket.destroy()); });
