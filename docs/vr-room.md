@@ -1,5 +1,9 @@
 # The VR room — specification and implementation plan
 
+> **26 September update:** the operator selected Telegram media and a large chat display
+> with voice autoplay, message composition and a separate live conversation.
+> Read [the current client architecture](vr-room-architecture-20260926.md).
+
 > **25 September 2026: historical proposal, not an implementation contract.**
 > Read [the corrected scope and next task](vr-room-scope-20260925.md) first.
 > The assumptions below about universal call keys, authorization, infrastructure size,

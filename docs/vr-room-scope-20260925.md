@@ -1,5 +1,9 @@
 # VR rooms: corrected scope and implementation handoff
 
+> **26 September update:** the operator selected Telegram media and a large chat display
+> with voice autoplay, message composition and a separate live conversation.
+> Read [the current client architecture](vr-room-architecture-20260926.md).
+
 25 September 2026. **Proposed, not implemented.** This change updates documentation only;
 it does not add rooms to the existing release candidate or establish hardware acceptance.
 The [22 September proposal](vr-room.md) remains historical context.
