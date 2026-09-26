@@ -15,7 +15,7 @@ async function fixture(t, options = {}) {
     const response = await fetch(`http://127.0.0.1:${server.address().port}${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${secret}` }, body: JSON.stringify(body) });
     return { status: response.status, ...await response.json() };
   };
-  return { post, bobToken, create: () => post('/v1/rooms', { chatKey: 'channel:1234', name: 'forged client name' }) };
+  return { post, bobToken, identity, create: () => post('/v1/rooms', { chatKey: 'channel:1234', name: 'forged client name' }) };
 }
 test('two verified clients share presence; caller names never override Nicegram identity', async t => {
   const { post, create, bobToken } = await fixture(t);
@@ -55,4 +55,18 @@ test('invalid creation is atomic and room count is bounded', async t => {
   const { post, create } = await fixture(t, { maxRooms: 1 });
   assert.equal((await post('/v1/rooms', { chatKey: 'bad' })).status, 400);
   assert.equal((await create()).status, 201); assert.equal((await create()).error, 'ROOM_LIMIT');
+});
+
+test('room and participant expiry during async identity lookup cannot revive presence', async t => {
+  for (const expiringRoom of [true, false]) {
+    let clock = 100000;
+    const { post, create, bobToken, identity } = await fixture(t, { now: () => clock, ttl: 60000 });
+    const room = await create(), path = `/v1/rooms/${room.roomId}`;
+    const original = identity.verify.bind(identity);
+    identity.verify = async secret => { const user = await original(secret); clock += expiringRoom ? 60001 : 30001; return user; };
+    const result = expiringRoom
+      ? await post(`${path}/join`, { chatKey: room.chatKey, inviteToken: room.inviteToken }, bobToken)
+      : await post(`${path}/heartbeat`, { sessionId: room.sessionId }, room.sessionToken);
+    assert.equal(result.error, expiringRoom ? 'ROOM_EXPIRED' : 'SESSION_EXPIRED');
+  }
 });

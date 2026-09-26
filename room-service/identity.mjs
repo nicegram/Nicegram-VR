@@ -116,6 +116,7 @@ export class NicegramIdentity {
       await this.provider.account(principal.telegramId);
       principal.checked = this.now();
     }
+    if (principal.expiresAt <= this.now()) { this.identities.delete(hash(secret)); throw new AuthFailure(401, 'NICEGRAM_AUTH_REQUIRED'); }
     return principal;
   }
 }

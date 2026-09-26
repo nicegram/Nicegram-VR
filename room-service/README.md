@@ -44,8 +44,8 @@ All three settings are mandatory for identity admission:
 
 When missing, `/healthz` reports `identity: nicegram-required, ready: false`; auth returns 503.
 No default user, creation key, shared password or invitation can bypass this state.
-Client engineering builds expose the service URL input; pin the trusted gateway origin before
-any end-user distribution, because authentication must not be delegated to arbitrary hosts.
+The alpha.3 client pins the isolated DO gateway and the Nicegram auth bot; invitations cannot
+redirect account verification to another host. See the native build receipt for the exact URL.
 
 `app-spec.yaml` is a proposed one-instance Frankfurt App Platform service (`basic-xxs`).
 Checked price: $5/month, 512 MiB, 40 GiB transfer; extra transfer is separate.
@@ -77,9 +77,9 @@ doctl --context nicegram apps spec validate room-service/app-spec.yaml --schema-
 ```
 
 Tests inject fake providers locally to test trust boundaries; production always uses the
-Nicegram HTTPS adapter. Thirteen tests cover authentication, replay, wrong identity, unavailable
+Nicegram HTTPS adapter. Fifteen tests cover authentication, replay, wrong identity, unavailable
 Internal API, credential scoping, confirmed one-use session retry, two-client presence,
-capacity and expiry. These tests do not prove device acceptance. A separate live probe on 26 September accepted
+capacity, expiry and expiration during an asynchronous account refresh. These tests do not prove device acceptance. A separate live probe on 26 September accepted
 an existing account, denied an unknown account and refused an unconfirmed bot session; no
 user payload or credential is recorded. The beta has no balance/Premium access threshold.
 
