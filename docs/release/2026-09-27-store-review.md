@@ -6,6 +6,8 @@
 Meta submission remains Draft.** Device acceptance was explicitly deferred by the operator.
 This is not an approved or final Store release.
 
+Later same-day continuation: [fresh dashboard, artifact and policy checks](2026-09-27-resume.md).
+
 ## Fixed and checked
 
 The asynchronous group-info callback did not include a pending incoming private call in its
