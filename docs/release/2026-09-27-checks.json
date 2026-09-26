@@ -1,0 +1,51 @@
+{
+  "checked_at": "2026-09-26T23:19:06.995776+00:00",
+  "source_commit": "08204bd7e971cc2fe55f1983567f541dc0b50e40",
+  "apk_sha256": "6f01ee237881246459473ccb10999abb8172c8b1de043e29ff585c7b62793ddc",
+  "jvm": {
+    "tests": 104,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "jvm_classes": 22,
+  "regression": {
+    "test": "RoomContractsTest.incomingCallDuringChatRefreshPreventsBothCreateAndJoin",
+    "before": "FAIL (pending-call argument ignored)",
+    "after": "PASS",
+    "limit": "policy-level test and native compilation; on-device race not exercised"
+  },
+  "node_service": {
+    "passed": 15
+  },
+  "python_tools": {
+    "passed": 10
+  },
+  "secret_scan": {
+    "apk_entries": 7226,
+    "changed_git_blobs": 5,
+    "result": "PASS"
+  },
+  "backend_health": {
+    "status": "ok",
+    "mode": "closed-beta",
+    "identity": "nicegram-required",
+    "ready": true,
+    "limit": "health/config only; bot confirmation and audio not exercised"
+  },
+  "device": "DEFERRED_BY_OPERATOR",
+  "ci": "full hosted suite not dispatched; branch outside nightly main snapshot",
+  "store": {
+    "app_id": "1252502307955842",
+    "submission_id": "1252502321289174",
+    "status": "DRAFT",
+    "binary": "N/A",
+    "metadata_completed": [
+      "Name",
+      "Categorization",
+      "Details"
+    ],
+    "uploaded_assets": false,
+    "review_submitted": false
+  }
+}

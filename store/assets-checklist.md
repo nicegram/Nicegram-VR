@@ -104,3 +104,18 @@ Chosen to show what the app is for rather than what it contains:
 
 Captured against a **real signed-in account with plausible conversations**. An empty chat
 list is a screenshot of nothing, and a reviewer judging "completeness and value" sees it.
+
+
+## Dashboard inspection — 27 September 2026
+
+Observed in app `1252502307955842`, submission `1252502321289174`, Assets tab:
+24-bit PNG; landscape 2560×1440; hero 3000×900 (10:3); solid square icon 512×512;
+**five** actual in-experience screenshots, each 2560×1440. Square and portrait cover
+slots are also shown. The universal asset generator accepts a source at least 2560×1440,
+but its cropped outputs must still be reviewed. Optional trailer is 30–120 seconds.
+
+Existing icon and landscape cover were visually inspected; neither is a runtime screenshot.
+An attempted icon selection through Safari showed Upload disabled in the native file dialog;
+selection was cancelled. No asset-upload success is claimed. No five-shot set or hero cover
+was created in this run. Device capture was deferred by the operator. Retry upload after
+capturing the final candidate; do not substitute proposed-world mockups for actual content.

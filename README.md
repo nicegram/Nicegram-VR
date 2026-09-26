@@ -10,7 +10,9 @@ client, its source is open — see [NOTICE.md](NOTICE.md) for the provenance and
 > **Release candidate review, 24 September 2026.** The signed candidate, checks and
 > remaining publication steps are tracked in [the release review](docs/release-review-2026-09-24.md).
 > Published alpha.3 predates important fixes; do not use it for this review.
-> The current JVM suite has 103 tests across 22 classes. Automated tests do not establish
+> Store preparation 27 September: [alpha.4, saved Meta draft and remaining gates](docs/release/2026-09-27-store-review.md).
+>
+> The current JVM suite has 104 tests across 22 classes. Automated tests do not establish
 > headset readiness: this run has no connected Quest, and calls, dictation quality and
 > sustained performance still require the [device session](docs/device-session.md).
 > Nothing was submitted to Horizon Store in this run.

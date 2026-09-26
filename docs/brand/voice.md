@@ -6,7 +6,7 @@ Derived-from: inferred
 Status: draft
 Humanization: on
 Humanization pass: own
-Last calibrated: 2026-09-24
+Last calibrated: 2026-09-27
 
 # Voice
 

@@ -5,7 +5,8 @@ Contract: brand-contract v1
 | Concept | Always | Never |
 |---|---|---|
 | Product | Nicegram VR | official Telegram VR |
-| Runtime surface | 2D panel | immersive room |
+| Messaging surface | 2D panel | all Telegram features verified in VR |
+| Room-alpha surface | experimental group room | persistent world |
 | Speech into editable text | dictation | automatic sending |
 | Suppressed-message summary | digest | server archive |
 
