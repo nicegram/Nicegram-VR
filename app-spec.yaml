@@ -4,16 +4,22 @@ services:
   - name: rooms
     git:
       repo_clone_url: https://github.com/nicegram/Nicegram-VR.git
-      branch: codex/vr-room-mvp-20260926
-    source_dir: room-service
-    dockerfile_path: room-service/Dockerfile
+      branch: codex/vr-room-service-20260926
+    source_dir: /
+    dockerfile_path: Dockerfile
     http_port: 8080
     instance_count: 1
     instance_size_slug: basic-xxs
     health_check:
       http_path: /healthz
     envs:
-      - key: ROOM_CREATE_KEY
+      - key: NICEGRAM_API_ORIGIN
+        scope: RUN_TIME
+        value: https://REPLACE_WITH_VERIFIED_NICEGRAM_API_ORIGIN
+      - key: NICEGRAM_AUTH_BOT
+        scope: RUN_TIME
+        value: REPLACE_WITH_VERIFIED_AUTH_BOT
+      - key: NICEGRAM_INTERNAL_TOKEN
         scope: RUN_TIME
         type: SECRET
-        value: REPLACE_LOCALLY_WITH_RANDOM_32_BYTE_SECRET
+        value: REPLACE_WITH_SCOPED_INTERNAL_USERS_SHOW_TOKEN
