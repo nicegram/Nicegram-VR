@@ -1,0 +1,19 @@
+name: nicegram-vr-room-beta
+region: fra
+services:
+  - name: rooms
+    git:
+      repo_clone_url: https://github.com/nicegram/Nicegram-VR.git
+      branch: codex/vr-room-mvp-20260926
+    source_dir: room-service
+    dockerfile_path: room-service/Dockerfile
+    http_port: 8080
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    health_check:
+      http_path: /healthz
+    envs:
+      - key: ROOM_CREATE_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: REPLACE_LOCALLY_WITH_RANDOM_32_BYTE_SECRET
