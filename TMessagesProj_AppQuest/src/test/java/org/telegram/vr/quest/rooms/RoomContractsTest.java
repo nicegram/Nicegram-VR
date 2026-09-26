@@ -34,17 +34,22 @@ public class RoomContractsTest {
         assertFalse(RoomAuthProtocol.sameAccount(123L, "456"));
     }
     @Test public void ordinaryMemberCanJoinButCannotCreate() {
-        assertEquals(RoomCallPolicy.Action.JOIN, RoomCallPolicy.decide(true, false, true, false, false, true));
-        assertEquals(RoomCallPolicy.Action.ADMIN_REQUIRED, RoomCallPolicy.decide(true, false, false, false, false, true));
+        assertEquals(RoomCallPolicy.Action.JOIN, RoomCallPolicy.decide(true, false, false, true, false, false, true));
+        assertEquals(RoomCallPolicy.Action.ADMIN_REQUIRED, RoomCallPolicy.decide(true, false, false, false, false, false, true));
     }
     @Test public void administratorReusesExistingCallAndNeverCreatesFromMissingCallData() {
-        assertEquals(RoomCallPolicy.Action.CREATE, RoomCallPolicy.decide(true, false, false, true, false, true));
-        assertEquals(RoomCallPolicy.Action.JOIN, RoomCallPolicy.decide(true, false, true, true, false, true));
-        assertEquals(RoomCallPolicy.Action.WAIT, RoomCallPolicy.decide(true, false, true, true, false, false));
+        assertEquals(RoomCallPolicy.Action.CREATE, RoomCallPolicy.decide(true, false, false, false, true, false, true));
+        assertEquals(RoomCallPolicy.Action.JOIN, RoomCallPolicy.decide(true, false, false, true, true, false, true));
+        assertEquals(RoomCallPolicy.Action.WAIT, RoomCallPolicy.decide(true, false, false, true, true, false, false));
+    }
+    @Test public void incomingCallDuringChatRefreshPreventsBothCreateAndJoin() {
+        // A private call can become pending after connect() but before full-chat delivery.
+        assertEquals(RoomCallPolicy.Action.OTHER_CALL, RoomCallPolicy.decide(true, false, true, false, true, false, true));
+        assertEquals(RoomCallPolicy.Action.OTHER_CALL, RoomCallPolicy.decide(true, false, true, true, true, false, true));
     }
     @Test public void membershipAndExistingCallTakePrecedenceOverAdminRights() {
-        assertEquals(RoomCallPolicy.Action.NOT_MEMBER, RoomCallPolicy.decide(false, false, false, true, false, true));
-        assertEquals(RoomCallPolicy.Action.OTHER_CALL, RoomCallPolicy.decide(true, true, false, true, false, true));
-        assertEquals(RoomCallPolicy.Action.NATIVE_UI, RoomCallPolicy.decide(true, false, true, true, true, true));
+        assertEquals(RoomCallPolicy.Action.NOT_MEMBER, RoomCallPolicy.decide(false, false, false, false, true, false, true));
+        assertEquals(RoomCallPolicy.Action.OTHER_CALL, RoomCallPolicy.decide(true, true, false, false, true, false, true));
+        assertEquals(RoomCallPolicy.Action.NATIVE_UI, RoomCallPolicy.decide(true, false, false, true, true, true, true));
     }
 }

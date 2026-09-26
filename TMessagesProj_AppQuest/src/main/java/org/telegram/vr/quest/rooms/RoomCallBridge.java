@@ -67,7 +67,6 @@ public final class RoomCallBridge implements NotificationCenter.NotificationCent
         if (full.id != room.chatId) return;
         waiting = false; AndroidUtilities.cancelRunOnUIThread(timeout);
         if (!room.connected || !room.validAccount() || room.closed) return;
-        if (VoIPService.getSharedInstance() != null) { status = R.string.vr_room_other_call; return; }
         MessagesController controller = MessagesController.getInstance(room.account);
         TLRPC.Chat chat = controller.getChat(room.chatId);
         ChatObject.Call known = controller.getGroupCall(room.chatId, false);
@@ -76,6 +75,7 @@ public final class RoomCallBridge implements NotificationCenter.NotificationCent
                 || (full.groupcall_default_join_as != null && full.groupcall_default_join_as.user_id != room.userId)
                 || (known != null && (known.isScheduled() || known.call.rtmp_stream)));
         RoomCallPolicy.Action action = RoomCallPolicy.decide(member, VoIPService.getSharedInstance() != null,
+                VoIPService.callIShouldHavePutIntoIntent != null,
                 full.call != null, chat != null && ChatObject.canManageCalls(chat), nativeOnly, known != null && full.call != null && known.call.id == full.call.id);
         switch (action) {
             case NOT_MEMBER: status = R.string.vr_room_wrong_chat; return;
