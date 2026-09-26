@@ -39,15 +39,16 @@ def manifest_nodes(text):
     return result
 
 
-def validate(badging, manifest, signature, members, size, prohibited, tag, expected_cert, previous_code):
+def validate(badging, manifest, signature, members, size, prohibited, tag, expected_cert, previous_code, surface="2d"):
     require(re.fullmatch(r'v\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?', tag), 'invalid release tag')
     package = re.search(r"^package: name='([^']+)' versionCode='(\d+)' versionName='([^']+)'", badging, re.M)
     require(package is not None, 'missing package identity')
     name, code, version = package.groups()
     require(name == 'my.nicegram.vr', 'wrong application id')
     require(int(code) > previous_code, 'versionCode must increase')
-    want = tag[1:].split('-')[0]
-    require(version == want or version.startswith(want + ' (Telegram '), 'tag/package version mismatch')
+    want = tag[1:]
+    package_version = version.split(' (Telegram ', 1)[0]
+    require(package_version in (want, want.split('-')[0]), 'tag/package version mismatch')
     require("application-label:'Nicegram VR'" in badging, 'wrong launcher label')
     require('application-debuggable' not in badging, 'debug APK is not a release')
     require(0 < size < 1_000_000_000, 'APK must be smaller than 1 GB')
@@ -68,7 +69,16 @@ def validate(badging, manifest, signature, members, size, prohibited, tag, expec
     require(root and root['attrs'].get('installLocation') in ('0','(type 0x10)0x0'), 'installLocation must be auto')
     devices = named('meta-data','com.oculus.supportedDevices')
     require(devices and devices['attrs'].get('value')=='quest3|quest3s', 'supported devices mismatch')
-    require(not named('uses-feature','android.hardware.vr.headtracking'), '2D build unexpectedly declares headtracking')
+    require(surface in ('2d', 'hybrid'), 'unknown app surface')
+    tracking = named('uses-feature','android.hardware.vr.headtracking')
+    if surface == '2d':
+        require(not tracking, '2D build unexpectedly declares headtracking')
+    else:
+        spatial = named('activity','org.telegram.vr.quest.rooms.RoomSpatialActivity')
+        native = named('uses-native-library','libossdk.oculus.so')
+        require(tracking and tracking['attrs'].get('required') in ('true','(type 0x12)0xffffffff'), 'hybrid headtracking missing')
+        require(spatial and spatial['attrs'].get('exported') in ('false','(type 0x12)0x0'), 'spatial activity must be internal')
+        require(native and native['attrs'].get('required') in ('true','(type 0x12)0xffffffff'), 'spatial system library missing')
     require(launch and launch['attrs'].get('excludeFromRecents') in ('true','(type 0x12)0xffffffff'), 'launch activity must exclude from recents')
     require(any(n['name']=='layout' and n['parent'] is launch and
                 {'defaultWidth','defaultHeight','minWidth','minHeight'} <= n['attrs'].keys() for n in nodes), 'panel layout missing')
@@ -80,9 +90,11 @@ def validate(badging, manifest, signature, members, size, prohibited, tag, expec
     sdk = dict(re.findall(r"^(sdkVersion|minSdkVersion|targetSdkVersion):'(\d+)'",badging,re.M))
     sdk['minSdkVersion'] = sdk.pop('sdkVersion',sdk.get('minSdkVersion','0'))
     require(29 <= int(sdk.get('minSdkVersion',0)) <= 34, 'min SDK outside 2D release range')
+    if surface == 'hybrid':
+        require(int(sdk.get('minSdkVersion',0)) == 34, 'hybrid requires Android 14')
     require(int(sdk.get('targetSdkVersion',0)) == 34, 'target SDK must be 34 for this new Store app')
     return dict(package=name,version_code=int(code),version_name=version,tag=tag,
-                bytes=size,abis=abis,signer_sha256=certs[0],signature_v2=True,
+                bytes=size,abis=abis,signer_sha256=certs[0],signature_v2=True,surface=surface,
                 permissions=permissions,prohibited_list_count=len(prohibited),
                 prohibited_matches=bad,sdk=sdk,packaging_checks='PASS',
                 device_checks='NOT-RUN',store_submission='NOT-SUBMITTED')
@@ -97,6 +109,7 @@ def main():
     p.add_argument('--expected-cert-sha256',required=True)
     p.add_argument('--previous-code',type=int,required=True)
     p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--surface', choices=['2d','hybrid'], default='2d')
     args=p.parse_args()
     try:
         aapt=str(args.build_tools/'aapt2')
@@ -106,7 +119,7 @@ def main():
         html=args.prohibited_html.read_bytes()
         with zipfile.ZipFile(args.apk) as apk: members=apk.namelist()
         result=validate(badge,manifest,signature,members,args.apk.stat().st_size,
-                        extract(html.decode()),args.tag,args.expected_cert_sha256,args.previous_code)
+                        extract(html.decode()),args.tag,args.expected_cert_sha256,args.previous_code,args.surface)
         result.update(sha256=hashlib.sha256(args.apk.read_bytes()).hexdigest(),
                       checked_at=datetime.now(timezone.utc).isoformat(),
                       prohibited_page_sha256=hashlib.sha256(html).hexdigest(),

@@ -27,6 +27,32 @@ class ReleaseTest(unittest.TestCase):
           members=['lib/arm64-v8a/libtmessages.so'],size=60000000,
           prohibited=['READ_CONTACTS'],tag='v0.1.0-rc.1',expected_cert='abc123',previous_code=7089039)
     def test_valid(self): self.assertEqual('PASS',validate(**self.args())['packaging_checks'])
+    def test_prerelease_package_must_match_its_tag(self):
+        args=self.args();args['tag']='v0.2.0-room-alpha.2'
+        args['badging']=args['badging'].replace('0.1.0 (Telegram', '0.2.0-room-alpha.2 (Telegram')
+        self.assertEqual('PASS',validate(**args)['packaging_checks'])
+        args['tag']='v0.2.0-room-alpha.3'
+        with self.assertRaises(ValueError): validate(**args)
+
+    def test_hybrid_requires_explicit_surface_and_internal_activity(self):
+        args=self.args();args['badging']=args['badging'].replace("minSdkVersion:'29'", "minSdkVersion:'34'")
+        args['manifest']=args['manifest'].replace('  E: application', """  E: uses-feature
+    A: android:name(0x01010003)="android.hardware.vr.headtracking"
+    A: android:required(0x0101028e)=true
+  E: application""")
+        args['manifest'] += """    E: uses-native-library
+      A: android:name(0x01010003)="libossdk.oculus.so"
+      A: android:required(0x0101028e)=true
+    E: activity
+      A: android:name(0x01010003)="org.telegram.vr.quest.rooms.RoomSpatialActivity"
+      A: android:exported(0x01010010)=false
+"""
+        with self.assertRaises(ValueError): validate(**args)
+        args['surface']='hybrid'
+        self.assertEqual('PASS',validate(**args)['packaging_checks'])
+        args['manifest']=args['manifest'].replace('android:exported(0x01010010)=false', 'android:exported(0x01010010)=true')
+        with self.assertRaises(ValueError): validate(**args)
+
     def test_rejects_each_broken_artifact(self):
         for field,value in [('signature',''),('expected_cert','def456'),('prohibited',[]),('members',['lib/x86/libx.so']),('size',1000000000),('tag','v0.1.01'),('previous_code',7089049),('manifest',''),('badging',self.args()['badging']+'\napplication-debuggable')]:
             with self.subTest(field=field):
