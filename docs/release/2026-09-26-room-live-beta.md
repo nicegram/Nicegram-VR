@@ -60,6 +60,8 @@ Auth bot reference: [Nicegram Authenticate Bot](https://t.me/nicegram_auth_bot).
   create denied; existing account reaches bot confirmation; absent account and unconfirmed
   exchange denied. The check creates a challenge but sends no Telegram messages.
 - `doctl --context nicegram apps get`: ACTIVE source matches the service commit above.
+- Server-key scan: PASS; 7,226 unpacked APK entries and 20 changed Git blobs checked
+  against the real reused credential without revealing it.
 - `metavr device list`: No devices connected. No hardware, audio or performance pass is claimed.
 
 Local release reproduction uses Java from Android Studio and the existing Observatory secret
