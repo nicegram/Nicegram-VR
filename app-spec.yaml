@@ -4,7 +4,7 @@ services:
   - name: rooms
     git:
       repo_clone_url: https://github.com/nicegram/Nicegram-VR.git
-      branch: codex/vr-room-service-20260926
+      branch: claude/vr-room-service-20260927
     source_dir: /
     dockerfile_path: Dockerfile
     http_port: 8080
@@ -13,6 +13,11 @@ services:
     health_check:
       http_path: /healthz
     envs:
+      # App Platform's edge overwrites this header with the connecting client's address;
+      # every socket otherwise comes from the same edge. Verified live, see the service README.
+      - key: CLIENT_IP_HEADER
+        scope: RUN_TIME
+        value: do-connecting-ip
       - key: NICEGRAM_API_BASE_URL
         scope: RUN_TIME
         value: https://nicegram.cloud/api/

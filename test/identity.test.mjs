@@ -29,6 +29,8 @@ test('account removal or Internal API outage blocks admission and heartbeat refr
   const auth = new NicegramIdentity(fake({ account: async () => { if (!available) throw new AuthFailure(503, 'NICEGRAM_UNAVAILABLE'); } }), () => now);
   const challenge = await auth.start('1'), user = await auth.complete(challenge.challengeToken);
   available = false; now += 60001;
+  assert.equal((await auth.verify(user.identityToken)).telegramId, '1', 'a short outage is tolerated');
+  now += 240000;
   await assert.rejects(auth.verify(user.identityToken), /NICEGRAM_UNAVAILABLE/);
   now += 7200000;
   await assert.rejects(auth.verify(user.identityToken), /NICEGRAM_AUTH_REQUIRED/);
