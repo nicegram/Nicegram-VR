@@ -44,7 +44,7 @@ All three settings are mandatory for identity admission:
 
 When missing, `/healthz` reports `identity: nicegram-required, ready: false`; auth returns 503.
 No default user, creation key, shared password or invitation can bypass this state.
-The alpha.3 client pins the isolated DO gateway and the Nicegram auth bot; invitations cannot
+The client pins the isolated DO gateway and the Nicegram auth bot; invitations cannot
 redirect account verification to another host. See the native build receipt for the exact URL.
 
 `app-spec.yaml` is a proposed one-instance Frankfurt App Platform service (`basic-xxs`).
@@ -57,7 +57,8 @@ at `93939f653b10f9a23f8166e0cb506ef861c4e3bc`; it was deleted after the owner re
 invite-only admission. No user data or room sessions were created on it. That deployment is historical. The follow-up reuses the existing AI agents integration;
 see the native live-beta plan and release receipt for the new deployment.
 
-App Platform recursively clones the native repository submodules. The staging spec therefore uses the bounded `codex/vr-room-service-20260926` branch,
+App Platform recursively clones the native repository submodules. The spec therefore uses a bounded service-only branch — `claude/vr-room-service-20260927` since
+the 27 September review, `codex/vr-room-service-20260926` before it —
 exported from `room-service/` with `git subtree split`. The native build receipt pins both
 commits and checks that the service tree matches. Do not clone FFmpeg/BoringSSL to build Node.
 Check that the deployed commit equals the exported commit before enabling access.
@@ -65,11 +66,39 @@ No deploy-on-push trigger is configured.
 
 ## Bounds and local checks
 
-`server.mjs` uses Node built-ins. One instance only: memory holds 100 rooms, 8 participants per
-room, 30-second presence leases and 2-hour room lifetimes. Restart ends all rooms. Expired
+`server.mjs` uses Node built-ins. One instance only: memory holds 100 rooms, at most 3 created by
+one account, 8 participants per room, 30-second presence leases and 2-hour room lifetimes. A room
+nobody is in is removed after a 5-minute reconnect grace. Restart ends all rooms. Expired
 identity/room data is swept within 10 seconds. Requests are bounded to 4 KiB, connection count
-to 128, auth attempts and challenges are rate/size limited. This is not a durable room catalog.
-No endpoint transports messages or media; live audio remains Telegram VoIP.
+to 128. This is not a durable room catalog. No endpoint transports messages or media; live audio
+remains Telegram VoIP and the room's chat is each client's own Telegram chat.
+
+Review of 27 September 2026 ([receipt](../docs/release/2026-09-27-room-review.md)):
+
+- **Client address.** App Platform terminates every connection at its edge, so the socket
+  address is the same for all clients and the old 20/min auth budget was one budget for
+  everyone. `CLIENT_IP_HEADER=do-connecting-ip` keys the limits by the address the edge writes
+  ([DigitalOcean: client IP](https://docs.digitalocean.com/support/where-can-i-find-the-client-ip-address-of-a-request-connecting-to-my-app/),
+  read 2026-09-27). Live probe on the deployed service: 21 auth attempts carrying 21 different
+  forged `do-connecting-ip` values shared one budget and the 21st got `RATE_LIMITED`, so a forged
+  value is overwritten. A malformed value falls back to the socket address. The budget is now
+  40 auth calls per client per minute: the headset polls the bot confirmation every 5 seconds.
+- **Reconnect.** The same account joining again replaces its previous session instead of
+  `ALREADY_JOINED`; the client uses this to revive a lapsed lease with its invitation.
+- **Login lockout.** Anyone may claim any Telegram ID at `/v1/auth/start`, so the old per-ID
+  30-second lock let a stranger keep the owner out. Now at most three challenges per ID are
+  pending and the oldest is evicted. Residual: account existence is observable through the
+  start answer, bounded by the per-client limit.
+- **Internal API outage.** An admitted identity survives an unavailable Internal API for up to
+  5 minutes since its last successful check; a removed account (403) is denied at once.
+- **Health.** `/healthz` answers 503 while identity is not configured, so a deploy without the
+  secret fails its health check instead of going live.
+- **Logs.** One JSON line per request on stdout: route template, status, error code, duration.
+  Room IDs, session IDs, tokens and bodies are never written; an internal error adds its stack.
+  `SIGTERM` finishes in-flight requests before exit.
+- **Invitation page.** `GET /room` is a static page for anyone who opens an invitation outside
+  the headset. The capability is in the fragment, which browsers do not send; the page has no
+  script (`default-src 'none'`).
 
 ```sh
 node --test room-service/test/*.test.mjs
@@ -77,7 +106,8 @@ doctl --context nicegram apps spec validate room-service/app-spec.yaml --schema-
 ```
 
 Tests inject fake providers locally to test trust boundaries; production always uses the
-Nicegram HTTPS adapter. Fifteen tests cover authentication, replay, wrong identity, unavailable
+Nicegram HTTPS adapter. Twenty-five tests: ten in `test/hardening.test.mjs` for the review above,
+and fifteen that cover authentication, replay, wrong identity, unavailable
 Internal API, credential scoping, confirmed one-use session retry, two-client presence,
 capacity, expiry and expiration during an asynchronous account refresh. These tests do not prove device acceptance. A separate live probe on 26 September accepted
 an existing account, denied an unknown account and refused an unconfirmed bot session; no
