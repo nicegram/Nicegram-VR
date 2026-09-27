@@ -57,11 +57,18 @@ at `93939f653b10f9a23f8166e0cb506ef861c4e3bc`; it was deleted after the owner re
 invite-only admission. No user data or room sessions were created on it. That deployment is historical. The follow-up reuses the existing AI agents integration;
 see the native live-beta plan and release receipt for the new deployment.
 
-App Platform recursively clones the native repository submodules. The spec therefore uses a bounded service-only branch — `claude/vr-room-service-20260927` since
-the 27 September review, `codex/vr-room-service-20260926` before it —
-exported from `room-service/` with `git subtree split`. The native build receipt pins both
-commits and checks that the service tree matches. Do not clone FFmpeg/BoringSSL to build Node.
-Check that the deployed commit equals the exported commit before enabling access.
+App Platform recursively clones the native repository submodules (FFmpeg, BoringSSL, TDLib),
+so it builds from `deploy/room-service`: a service-only branch holding exactly the `room-service/`
+tree of `main`, produced by `git subtree split`. It is the repository's only branch besides
+`main` and `gh-pages` (the policy site) since the 27 September consolidation. To deploy a
+service change that is on `main`:
+
+```sh
+git push origin "$(git subtree split --prefix=room-service main):refs/heads/deploy/room-service"
+doctl --context nicegram apps create-deployment b3c7c427-9c33-4edc-89be-ad08a6feb2ea
+```
+
+Then check that the active deployment's `source_commit_hash` equals the pushed split commit.
 No deploy-on-push trigger is configured.
 
 ## Bounds and local checks
