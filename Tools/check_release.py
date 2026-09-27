@@ -26,7 +26,8 @@ def manifest_nodes(text):
     result = []
     stack = []
     for line in text.splitlines():
-        element = re.match(r'(\s*)E: ([\w-]+)', line)
+        # A namespaced element (Horizon OS) is printed as "E: <namespace URI>:<name>".
+        element = re.match(r'(\s*)E: (?:\S*:)?([\w-]+)', line)
         if element:
             depth, name = len(element[1]), element[2]
             while stack and stack[-1]['depth'] >= depth: stack.pop()
@@ -36,6 +37,9 @@ def manifest_nodes(text):
         else:
             attr = re.search(r'android:(\w+)\(0x[0-9a-f]+\)=(.*?)(?: \(Raw:.*)?$',line)
             if attr and stack: stack[-1]['attrs'][attr[1]] = attr[2].strip('"')
+            # Horizon OS attributes carry no Android resource id, only their namespace URI.
+            horizon = re.search(r'A: http://schemas\.horizonos/sdk:(\w+)(?:\(0x[0-9a-f]+\))?=(.*?)(?: \(Raw:.*)?$',line)
+            if horizon and stack: stack[-1]['attrs']['horizonos:' + horizon[1]] = horizon[2].strip('"')
     return result
 
 
@@ -79,6 +83,12 @@ def validate(badging, manifest, signature, members, size, prohibited, tag, expec
         require(tracking and tracking['attrs'].get('required') in ('true','(type 0x12)0xffffffff'), 'hybrid headtracking missing')
         require(spatial and spatial['attrs'].get('exported') in ('false','(type 0x12)0x0'), 'spatial activity must be internal')
         require(native and native['attrs'].get('required') in ('true','(type 0x12)0xffffffff'), 'spatial system library missing')
+        # Meta's uploader (ovr-platform-util 208) refuses an immersive activity that is not
+        # landscape (0); the 2D LaunchActivity may stay portrait. Hybrid launch needs Horizon OS 69+.
+        require(spatial['attrs'].get('screenOrientation') in ('0','(type 0x10)0x0'), 'spatial activity must be landscape')
+        horizon = named('uses-horizonos-sdk')
+        min_horizon = horizon and re.sub(r'^\(type 0x10\)', '', horizon['attrs'].get('horizonos:minSdkVersion', '0'))
+        require(horizon and int(min_horizon, 0) >= 69, 'hybrid requires uses-horizonos-sdk 69 or later')
     require(launch and launch['attrs'].get('excludeFromRecents') in ('true','(type 0x12)0xffffffff'), 'launch activity must exclude from recents')
     require(any(n['name']=='layout' and n['parent'] is launch and
                 {'defaultWidth','defaultHeight','minWidth','minHeight'} <= n['attrs'].keys() for n in nodes), 'panel layout missing')

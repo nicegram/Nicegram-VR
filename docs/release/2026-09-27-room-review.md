@@ -100,6 +100,40 @@ with `allowEmbedded=true`, `exported=false`, the optional `VIRTUAL_KEYBOARD`,
 Local-only APK: `build/release-review/v0.2.0-room-alpha.5/nicegram-vr-v0.2.0-room-alpha.5.apk`
 in the native checkout. Nothing was uploaded to GitHub or Meta.
 
+## Distribution attempt and alpha.6
+
+The owner asked for the APK to become available. The app `1252502307955842` already has LIVE,
+RC, BETA and ALPHA channels, all empty (`metavr store dist channels`). A **draft** upload of
+alpha.5 to ALPHA through Meta's own `ovr-platform-util` 208 (metavr's wrapper printed only
+Node deprecation warnings and hid the answer) was refused for two reasons:
+
+1. The organization has not accepted the Developer Distribution Agreement — a legal act for an
+   organization administrator at `developers.meta.com/manage/organizations/1250452248160848/legal-documents/`.
+2. "Non-landscape screen orientation" — the immersive `RoomSpatialActivity` had none. Also
+   missing: `uses-horizonos-sdk` 69+, which Meta's hybrid-apps overview requires for hybrid
+   functionality, so the room could fail to launch on a headset at all.
+
+Both build defects are fixed in alpha.6: `RoomSpatialActivity` is landscape (the 2D
+`LaunchActivity` stays portrait, which the overview allows for a panel), and the manifest
+declares Horizon OS 69 in the form of Meta's SpatialVideoSample. `Tools/check_release.py
+--surface hybrid` now fails a build without either; its test was observed failing first, and
+the real aapt2 format (`E: http://schemas.horizonos/sdk:uses-horizonos-sdk`) was caught by the
+checker failing closed on the first alpha.6 run and then fixed.
+
+| Item | Value |
+|---|---|
+| Version / code | `0.2.0-room-alpha.6 (Telegram 12.10.3)` / `7089109` |
+| SHA-256 | `cb093cd4f3cf34a0bfa2f7f30123dfc3f3a1b394a9df423d2a4d98a8b713e5fd` |
+| Bytes | `117889654` |
+| Certificate | same as alpha.4/.5 |
+| Checks | `check_release.py --surface hybrid` PASS ([receipt](2026-09-27-room-alpha6.json)); server credential absent from 7,226 entries and 33 changed blobs; 112 JVM tests in the same Gradle run |
+| Meta draft upload | refused **only** for the unaccepted Developer Distribution Agreement |
+
+Local-only: `build/release-review/v0.2.0-room-alpha.6/`. Once the agreement is accepted, the same
+command uploads a draft to ALPHA; invited tester accounts then install it from the Store on the
+headset. Separately the owner still decides the Meta SDK / GPL boundary in NOTICE before any
+distribution.
+
 ## Not done, and why
 
 - **Headset acceptance.** Panel rendering, controller/hand input on the chat panel, the system

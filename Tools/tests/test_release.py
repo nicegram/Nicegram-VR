@@ -46,12 +46,24 @@ class ReleaseTest(unittest.TestCase):
     E: activity
       A: android:name(0x01010003)="org.telegram.vr.quest.rooms.RoomSpatialActivity"
       A: android:exported(0x01010010)=false
+      A: android:screenOrientation(0x0101001e)=0
 """
+        # Real aapt2 output: the element name carries its namespace URI (measured on alpha.6).
+        args['manifest']=args['manifest'].replace('  E: application', '''  E: http://schemas.horizonos/sdk:uses-horizonos-sdk (line=18)
+    A: http://schemas.horizonos/sdk:minSdkVersion=69
+    A: http://schemas.horizonos/sdk:targetSdkVersion=69
+  E: application''',1)
         with self.assertRaises(ValueError): validate(**args)
         args['surface']='hybrid'
         self.assertEqual('PASS',validate(**args)['packaging_checks'])
-        args['manifest']=args['manifest'].replace('android:exported(0x01010010)=false', 'android:exported(0x01010010)=true')
-        with self.assertRaises(ValueError): validate(**args)
+        for broken in [('android:exported(0x01010010)=false', 'android:exported(0x01010010)=true'),
+                       # Meta's uploader rejects an immersive activity that is not landscape (1 = portrait).
+                       ('android:screenOrientation(0x0101001e)=0', 'android:screenOrientation(0x0101001e)=1'),
+                       # Hybrid functionality needs a declared Horizon OS v69 or later.
+                       ('sdk:minSdkVersion=69', 'sdk:minSdkVersion=68'),
+                       ('sdk:uses-horizonos-sdk', 'sdk:uses-other-sdk')]:
+            bad=dict(args); bad['manifest']=args['manifest'].replace(*broken)
+            with self.assertRaises(ValueError, msg=broken[1]): validate(**bad)
 
     def test_rejects_each_broken_artifact(self):
         for field,value in [('signature',''),('expected_cert','def456'),('prohibited',[]),('members',['lib/x86/libx.so']),('size',1000000000),('tag','v0.1.01'),('previous_code',7089049),('manifest',''),('badging',self.args()['badging']+'\napplication-debuggable')]:

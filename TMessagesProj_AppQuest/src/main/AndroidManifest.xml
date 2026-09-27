@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:horizonos="http://schemas.horizonos/sdk"
     android:installLocation="auto"
     tools:replace="android:installLocation">
+
+    <!-- Hybrid apps (a 2D panel that opens an immersive room) must declare Horizon OS v69 or
+         later, per Meta's hybrid-apps overview; the form is the one in Meta's SpatialVideoSample.
+         Missing before 27 September 2026 review, which could keep the room from launching. -->
+    <horizonos:uses-horizonos-sdk horizonos:minSdkVersion="69" horizonos:targetSdkVersion="69" />
 
     <!-- Horizon OS is Android, and a headset is a device with no telephony, no touchscreen
          and no Google Play services. Everything below says exactly that, so the store and
@@ -100,8 +106,12 @@
             android:allowEmbedded="true" android:exported="false" android:hardwareAccelerated="true"
             android:resizeableActivity="true" android:windowSoftInputMode="adjustResize"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode" />
+        <!-- Landscape: Meta's upload validator rejects an immersive activity that is not
+             (ovr-platform-util 208, 27 September 2026). The 2D LaunchActivity stays portrait,
+             which the hybrid-apps overview allows for a panel activity. -->
         <activity android:name="org.telegram.vr.quest.rooms.RoomSpatialActivity"
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
+            android:screenOrientation="landscape"
             android:launchMode="singleTask" android:exported="false"
             android:configChanges="screenSize|screenLayout|orientation|keyboardHidden|keyboard|navigation|uiMode">
             <intent-filter>
