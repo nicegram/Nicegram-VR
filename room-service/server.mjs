@@ -31,7 +31,9 @@ const INVITE_PAGE = `<!doctype html>
 // Deliberately bounded, ephemeral closed-beta presence. It carries NO Telegram session,
 // Telegram authorization key, messages or media. Restarting the service ends all rooms.
 export function createRoomServer({ identity = new NicegramIdentity(), now = Date.now, ttl = 7200000, lease = 30000,
-  idleGrace = 300000, maxRooms = 100, maxRoomsPerUser = 3, capacity = 8, clientIpHeader = null, log = stdoutLog } = {}) {
+  idleGrace = 300000, maxRooms = 100, maxRoomsPerUser = 3, capacity = 8, clientIpHeader = null, authLimit = 40, log = stdoutLog } = {}) {
+  // authLimit per client per minute: the headset polls the bot confirmation every 5 s, and two
+  // headsets on one home network share an address.
   const rooms = new Map();
   const rates = new Map();
   const headerName = clientIpHeader ? clientIpHeader.toLowerCase() : null;
@@ -101,7 +103,7 @@ export function createRoomServer({ identity = new NicegramIdentity(), now = Date
       const credential = req.headers.authorization?.replace(/^Bearer /, '') || '';
       if (path === '/v1/auth/start' || path === '/v1/auth/complete') {
         context.route = path;
-        if (++rate.authCount > 20) throw new Failure(429, 'RATE_LIMITED');
+        if (++rate.authCount > authLimit) throw new Failure(429, 'RATE_LIMITED');
         return json(200, path === '/v1/auth/start' ? await identity.start(body.telegramId) : await identity.complete(credential));
       }
       if (path === '/v1/rooms') {

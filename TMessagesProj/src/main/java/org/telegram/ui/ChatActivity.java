@@ -4317,6 +4317,7 @@ public class ChatActivity extends BaseFragment implements
             });
             otherIcon.addView(headerItem.getIconView());
             headerItem.setContentDescription(LocaleController.getString(R.string.AccDescrMoreOptions));
+            // Nicegram VR (docs/vr-layer.md#seams): the group's VR room entry, inert in other flavours.
             if (currentChat != null && (!ChatObject.isChannel(currentChat) || currentChat.megagroup)
                     && !ChatObject.isNotInChat(currentChat) && org.telegram.vr.VrEntryPoints.roomEntry() != null) {
                 headerItem.lazilyAddSubItem(20260926, R.drawable.msg_calls, org.telegram.vr.VrEntryPoints.roomEntry().title());
@@ -36483,7 +36484,16 @@ public class ChatActivity extends BaseFragment implements
         }
     }
 
+    // Nicegram VR (docs/vr-layer.md#seams): an invitation to this group's VR room opens the room, not a browser.
+    private boolean openVrRoomInvitation(String url) {
+        return currentChat != null && url != null && org.telegram.vr.VrEntryPoints.roomEntry() != null
+                && org.telegram.vr.VrEntryPoints.roomEntry().openInvitation(this, currentAccount, currentChat.id, url);
+    }
+
     private void processExternalUrl(int type, String url, CharacterStyle span, ChatMessageCell cell, boolean forceAlert, boolean forceNoIV) {
+        if (openVrRoomInvitation(url)) {
+            return;
+        }
         try {
             String host = AndroidUtilities.getHostAuthority(url);
             if ((currentEncryptedChat == null || getMessagesController().secretWebpagePreview == 1) && getMessagesController().authDomains.contains(host)) {
@@ -40841,7 +40851,7 @@ public class ChatActivity extends BaseFragment implements
 
         @Override
         public void didPressWebPage(ChatMessageCell cell, TLRPC.WebPage webpage, String url, boolean safe) {
-            if (url == null) {
+            if (url == null || openVrRoomInvitation(url)) {
                 return;
             }
             Uri uri = Uri.parse(url);

@@ -174,7 +174,6 @@
     <!-- Closed room test: SCN-038. -->
     <string name="vr_room_title">VR room · closed test</string>
     <string name="vr_room_notice">Nicegram account required. Voice is shared with everyone in the Telegram call.</string>
-    <string name="vr_room_endpoint">Room service HTTPS address</string>
     <string name="vr_room_invite">Room invitation</string>
     <string name="vr_room_create">Create room</string>
     <string name="vr_room_join">Join room</string>
@@ -183,7 +182,7 @@
     <string name="vr_room_copied">Invitation copied. Share it only with your test group.</string>
     <string name="vr_room_wait">Connecting…</string>
     <string name="vr_room_connected">Room connected</string>
-    <string name="vr_room_disconnected">Room connection lost. Microphone muted. Leave and join again.</string>
+    <string name="vr_room_disconnected">Reconnecting to the room. Your microphone is off until you turn it on again.</string>
     <string name="vr_room_call">Create or join Telegram call</string>
     <string name="vr_room_call_wait">Checking Telegram call and permissions…</string>
     <string name="vr_room_call_connecting">Telegram call connecting…</string>
@@ -196,7 +195,7 @@
     <string name="vr_room_mic_off">Turn microphone off</string>
     <string name="vr_room_listener">Microphone unavailable: wait for the call host to allow speaking.</string>
     <string name="vr_room_exit">Leave room and call</string>
-    <string name="vr_room_error">Could not connect. Check the service address or invitation and try again.</string>
+    <string name="vr_room_error">Could not connect. Try again.</string>
     <string name="vr_room_wrong_chat">Open the group this invitation belongs to, then join again.</string>
     <string name="vr_room_expired">This room or session has expired. Ask for a new invitation.</string>
     <string name="vr_room_full">The test room is full. Try again when someone leaves.</string>
@@ -210,4 +209,30 @@
     <string name="vr_room_auth_verified">Nicegram account verified. You can create or join a room.</string>
     <string name="vr_room_auth_unavailable">Nicegram verification is unavailable. Room access stays closed. Try again later.</string>
     <string name="vr_room_auth_account_missing">A Nicegram account is required. Sign in to Nicegram first, then try again.</string>
+    <string name="vr_room_more">and %1$d more</string>
+    <string name="vr_room_you"> (you)</string>
+    <string name="vr_room_call_none">No Telegram call in this group yet.</string>
+    <string name="vr_room_call_title">In the Telegram call: %1$d</string>
+    <string name="vr_room_people_title">In the room: %1$d</string>
+    <string name="vr_room_chat_locked">Nicegram is locked with a passcode. Unlock it in the 2D window to see the chat here.</string>
+    <string name="vr_room_recording_blocked">Voice and video messages are off while you are in the room\'s call.</string>
+    <string name="vr_room_mic_denied">Without microphone access the call cannot start. Allow it in the headset settings.</string>
+    <string name="vr_room_telegram_offline">Telegram is not connected. Wait for the connection, then try again.</string>
+    <string name="vr_room_invite_message">Join me in the Nicegram VR room for this group (experimental, open for 2 hours): %1$s</string>
+    <string name="vr_room_sent">Invitation sent to the group.</string>
+    <string name="vr_room_send">Send invitation to this group</string>
+    <string name="vr_room_joined">You joined the room. Enter when you are ready.</string>
+    <string name="vr_room_created">Room created. Send the invitation to the group, then enter.</string>
+    <string name="vr_room_reconnecting">Reconnecting to the room…</string>
+    <string name="vr_room_connected_count">Room connected · %1$d in the room</string>
+    <string name="vr_room_left">You left the room.</string>
+    <string name="vr_room_already_active">You are already in a VR room. Leave it before joining another.</string>
+    <string name="vr_room_network">No connection to the room service. Check Wi-Fi and try again.</string>
+    <string name="vr_room_rate_limited">Too many attempts. Wait a minute and try again.</string>
+    <string name="vr_room_limit_reached">Too many test rooms are open. Leave an old room or try again later.</string>
+    <string name="vr_room_invited">You were invited to this group\'s room. Verify your Nicegram account to join.</string>
+    <string name="vr_room_auth_mismatch">The bot was confirmed from another Telegram account. Verify again from this one.</string>
+    <string name="vr_room_auth_expired">The confirmation expired. Verify your account again.</string>
+    <string name="vr_room_auth_needed">Verify your Nicegram account to create or join a room.</string>
+    <string name="vr_room_auth_open_bot">Open the Nicegram bot again</string>
 </resources>

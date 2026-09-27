@@ -895,6 +895,16 @@ public class ChatActivityEnterView extends FrameLayout implements
             if (delegate == null || parentActivity == null) {
                 return;
             }
+            // Nicegram VR (docs/vr-layer.md#seams): one microphone owner while a room call is live.
+            CharSequence vrRecordingBlocked = org.telegram.vr.VrEntryPoints.roomEntry() == null ? null
+                    : org.telegram.vr.VrEntryPoints.roomEntry().recordingBlocked(currentAccount);
+            if (vrRecordingBlocked != null) {
+                recordAudioVideoRunnableStarted = false;
+                if (parentFragment != null) {
+                    BulletinFactory.of(parentFragment).createSimpleBulletin(R.raw.error, vrRecordingBlocked).show();
+                }
+                return;
+            }
             delegate.onPreAudioVideoRecord();
             calledRecordRunnable = true;
             recordAudioVideoRunnableStarted = false;

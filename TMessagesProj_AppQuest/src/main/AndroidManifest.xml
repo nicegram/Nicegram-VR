@@ -77,6 +77,12 @@
          name is kept unchanged so the files trace back byte for byte. -->
     <uses-feature android:name="android.hardware.vr.headtracking" android:required="true" />
     <uses-feature android:glEsVersion="0x00030001" android:required="true" />
+    <!-- Room panels take text (the chat composer) and are usable with hands as well as
+         controllers. Both optional: the 2D messenger needs neither. -->
+    <uses-feature android:name="com.oculus.feature.VIRTUAL_KEYBOARD" android:required="false" />
+    <uses-feature android:name="oculus.software.overlay_keyboard" android:required="false" />
+    <uses-feature android:name="oculus.software.handtracking" android:required="false" />
+    <uses-permission android:name="com.oculus.permission.HAND_TRACKING" />
     <application
         android:name="org.telegram.messenger.QuestApplicationLoader"
         android:label="@string/vr_app_name"
@@ -89,6 +95,11 @@
 
         <uses-native-library android:name="libossdk.oculus.so" android:required="true" />
         <meta-data android:name="com.oculus.vr.focusaware" android:value="true" />
+        <!-- The room's Telegram chat, hosted inside a spatial panel of RoomSpatialActivity. -->
+        <activity android:name="org.telegram.vr.quest.rooms.RoomChatActivity"
+            android:allowEmbedded="true" android:exported="false" android:hardwareAccelerated="true"
+            android:resizeableActivity="true" android:windowSoftInputMode="adjustResize"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode" />
         <activity android:name="org.telegram.vr.quest.rooms.RoomSpatialActivity"
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
             android:launchMode="singleTask" android:exported="false"

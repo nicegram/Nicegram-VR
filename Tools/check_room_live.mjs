@@ -15,6 +15,9 @@ async function call(path, body, credential) {
 }
 const health = await call('/healthz');
 assert.equal(health.status, 200); assert.equal(health.body.ready, true); assert.equal(health.body.identity, 'nicegram-required');
+const page = await fetch(origin.origin + '/room', { redirect: 'error', signal: AbortSignal.timeout(25000) });
+assert.equal(page.status, 200); assert.match(page.headers.get('content-type') || '', /^text\/html/);
+assert.doesNotMatch(await page.text(), /<script/);
 const denied = await call('/v1/rooms', { chatKey: 'channel:1234' });
 assert.equal(denied.status, 401); assert.equal(denied.body.error, 'NICEGRAM_AUTH_REQUIRED');
 const missing = await call('/v1/auth/start', { telegramId: '9000000000000000' });
@@ -26,6 +29,6 @@ assert.ok(/^https:\/\/t.me\/nicegram_auth_bot\?start=[a-f0-9]{64}$/.test(start.b
 const complete = await call('/v1/auth/complete', {}, start.body.challengeToken);
 assert.equal(complete.status, 401); assert.equal(complete.body.error, 'NICEGRAM_CONFIRM_REQUIRED');
 console.log(JSON.stringify({ checked_at: new Date().toISOString(), origin: origin.origin,
-  health: 'PASS', unauthenticated_creation: 'DENIED', unknown_nicegram_account: 'DENIED',
+  health: 'PASS', invitation_page: 'PASS', unauthenticated_creation: 'DENIED', unknown_nicegram_account: 'DENIED',
   existing_nicegram_account: 'ACCEPTED_FOR_BOT_CONFIRMATION', unconfirmed_identity: 'DENIED',
   confirmed_identity_and_two_device_call: 'NOT_RUN' }, null, 2));

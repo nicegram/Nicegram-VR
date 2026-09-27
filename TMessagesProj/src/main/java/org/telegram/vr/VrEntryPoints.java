@@ -36,6 +36,11 @@ public final class VrEntryPoints {
     public interface RoomEntry {
         CharSequence title();
         BaseFragment create(int account, long chatId);
+        /** A tapped link in a group: true when it was a room invitation and has been handled. */
+        boolean openInvitation(BaseFragment from, int account, long chatId, String url);
+        /** Why a voice or round-video recording may not start now, or null when it may.
+         *  A room's live call owns the microphone; a second capture would record the call. */
+        CharSequence recordingBlocked(int account);
     }
     private static volatile RoomEntry roomEntry;
     public static void installRoomEntry(RoomEntry entry) { roomEntry = entry; }

@@ -165,7 +165,6 @@
     <!-- Closed room test: SCN-038. -->
     <string name="vr_room_title">VR-комната · закрытый тест</string>
     <string name="vr_room_notice">Требуется аккаунт Nicegram. Голос слышат все участники звонка Telegram.</string>
-    <string name="vr_room_endpoint">HTTPS-адрес сервиса комнат</string>
     <string name="vr_room_invite">Приглашение в комнату</string>
     <string name="vr_room_create">Создать комнату</string>
     <string name="vr_room_join">Подключиться к комнате</string>
@@ -174,7 +173,7 @@
     <string name="vr_room_copied">Приглашение скопировано. Передайте его только участникам теста.</string>
     <string name="vr_room_wait">Подключаемся…</string>
     <string name="vr_room_connected">Комната подключена</string>
-    <string name="vr_room_disconnected">Связь с комнатой потеряна. Микрофон выключен. Выйдите и подключитесь снова.</string>
+    <string name="vr_room_disconnected">Переподключаемся к комнате. Микрофон выключен, пока вы снова его не включите.</string>
     <string name="vr_room_call">Создать или подключить звонок Telegram</string>
     <string name="vr_room_call_wait">Проверяем звонок и права в Telegram…</string>
     <string name="vr_room_call_connecting">Подключаем звонок Telegram…</string>
@@ -187,7 +186,7 @@
     <string name="vr_room_mic_off">Выключить микрофон</string>
     <string name="vr_room_listener">Микрофон недоступен: дождитесь разрешения ведущего говорить.</string>
     <string name="vr_room_exit">Выйти из комнаты и звонка</string>
-    <string name="vr_room_error">Не удалось подключиться. Проверьте адрес сервиса или приглашение и повторите попытку.</string>
+    <string name="vr_room_error">Не удалось подключиться. Попробуйте ещё раз.</string>
     <string name="vr_room_wrong_chat">Откройте группу, для которой создано приглашение, и подключитесь снова.</string>
     <string name="vr_room_expired">Комната или сеанс завершены. Попросите новое приглашение.</string>
     <string name="vr_room_full">Тестовая комната заполнена. Подключитесь, когда кто-нибудь выйдет.</string>
@@ -201,4 +200,30 @@
     <string name="vr_room_auth_verified">Аккаунт Nicegram подтверждён. Можно создать комнату или подключиться.</string>
     <string name="vr_room_auth_unavailable">Проверка Nicegram недоступна. Вход в комнату закрыт. Повторите попытку позже.</string>
     <string name="vr_room_auth_account_missing">Нужен аккаунт Nicegram. Сначала войдите в Nicegram, затем повторите попытку.</string>
+    <string name="vr_room_more">и ещё %1$d</string>
+    <string name="vr_room_you"> (вы)</string>
+    <string name="vr_room_call_none">В этой группе пока нет звонка Telegram.</string>
+    <string name="vr_room_call_title">В звонке Telegram: %1$d</string>
+    <string name="vr_room_people_title">В комнате: %1$d</string>
+    <string name="vr_room_chat_locked">Nicegram заблокирован код-паролем. Разблокируйте его в 2D-окне, чтобы видеть чат здесь.</string>
+    <string name="vr_room_recording_blocked">Голосовые и видеосообщения отключены, пока вы в звонке комнаты.</string>
+    <string name="vr_room_mic_denied">Без доступа к микрофону звонок недоступен. Разрешите его в настройках шлема.</string>
+    <string name="vr_room_telegram_offline">Telegram не подключён. Дождитесь соединения и попробуйте снова.</string>
+    <string name="vr_room_invite_message">Заходите в VR-комнату Nicegram этой группы (эксперимент, открыта 2 часа): %1$s</string>
+    <string name="vr_room_sent">Приглашение отправлено в группу.</string>
+    <string name="vr_room_send">Отправить приглашение в эту группу</string>
+    <string name="vr_room_joined">Вы в комнате. Входите, когда будете готовы.</string>
+    <string name="vr_room_created">Комната создана. Отправьте приглашение в группу и входите.</string>
+    <string name="vr_room_reconnecting">Переподключаемся к комнате…</string>
+    <string name="vr_room_connected_count">Комната подключена · в комнате: %1$d</string>
+    <string name="vr_room_left">Вы вышли из комнаты.</string>
+    <string name="vr_room_already_active">Вы уже в VR-комнате. Выйдите из неё, чтобы войти в другую.</string>
+    <string name="vr_room_network">Нет связи с сервисом комнат. Проверьте Wi-Fi и попробуйте снова.</string>
+    <string name="vr_room_rate_limited">Слишком много попыток. Подождите минуту и попробуйте снова.</string>
+    <string name="vr_room_limit_reached">Открыто слишком много тестовых комнат. Выйдите из старой или попробуйте позже.</string>
+    <string name="vr_room_invited">Вас пригласили в комнату этой группы. Подтвердите аккаунт Nicegram, чтобы войти.</string>
+    <string name="vr_room_auth_mismatch">Бот подтверждён с другого аккаунта Telegram. Подтвердите с этого.</string>
+    <string name="vr_room_auth_expired">Подтверждение истекло. Подтвердите аккаунт ещё раз.</string>
+    <string name="vr_room_auth_needed">Подтвердите аккаунт Nicegram, чтобы создать комнату или войти в неё.</string>
+    <string name="vr_room_auth_open_bot">Снова открыть бота Nicegram</string>
 </resources>
