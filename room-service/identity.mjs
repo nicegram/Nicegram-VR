@@ -65,22 +65,28 @@ export function nicegramProvider(env = process.env, fetcher = fetch) {
 }
 
 export class NicegramIdentity {
-  constructor(provider = nicegramProvider(), now = Date.now) {
-    this.provider = provider; this.now = now; this.challenges = new Map(); this.identities = new Map(); this.starts = new Map();
+  // outageGrace: how long an admitted identity survives an unavailable Internal API. A removed
+  // account (403) is denied at once; only an outage is tolerated, and only for this long.
+  constructor(provider = nicegramProvider(), now = Date.now, { outageGrace = 300000, challengesPerAccount = 3 } = {}) {
+    this.provider = provider; this.now = now; this.challenges = new Map(); this.identities = new Map();
+    this.outageGrace = outageGrace; this.challengesPerAccount = challengesPerAccount;
   }
   get ready() { return this.provider.ready; }
   sweep() {
     for (const [key, row] of this.challenges) if (row.expiresAt <= this.now()) this.challenges.delete(key);
     for (const [key, row] of this.identities) if (row.expiresAt <= this.now()) this.identities.delete(key);
-    for (const [id, until] of this.starts) if (until <= this.now()) this.starts.delete(id);
   }
   async start(id) {
     this.sweep();
     if (!this.ready) throw new AuthFailure(503, 'NICEGRAM_NOT_CONFIGURED');
     if (!validId(id)) throw new AuthFailure(400, 'INVALID_ACCOUNT');
     id = String(id);
-    if (this.starts.has(id) || this.challenges.size >= 256 || this.starts.size >= 256) throw new AuthFailure(429, 'RATE_LIMITED');
-    this.starts.set(id, this.now() + 30000);
+    // Anyone may claim any Telegram ID here, so a per-account lock would let a stranger keep the
+    // real owner out. Instead the oldest pending challenges for that ID are evicted; the caller
+    // rate limit bounds how fast that can happen.
+    const pending = [...this.challenges].filter(([, row]) => row.telegramId === id).sort((a, b) => a[1].expiresAt - b[1].expiresAt);
+    while (pending.length >= this.challengesPerAccount) this.challenges.delete(pending.shift()[0]);
+    if (this.challenges.size >= 256) throw new AuthFailure(429, 'RATE_LIMITED');
     // Must already exist in Nicegram BEFORE bot auth (which can otherwise register users).
     await this.provider.account(id);
     const login = await this.provider.start(id);
@@ -113,8 +119,13 @@ export class NicegramIdentity {
     const principal = this.identities.get(hash(secret));
     if (!principal) throw new AuthFailure(401, 'NICEGRAM_AUTH_REQUIRED');
     if (this.now() - principal.checked >= 60000) {
-      await this.provider.account(principal.telegramId);
-      principal.checked = this.now();
+      try {
+        await this.provider.account(principal.telegramId);
+        principal.checked = this.now();
+      } catch (error) {
+        if (error.status === 403) this.identities.delete(hash(secret));
+        if (error.status !== 503 || this.now() - principal.checked >= this.outageGrace) throw error;
+      }
     }
     if (principal.expiresAt <= this.now()) { this.identities.delete(hash(secret)); throw new AuthFailure(401, 'NICEGRAM_AUTH_REQUIRED'); }
     return principal;
