@@ -4,7 +4,7 @@ services:
   - name: rooms
     git:
       repo_clone_url: https://github.com/nicegram/Nicegram-VR.git
-      branch: claude/vr-room-service-20260927
+      branch: deploy/room-service
     source_dir: /
     dockerfile_path: Dockerfile
     http_port: 8080
