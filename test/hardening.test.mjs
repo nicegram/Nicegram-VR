@@ -61,14 +61,14 @@ test('one account cannot occupy the whole room table', async t => {
 test('the configured edge header identifies the client, so one tester cannot exhaust everyone', async t => {
   const { post } = await fixture(t, { server: { clientIpHeader: 'do-connecting-ip' } });
   const attempt = ip => post('/v1/auth/start', { telegramId: '0' }, '', { 'do-connecting-ip': ip });
-  for (let i = 0; i < 20; i++) assert.equal((await attempt('203.0.113.1')).error, 'INVALID_ACCOUNT');
+  for (let i = 0; i < 40; i++) assert.equal((await attempt('203.0.113.1')).error, 'INVALID_ACCOUNT');
   assert.equal((await attempt('203.0.113.1')).error, 'RATE_LIMITED');
   assert.equal((await attempt('203.0.113.2')).error, 'INVALID_ACCOUNT', 'a second client keeps its own budget');
 });
 
 test('a malformed edge header falls back to the socket address', async t => {
   const { post } = await fixture(t, { server: { clientIpHeader: 'do-connecting-ip' } });
-  for (let i = 0; i < 20; i++) await post('/v1/auth/start', { telegramId: '0' }, '', { 'do-connecting-ip': `bad value ${i}` });
+  for (let i = 0; i < 40; i++) await post('/v1/auth/start', { telegramId: '0' }, '', { 'do-connecting-ip': `bad value ${i}` });
   assert.equal((await post('/v1/auth/start', { telegramId: '0' }, '', { 'do-connecting-ip': 'another bad' })).error, 'RATE_LIMITED');
 });
 
