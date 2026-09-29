@@ -43,18 +43,17 @@ The build pulls thirteen submodules pinned to the exact revisions upstream pinne
 BoringSSL, libvpx, dav1d, openh264, libyuv, Opus, Ogg, opusfile, tlottie, jlatexmath, TDLib and
 a media3 fork. Each carries its own licence; none were modified by us.
 
-## Experimental spatial dependency
+## No proprietary Meta SDK (since 29 September 2026)
 
-The room-alpha branch links Meta Spatial SDK 0.14.0 (`meta-spatial-sdk`, toolkit, VR and
-transitive artifacts). Their Maven POMs name the
-[Meta Platform Technologies SDK License Agreement](https://developers.meta.com/horizon/licenses/oculussdk/).
-Copyright © Meta Platform Technologies, LLC and its affiliates. All rights reserved.
-These dependencies are fetched by Gradle; no SDK binaries or sample assets are committed.
+Room builds `0.2.0-room-alpha.2` to `alpha.6` linked Meta Spatial SDK 0.14.0, licensed under the
+[Meta Platform Technologies SDK License Agreement](https://developers.meta.com/horizon/licenses/oculussdk/),
+whose open-source restriction (section 1.2.8) was never shown compatible with this GPL client.
+Those builds were engineering builds only; alpha.6 exists as a Meta ALPHA **draft** and a private
+GitHub draft release, and neither was distributed.
 
-The agreement includes an open-source licensing restriction in section 1.2.8. Compatibility
-with this GPL client has NOT been established. This is a concrete distribution gate for the
-experimental combined APK: do not upload it to a public release or Store as a licensed final
-product until that compatibility is resolved. A GPL-compatible renderer/IPC separation or
-appropriate permission must be assessed before distribution; source publication alone does
-not resolve binary licensing. Read 2026-09-26; this is a recorded dependency issue, not a legal
-conclusion about an approved exception.
+From `0.3.0` the SDK is gone. The room is an ordinary Android activity shown as a Horizon OS
+panel (`RoomActivity`), so nothing in the APK is under the Meta SDK licence and the combined
+work is GPL-2.0 as above. `Tools/check_release.py` checks the 2D surface, which refuses a
+build that declares VR head tracking; `git grep com.meta.spatial` over the build files returns
+nothing. An immersive world (proposed W01) must again use GPL-compatible components or ship
+as a separate program; that is a design gate for that work, not for this release.

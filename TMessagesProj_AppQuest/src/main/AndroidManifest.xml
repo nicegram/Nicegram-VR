@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:horizonos="http://schemas.horizonos/sdk"
     android:installLocation="auto"
     tools:replace="android:installLocation">
 
-    <!-- Hybrid apps (a 2D panel that opens an immersive room) must declare Horizon OS v69 or
-         later, per Meta's hybrid-apps overview; the form is the one in Meta's SpatialVideoSample.
-         Missing before 27 September 2026 review, which could keep the room from launching. -->
-    <horizonos:uses-horizonos-sdk horizonos:minSdkVersion="69" horizonos:targetSdkVersion="69" />
 
     <!-- Horizon OS is Android, and a headset is a device with no telephony, no touchscreen
          and no Google Play services. Everything below says exactly that, so the store and
@@ -81,14 +76,6 @@
          that repository calls `ic_launcher_default`: Nicegram's own default icon, a white
          monogram on a black background (`ic_launcher_default_background` is `#000000`). The
          name is kept unchanged so the files trace back byte for byte. -->
-    <uses-feature android:name="android.hardware.vr.headtracking" android:required="true" />
-    <uses-feature android:glEsVersion="0x00030001" android:required="true" />
-    <!-- Room panels take text (the chat composer) and are usable with hands as well as
-         controllers. Both optional: the 2D messenger needs neither. -->
-    <uses-feature android:name="com.oculus.feature.VIRTUAL_KEYBOARD" android:required="false" />
-    <uses-feature android:name="oculus.software.overlay_keyboard" android:required="false" />
-    <uses-feature android:name="oculus.software.handtracking" android:required="false" />
-    <uses-permission android:name="com.oculus.permission.HAND_TRACKING" />
     <application
         android:name="org.telegram.messenger.QuestApplicationLoader"
         android:label="@string/vr_app_name"
@@ -99,26 +86,16 @@
         android:largeHeap="true"
         tools:replace="android:name,android:label,android:icon,android:roundIcon,android:theme">
 
-        <uses-native-library android:name="libossdk.oculus.so" android:required="true" />
-        <meta-data android:name="com.oculus.vr.focusaware" android:value="true" />
-        <!-- The room's Telegram chat, hosted inside a spatial panel of RoomSpatialActivity. -->
-        <activity android:name="org.telegram.vr.quest.rooms.RoomChatActivity"
-            android:allowEmbedded="true" android:exported="false" android:hardwareAccelerated="true"
+        <!-- The room: its own panel, the group's Telegram chat beside the call and presence.
+             A separate task, so Horizon OS opens it as a panel next to the messenger. Plain
+             Android: no Meta SDK, so the APK stays GPL throughout (see NOTICE). -->
+        <activity android:name="org.telegram.vr.quest.rooms.RoomActivity"
+            android:exported="false" android:hardwareAccelerated="true"
+            android:launchMode="singleTask" android:taskAffinity="my.nicegram.vr.room"
             android:resizeableActivity="true" android:windowSoftInputMode="adjustResize"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode" />
-        <!-- Landscape: Meta's upload validator rejects an immersive activity that is not
-             (ovr-platform-util 208, 27 September 2026). The 2D LaunchActivity stays portrait,
-             which the hybrid-apps overview allows for a panel activity. -->
-        <activity android:name="org.telegram.vr.quest.rooms.RoomSpatialActivity"
-            android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
-            android:screenOrientation="landscape"
-            android:launchMode="singleTask" android:exported="false"
-            android:configChanges="screenSize|screenLayout|orientation|keyboardHidden|keyboard|navigation|uiMode">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.oculus.intent.category.VR" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode|navigation">
+            <layout android:defaultWidth="1280dp" android:defaultHeight="860dp"
+                android:minWidth="960dp" android:minHeight="640dp" />
         </activity>
 
         <!-- Portrait, and this line used to say landscape.

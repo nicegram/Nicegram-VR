@@ -86,7 +86,7 @@ public final class RoomLobbyActivity extends BaseFragment {
         copy = button(body, R.string.vr_room_copy, () -> copy(context));
         leave = button(body, R.string.vr_room_exit, () -> {
             RoomSession s = ownSession(); if (s == null) return;
-            RoomCallBridge.leaveCall(s); RoomChatActivity.finishAll(); s.close();
+            RoomCallBridge.leaveCall(s); s.close(); // an open room panel sees the closed session and closes
             status.setText(text(R.string.vr_room_left)); render();
         });
         RoomSession.unlisten(listener);
@@ -289,7 +289,7 @@ public final class RoomLobbyActivity extends BaseFragment {
 
     private void enter(Context context) {
         RoomSession session = ownSession(); if (session == null || !session.connected() || !session.validAccount()) return;
-        try { context.startActivity(new Intent(context, RoomSpatialActivity.class).setAction(Intent.ACTION_MAIN).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)); }
+        try { context.startActivity(RoomActivity.intent(context, session)); }
         catch (RuntimeException error) { status.setText(text(R.string.vr_room_error)); }
     }
 

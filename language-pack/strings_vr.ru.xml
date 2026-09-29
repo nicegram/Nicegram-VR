@@ -168,7 +168,7 @@
     <string name="vr_room_invite">Приглашение в комнату</string>
     <string name="vr_room_create">Создать комнату</string>
     <string name="vr_room_join">Подключиться к комнате</string>
-    <string name="vr_room_enter">Войти в VR-комнату</string>
+    <string name="vr_room_enter">Открыть комнату</string>
     <string name="vr_room_copy">Скопировать приглашение</string>
     <string name="vr_room_copied">Приглашение скопировано. Передайте его только участникам теста.</string>
     <string name="vr_room_wait">Подключаемся…</string>
@@ -205,7 +205,7 @@
     <string name="vr_room_call_none">В этой группе пока нет звонка Telegram.</string>
     <string name="vr_room_call_title">В звонке Telegram: %1$d</string>
     <string name="vr_room_people_title">В комнате: %1$d</string>
-    <string name="vr_room_chat_locked">Nicegram заблокирован код-паролем. Разблокируйте его в 2D-окне, чтобы видеть чат здесь.</string>
+    <string name="vr_room_chat_locked">Nicegram заблокирован код-паролем. Разблокируйте его в панели мессенджера, чтобы видеть чат здесь.</string>
     <string name="vr_room_recording_blocked">Голосовые и видеосообщения отключены, пока вы в звонке комнаты.</string>
     <string name="vr_room_mic_denied">Без доступа к микрофону звонок недоступен. Разрешите его в настройках шлема.</string>
     <string name="vr_room_telegram_offline">Telegram не подключён. Дождитесь соединения и попробуйте снова.</string>

@@ -177,7 +177,7 @@
     <string name="vr_room_invite">Room invitation</string>
     <string name="vr_room_create">Create room</string>
     <string name="vr_room_join">Join room</string>
-    <string name="vr_room_enter">Enter VR room</string>
+    <string name="vr_room_enter">Open room</string>
     <string name="vr_room_copy">Copy invitation</string>
     <string name="vr_room_copied">Invitation copied. Share it only with your test group.</string>
     <string name="vr_room_wait">Connecting…</string>
@@ -214,7 +214,7 @@
     <string name="vr_room_call_none">No Telegram call in this group yet.</string>
     <string name="vr_room_call_title">In the Telegram call: %1$d</string>
     <string name="vr_room_people_title">In the room: %1$d</string>
-    <string name="vr_room_chat_locked">Nicegram is locked with a passcode. Unlock it in the 2D window to see the chat here.</string>
+    <string name="vr_room_chat_locked">Nicegram is locked with a passcode. Unlock it in the messenger panel to see the chat here.</string>
     <string name="vr_room_recording_blocked">Voice and video messages are off while you are in the room\'s call.</string>
     <string name="vr_room_mic_denied">Without microphone access the call cannot start. Allow it in the headset settings.</string>
     <string name="vr_room_telegram_offline">Telegram is not connected. Wait for the connection, then try again.</string>
