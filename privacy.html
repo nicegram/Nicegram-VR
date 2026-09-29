@@ -45,7 +45,7 @@
 <div class="wrap">
 
 <h1>Privacy Policy</h1>
-<p class="sub"><strong>Nicegram VR</strong> for Meta Quest · effective 22&nbsp;September&nbsp;2026</p>
+<p class="sub"><strong>Nicegram VR</strong> for Meta Quest · effective 29&nbsp;September&nbsp;2026</p>
 
 <p>Nicegram VR is an unofficial, open-source Telegram client for Meta Quest 3 and Quest&nbsp;3S,
 published by Appvillis. This policy covers <strong>the application</strong>. It does not cover
@@ -54,32 +54,49 @@ Telegram: your account, your messages and your contacts live on Telegram’s ser
 <a href="https://telegram.org/tos">Terms of Service</a>, which we neither set nor change.</p>
 
 <div class="note">
-<strong>The short version.</strong> The app collects nothing and sends nothing to us. It has no
-analytics, no advertising and no crash reporting of its own. The only servers it talks to are
-Telegram’s — and, if and only if you configure one yourself, the speech-recognition service you
-choose for dictation.
+<strong>The short version.</strong> Telegram carries your messages and calls. If you use
+experimental group rooms, our room service verifies your Nicegram account and manages room
+membership. Optional dictation sends its recording to the speech-recognition service you configure.
+We add no advertising, no analytics and no crash reporting of our own. Public Telegram channels
+show Telegram’s own sponsored messages, which Telegram selects and serves under its policy and
+which Telegram requires every client to display.
 </div>
 
-<h2>What we collect</h2>
-<p><strong>Nothing.</strong> Appvillis operates no server for this application and receives no
-data from it. There is no account with us, no identifier assigned by us, and no telemetry.</p>
-
-<table>
-  <tr><th>Category</th><th>Collected by Nicegram VR</th></tr>
-  <tr><td>Personal identifiers, contacts, messages</td><td>No</td></tr>
-  <tr><td>Usage analytics, events, session data</td><td>No</td></tr>
-  <tr><td>Crash or diagnostic reports</td><td>No</td></tr>
-  <tr><td>Advertising identifiers, tracking</td><td>No</td></tr>
-  <tr><td>Location</td><td>No</td></tr>
-  <tr><td>Audio recordings</td><td>No — see <em>Microphone</em> below</td></tr>
-</table>
+<h2>Group rooms and Nicegram verification</h2>
+<p>Rooms require an existing Nicegram account. When you request verification, the room service
+receives your Telegram user ID and checks registration with the Nicegram API. You confirm a
+one-time session in the Nicegram authentication bot. The service compares the confirmed account
+with your Telegram account before admitting you.</p>
+<p>The room service runs on DigitalOcean in Frankfurt. It processes your Telegram user ID,
+verified display name, Telegram group identifier, room and participant identifiers, temporary
+access tokens and presence timestamps. Other room participants can see your display name and
+presence. Protect invitation links: they provide room access together with Nicegram verification.</p>
+<p>The existing account API returns a broader profile response. The room service uses the
+registration result and verified identity; it does not retain balances, unrelated profile fields
+or the general Nicegram login token, or send them to the headset. It does not receive Telegram
+login codes, Telegram session files, chat history, messages or call audio.</p>
+<p>Room and verification state is held in process memory, not a room database. Verification
+challenges expire after five minutes; room identities and rooms expire after two hours, and a room nobody is in is removed after five minutes.
+Participant presence expires after thirty seconds without a heartbeat and is removed on the
+next cleanup, normally within ten more seconds. Leaving removes your active room membership;
+it does not delete your Nicegram account or immediately erase the separate verification identity.
+Restarting the service clears its in-memory state.</p>
+<p>DigitalOcean, our hosting provider, processes connection metadata such as IP addresses under
+its <a href="https://www.digitalocean.com/legal/privacy-policy">privacy policy</a>. The room
+service keeps your IP address in memory for about a minute (never longer than seventy seconds),
+only to limit the rate of requests. Its own log records the kind of request, the result code and the time taken; it does
+not record IP addresses, Telegram or Nicegram identifiers, room or participant identifiers, names
+or tokens. Account records held by Nicegram are governed by Nicegram’s own privacy policy.</p>
+<p>An invitation you choose to send to a group is an ordinary Telegram message: it is stored by
+Telegram and visible to the members of that group.</p>
 
 <h2>Where your data actually goes</h2>
-<p>Three destinations, and no others.</p>
+<p>Data destinations depend on the feature you use.</p>
 <ul>
   <li><strong>Telegram.</strong> Signing in, reading and sending happen against Telegram’s API
   exactly as they do in the official client. Telegram’s policy governs everything that arrives
   there.</li>
+  <li><strong>Nicegram and DigitalOcean.</strong> Account confirmation and room presence, only if you use rooms, as described above. Room chat and call audio stay in Telegram.</li>
   <li><strong>Your device.</strong> Settings this app adds — the silence profile, the interface
   size, the layout, the folder it opens in — are stored in the app’s private storage on the
   headset. They are never written to your Telegram account, which is deliberate: an account-level
@@ -88,14 +105,12 @@ data from it. There is no account with us, no identifier assigned by us, and no 
 </ul>
 
 <h2>Microphone</h2>
-<p>The app requests microphone access for two things you start yourself: recording a voice
-message, and dictation.</p>
+<p>The app requests microphone access for voice messages, dictation and Telegram calls you choose to join. Room calls start muted; turning the microphone on is a separate action.</p>
 <ul>
-  <li><strong>Nothing is recorded until you act.</strong> There is no listening in the background
-  and no wake word.</li>
+  <li><strong>No wake word.</strong> Recording and speaking into a call require your action. Hiding or closing the room panel turns the microphone off, and it stays off until you turn it on again. While a room call is live, voice and video messages cannot be recorded.</li>
   <li><strong>Dictation is off until you configure it.</strong> No recognition service is built
   in. You supply the address and, if it needs one, a token; both are stored on the device only.</li>
-  <li><strong>The recording goes to that address and nowhere else</strong>, over HTTPS. The app
+  <li><strong>A dictation recording goes to your configured recognition address</strong>, over HTTPS. The app
   refuses to send it over plain <code>http</code> to anywhere but this device, because a
   recording of your voice and your access token would otherwise cross the network in the
   clear.</li>
@@ -113,8 +128,7 @@ on the app’s first screen.</p>
 
 <h2>Third-party code</h2>
 <p>The app is a fork of <a href="https://github.com/DrKLO/Telegram">Telegram for Android</a> and
-inherits its dependencies. Two things are worth stating plainly rather than leaving to be
-discovered:</p>
+inherits dependencies. It includes no Meta SDK and no advertising or analytics SDK:</p>
 <ul>
   <li><strong>Firebase is removed from this build.</strong> Upstream ships Firebase Cloud
   Messaging, and its initialiser is a content provider that would start on every launch. The
@@ -128,13 +142,13 @@ discovered:</p>
 
 <h2>Children</h2>
 <p>This app is not directed at children. Telegram requires its users to meet its own minimum age;
-this client adds no separate account and no separate age gate.</p>
+group rooms additionally require an existing Nicegram account. This client has no separate age-verification flow.</p>
 
 <h2>Deleting your data</h2>
 <p>Uninstalling the app removes everything it stored on the headset, including the silence
 profile and any dictation address or token. Data held by Telegram is deleted through Telegram —
 see <a href="https://telegram.org/faq#q-how-do-i-delete-my-account">Telegram’s account deletion</a>.
-We hold nothing to delete.</p>
+For Nicegram account or room-data questions, contact support@appvillis.com. The room-service memory limits above do not delete your Nicegram account or Telegram data.</p>
 
 <h2>Changes</h2>
 <p>If this policy changes, the new version appears at this address with a new effective date. The
